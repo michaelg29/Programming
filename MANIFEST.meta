@@ -4,5 +4,33 @@
     <Folder>
         <name>C</name>
         <language>C</lanugage>
+        <solutions>
+            <Solution>
+                <name>Console</name>
+                <description>Console projects written in C</description>
+                <projects>
+                    <Project>
+                        <name>Tutorial</name>
+                        <description>Tutorial of the C language</description>
+                    </Project>
+                </projects>
+            </Solution>
+        </solutions>
+    </Folder>
+    <Folder>
+        <name>CPP</name>
+        <language>C++</lanugage>
+    </Folder>
+    <Folder>
+        <name>CS</name>
+        <language>C#</lanugage>
+    </Folder>
+    <Folder>
+        <name>HTML</name>
+        <language>HTML</lanugage>
+    </Folder>
+    <Folder>
+        <name>Java</name>
+        <language>Java</lanugage>
     </Folder>
 </folders>
