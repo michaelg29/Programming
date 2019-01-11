@@ -144,6 +144,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NetworkNode.cpp" />
+    <ClCompile Include="TcpListener.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NetworkNode.h" />
+    <ClInclude Include="TcpListener.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
