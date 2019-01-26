@@ -6,6 +6,7 @@
 	@created 01/10/2019
 */
 
+#include "../TcpNetworking.h"
 #include <map>
 #include <WS2tcpip.h>
 #include <string>
@@ -14,7 +15,7 @@
 #define NETWORKNODE_H
 
 // struct containing network information
-struct NetworkNode {
+struct TCPNETWORKING_API NetworkNode {
 	SOCKET								socket;		// socket object
 	sockaddr_in							hint;		// connection information
 	std::map<std::string, std::string>	attributes;	// Ma with node attributes (customly defined)

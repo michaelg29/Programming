@@ -1,11 +1,12 @@
-#include "TcpListener.h"
+#include "TcpNetworking/TcpListener.h"
+#include "TcpNetworking/NetworkNode.h"
 
 TcpListener::TcpListener(std::string ipAddress,
 	int port,
 	std::string cmdIndicator,
 	MessageReceivedHandler msgHandler,
 	ServerEventHandler eventHandler,
-	CommandHandler cmdHandler) 
+	CommandHandler cmdHandler)
 	: m_ipAddress(ipAddress),
 	m_port(port),
 	cmdIndicator(cmdIndicator),

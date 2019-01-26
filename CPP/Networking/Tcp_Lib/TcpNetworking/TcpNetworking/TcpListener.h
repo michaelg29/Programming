@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../TcpNetworking.h"
 #include "NetworkNode.h"
 
 #include <vector>
@@ -12,9 +13,6 @@
 
 #define MAX_BUFFER_SIZE (49152)
 
-// forward declaration
-class TcpListener;
-
 // Callback to data receieved method
 typedef void(*MessageReceivedHandler)(TcpListener* listener, int socketId, std::string msg);
 // Callback to server event method
@@ -22,7 +20,7 @@ typedef void(*ServerEventHandler)(TcpListener* listener, std::string msg);
 // Callback to server command method
 typedef void(*CommandHandler)(TcpListener* listener, int socket, std::string cmd);
 
-class TcpListener {
+class TCPNETWORKING_API TcpListener {
 public:
 	/**
 		constructor for listener class, initializes all private variables, sets up server
