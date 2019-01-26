@@ -1,5 +1,6 @@
-#include "TcpClient.h"
+#include <TcpClient.h>
 #include <iostream>
+#include <string>
 #include <thread>
 
 void _EventHandler(TcpClient* client, std::string msg);
@@ -7,7 +8,7 @@ void _MessageHandler(TcpClient* client, std::string msg);
 void _InputListener(TcpClient* client);
 
 int main() {
-	TcpClient c("173.77.150.43", 4000, _EventHandler, _MessageHandler);
+	TcpClient c("192.168.1.193", 54000, _EventHandler, _MessageHandler);
 
 	if (c.Init() == 0) {
 		std::thread inputThread(_InputListener, &c);

@@ -1,11 +1,13 @@
 #pragma once
+
+#include "../TcpNetworking.h"
 #include <WS2tcpip.h>
 #include <string>
 
 #pragma comment(lib, "ws2_32.lib")
 
-// Forward declaration
-class TcpClient;
+#ifndef TCPCLIENT_H
+#define TCPCLIENT_H
 
 // Callback to client event handler method
 typedef void(*EventHandler)(TcpClient* client, std::string msg);
@@ -13,7 +15,7 @@ typedef void(*EventHandler)(TcpClient* client, std::string msg);
 // Callback to data received method
 typedef void(*MessageReceivedHandler)(TcpClient* client, std::string msg);
 
-class TcpClient
+class TCPNETWORKING_API TcpClient
 {
 public:
 	TcpClient(std::string ipAddress, int port, EventHandler eventHandler, MessageReceivedHandler msgHandler);
@@ -50,3 +52,5 @@ private:
 	EventHandler			eventHandler;
 	MessageReceivedHandler	msgHandler;
 };
+
+#endif // !TCPCLIENT_H

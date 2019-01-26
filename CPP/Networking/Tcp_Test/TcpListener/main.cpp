@@ -1,4 +1,4 @@
-#include "TcpListener.h"
+#include <TcpListener.h>
 #include <iostream>
 #include <thread>
 #include <string>
@@ -12,10 +12,10 @@ int main() {
 	TcpListener l("192.168.1.193", 54000, "\\", MsgHandler, EventHandler, CmdHandler);
 
 	if (l.init() == 0) {
+		std::thread cmdThread(CommandListener, &l);
 		l.run();
-		//std::thread serverThread(&TcpListener::Run, &l);
-		//std::thread cmdThread(CommandListener, &l);
-		//serverThread.join();
+		
+		cmdThread.join();
 	}
 	else {
 
@@ -46,7 +46,7 @@ void MsgHandler(TcpListener* listener, int client, std::string msg) {
 		std::cout << "\n\t" << pair.first << " = " << pair.second;
 	}*/
 
-	std::cout << "\n\t" << client << " says " << msg;
+	std::cout << "\n\t" << client << " says " << msg << std::endl;
 }
 
 void EventHandler(TcpListener* listener, std::string msg) {

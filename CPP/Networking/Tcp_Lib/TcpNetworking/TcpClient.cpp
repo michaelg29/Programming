@@ -1,4 +1,4 @@
-#include "TcpClient.h"
+#include "TcpNetworking/TcpClient.h"
 #include <sstream>
 
 TcpClient::TcpClient(std::string ipAddress, int port, EventHandler eventHandler, MessageReceivedHandler msgHandler)

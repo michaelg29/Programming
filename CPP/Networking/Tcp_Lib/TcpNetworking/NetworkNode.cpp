@@ -1,4 +1,4 @@
-#include "NetworkNode.h"
+#include "TcpNetworking/NetworkNode.h"
 
 char* NetworkNode::getName() {
 	char host[NI_MAXHOST];
@@ -25,7 +25,7 @@ int NetworkNode::getPort() {
 
 	if (result == 0)
 		return std::stoi(service);
-	
+
 	inet_ntop(AF_INET, &hint.sin_addr, host, NI_MAXHOST);
 	return (int)ntohs(hint.sin_port);
 }
