@@ -69,3 +69,11 @@ list = [0, 1, 2, 3, 4]
 #============================identity=======================
 print(c is int)
 print(c is not float)
+
+#============================conversion===================
+x = 100000
+int(x)
+long(x)
+float(x)
+complex(x)          # returns x + 0J
+complex(x, y)       # returns x + yJ
