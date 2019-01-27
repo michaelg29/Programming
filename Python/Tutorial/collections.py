@@ -1,4 +1,4 @@
-#===================================================strings=============================================
+#===================================================lists=============================================
 #array of characters
 str = "Hello world"
 
@@ -20,3 +20,22 @@ print(list[1:3])        # Prints elements starting from 2nd till 3rd
 print(list[2:])         # Prints elements starting from 3rd element
 print(tinylist * 2)     # Prints list two times
 print(list + tinylist)  # Prints concatenated lists
+
+#tuples (cannot be changed)
+tuple = ('abcd', 786 , 2.23, 'john', 70.2)
+#same operations as list
+#tuple[0] = 'a' ---- throws error
+
+#================================================dictionaries======================================
+dict = {}
+dict['one'] = "This is one"
+dict[2]     = "This is two"
+
+tinydict = {'name': 'john','code':6734, 'dept': 'sales'}
+
+
+print(dict['one'])       # Prints value for 'one' key
+print(dict[2])           # Prints value for 2 key
+print(tinydict)          # Prints complete dictionary
+print(tinydict.keys())   # Prints all the keys
+print(tinydict.values()) # Prints all the values
