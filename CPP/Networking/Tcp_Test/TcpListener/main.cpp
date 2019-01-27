@@ -1,4 +1,6 @@
 #include <TcpListener.h>
+//#include <ServerMessage.h>
+#include "ServerMessage.h"
 #include <iostream>
 #include <thread>
 #include <string>
@@ -9,7 +11,7 @@ void CmdHandler(TcpListener* listener, int socket, std::string cmd);
 void CommandListener(TcpListener *listener);
 
 int main() {
-	TcpListener l("192.168.1.193", 54000, "\\", MsgHandler, EventHandler, CmdHandler);
+	/*TcpListener l("192.168.1.193", 54000, "\\", MsgHandler, EventHandler, CmdHandler);
 
 	if (l.init() == 0) {
 		std::thread cmdThread(CommandListener, &l);
@@ -21,7 +23,11 @@ int main() {
 
 	}
 
-	system("pause");
+	system("pause");*/
+
+	ServerMessage msg;
+	msg.parse("{type:error;origin:1K81;}");
+	std::cout << msg.toString() << std::endl;
 }
 
 void CommandListener(TcpListener *listener) {
