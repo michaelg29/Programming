@@ -148,10 +148,12 @@
   <ItemGroup>
     <ClInclude Include="TcpNetworking.h" />
     <ClInclude Include="TcpNetworking\NetworkNode.h" />
+    <ClInclude Include="TcpNetworking\ServerMessage.h" />
     <ClInclude Include="TcpNetworking\TcpClient.h" />
     <ClInclude Include="TcpNetworking\TcpListener.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ServerMessage.cpp" />
     <ClCompile Include="TcpClient.cpp" />
     <ClCompile Include="TcpListener.cpp" />
     <ClCompile Include="NetworkNode.cpp" />
