@@ -80,3 +80,7 @@ ord(x)                  - Converts a single character to its integer value.
 hex(x)                  - Converts an integer to a hexadecimal string.
 oct(x)                  - Converts an integer to an octal string.
 '''
+
+def test_func():
+    print("Printing from basic.py")
+    return
