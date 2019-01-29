@@ -54,5 +54,5 @@ sum = lambda arg1, arg2: arg1 + arg2
 print("Sum of 10 and 20:", sum(10, 20), sep=' ')
 
 #=====================================modules========================
-basic.test_func()
-print("item_one from basic.py:", basic.item_one)
+#basic.test_func()
+#print("item_one from basic.py:", basic.item_one)
