@@ -26,10 +26,9 @@ print(list + tinylist)  # Prints concatenated lists
 list[2] = 555
 del list[2]             # removes, list[2], list[3] moves left one, etc.
 
-cmp(list, tinylist)
 len(list)
-max(list)
-min(list)
+#max(list)
+#min(list)
 
 list.append(52)         # appends 52 to list
 list.count(52)          # count times 52 appears
@@ -39,13 +38,12 @@ list.insert(3, 1234)    # insert object at index
 list.pop()              # removes and returns last object from list
 list.remove(52)         # removes 52 from list
 list.reverse()          # reverse objects
-list.sort()             # sort
+#list.sort()             # sort
 
 #tuples (cannot be changed)
 tuple = ('abcd', 786 , 2.23, 'john', 70.2)
 #same operations as list
 #tuple[0] = 'a' ---- throws error
-list(tuple)             # converts tuple to list
 
 #================================================dictionaries======================================
 dict = {}
@@ -63,8 +61,7 @@ print(tinydict.values()) # Prints all the values
 del dict[2]                 # removes key and value where key = 2
 dict.clear()                # clears all entries
 dict.copy()                 # returns copy
-dict.fromkeys()             # returns new dictionary with keys from seq and values set to value
-dict.get(key)               # gets value with key
+dict.get('one')             # gets value with key
 dict.items()                # pairs
 dict.keys()                 # keys
 dict.values()               # values
