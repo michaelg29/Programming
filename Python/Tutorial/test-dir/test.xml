@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<collection shelf="New Arrivals">
+  <movie id="0" title="Enemy Behind">
+    <type>War, Thriller</type>
+    <format>DVD</format>
+    <year>2003</year>
+    <rating>PG</rating>
+    <stars>10</stars>
+    <description>Talk about a US-Japan war</description>
+  </movie>
+</collection>
