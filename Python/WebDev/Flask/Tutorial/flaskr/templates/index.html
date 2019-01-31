@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <title>Index</title>
+    </head>
+    <body>
+        <p>Welcome to the app.</p>
+        {% if 'username' in session %}
+            {% if session['username'] == 'admin' %}
+                <p>Logged in as admin</p>
+            {% else %}
+                <p>Logged in as guest</p>
+            {% endif %}
+
+            <a href="/logout">Logout</a>
+        {% else %}
+            <p>Not logged in</p>
+
+            <a href="/login">Login</a>
+        {% endif %}
+
+        <p>Number of clicks: {{ session['clicks'] }}</p>
+    </body>
+</html>

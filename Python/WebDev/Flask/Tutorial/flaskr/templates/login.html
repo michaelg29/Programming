@@ -1,5 +1,18 @@
 <html>
+    <head>
+        <style>
+            .error {
+                color: red;
+            }
+        </style>
+    </head>
+
     <body>
+        {% if session['message_present'] %}
+            <p class="{{ session['message_type'] }}">{{ session['message'] }}</p>
+            {{ showMessage() }}
+        {% endif %}
+
         <form action="/login" method="POST">
             <p>Enter Name:</p>
             <p><input type="text" name="nm"/></p>
