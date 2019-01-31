@@ -1,10 +1,14 @@
 from flask import Flask, redirect, url_for, request, render_template
 
+clicks = 0
+
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return "Welcome to the app."
+    global clicks
+    clicks += 1
+    return "Welcome to the app, %d." % clicks
 
 @app.route('/hello/<name>/<int:id>') #app.add_url_rule('/hello', 'hello', hello)
 def hello(name, id):
@@ -12,18 +16,21 @@ def hello(name, id):
 
 @app.route('/admin')
 def hello_admin():
-    return 'Hello admin'
+    global clicks
+    clicks += 1
+    return 'Hello admin %d' % clicks
 
-@app.route('/guest/<guest>')
-def hello_guest(guest):
-    return render_template("hello.html", name = guest)
+@app.route('/guest/<guest>/<int:id>')
+def hello_guest(guest, id):
+    values = {'purchases':50,'money':1020}
+    return render_template("hello.html", name = guest, id = id, atts = values)
 
-@app.route('/user/<name>')
-def user(name):
+@app.route('/user/<name>/<int:id>')
+def user(name, id):
     if name == 'admin':
         return redirect(url_for('hello_admin'))
     else:
-        return redirect(url_for('hello_guest', guest = name))
+        return redirect(url_for('hello_guest', guest = name, id = id))
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():

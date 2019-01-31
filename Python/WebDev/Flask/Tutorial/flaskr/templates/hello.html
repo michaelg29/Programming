@@ -2,7 +2,29 @@
 <html>
    <body>
    
-      <h1>Hello {{ name }}!</h1>
+        <h1>Hello {{ name }}!</h1>
       
+        {% if id > 100 %}
+            <p>You are a premium user</p>
+        {% else %}
+            <p>You are a normal user</p>
+        {% endif %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key in atts.keys() %}
+                    <tr>
+                        <td>{{ key }}</td>
+                        <td>{{ atts[key] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
    </body>
 </html>
