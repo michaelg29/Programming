@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" lang="en"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Mundus Invicte</title>
+
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+
+    <body>
+        <div id="nav-wrapper">
+            <h1>Welcome to the website</h1>
+        </div>
+
+        <div id="content-wrapper">
+            {% if session['user_id'] != -1 %}
+                <p>Logged in, id = {{ session['user_id'] }}</p>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <p>Not logged in</p>
+                <a href="/login">Login</a>
+            {% endif %}
+        </div>
+
+        <div id="footer-wrapper">
+
+        </div>
+    </body>
+</html>

@@ -1,0 +1,2 @@
+python init.py
+pause
