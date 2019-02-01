@@ -30,4 +30,6 @@ def login():
 
 @user_pages.route('/logout')
 def logout():
-    pass
+    session['user_id'] = -1
+    setMessage('You successfully logged out', 'success')
+    return redirect(getURL('index'))

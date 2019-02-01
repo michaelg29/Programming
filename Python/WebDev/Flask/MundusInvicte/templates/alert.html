@@ -1,0 +1,4 @@
+{% if session['message_present'] %}
+    <p class="{{ session['message_type'] }}">{{ session['message'] }}</p>
+    {{ showMessage() }}
+{% endif %}

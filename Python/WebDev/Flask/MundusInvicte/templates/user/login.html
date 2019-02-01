@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <style>
-            .error {
-                color: red;
-            }
-        </style>
+        <title>Login</title>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}"/>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
 
     <body>
         {% if session['message_present'] %}
-            <p class="{{ session['message_type'] }}">{{ session['message'] }}</p>
+            <input type="checkbox" checked id="message-status"/>
+            <label for="message-status" id="message-label">
+                <span class="fa fa-close nav-action" id="close-menu-button"></span>
+                <p class="{{ session['message_type'] }}">{{ session['message'] }}</p>
+            </label>
             {{ showMessage() }}
         {% endif %}
 
