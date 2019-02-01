@@ -8,6 +8,7 @@ app.register_blueprint(user_pages)
 @app.before_first_request
 def start():
     session['user_id'] = -1
+    session['message_present'] = False
 
 @app.context_processor
 def utility_processor():
