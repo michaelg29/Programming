@@ -7,7 +7,7 @@
     <body>
         {% for key in flight.keys() %}
             {% if not(key == 'rows') %}
-                <p>{{ key }} - {{ flight['key'] }}</p>
+                <p>{{ key }} - {{ flight[key] }}</p>
             {% endif %}
         {% endfor %}
     </body>
