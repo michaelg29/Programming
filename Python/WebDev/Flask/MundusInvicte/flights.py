@@ -20,3 +20,14 @@ def flight(id):
 
     setMessage('Unable to find flight with that identification tag.', 'error')
     return redirect(getURL('flights'))
+
+@flight_pages.route('/flight/<id>/seat/<seat>')
+def seat(id, seat):
+    flights = json.load(open('data/flights.json'))
+    
+    for flight in flights['flights']:
+        if flight['id'] == id:
+            return render_template('flight.html', flight = flight)
+
+    setMessage('Unable to find flight with that identification tag.', 'error')
+    return redirect(getURL('flights'))
