@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Flight {{ flight['id'] }}</title>
+    </head>
+
+    <body>
+        {% for key in flight.keys() %}
+            {% if not(key == 'rows') %}
+                <p>{{ key }} - {{ flight['key'] }}</p>
+            {% endif %}
+        {% endfor %}
+    </body>
+</html>
