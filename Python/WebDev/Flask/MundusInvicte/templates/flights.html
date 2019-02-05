@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>All Flights</title>
+    </head>
+
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th>Flight No.</th>
+                    <th>Date and Time</th>
+                    <th>Plane</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flight in flights %}
+                    <tr>
+                        <td><a href="/flight/{{ flight['id'] }}">{{ flight['id'] }}</a></td>
+                        <td>{{ flight['date'] }}, {{ flight['time'] }}</td>
+                        <td>{{ flight['plane'] }}</td>
+                        <td>{{ flight['origin'] }}</td>
+                        <td>{{ flight['destination'] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

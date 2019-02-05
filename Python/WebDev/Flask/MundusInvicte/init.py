@@ -1,9 +1,11 @@
 from flask import Flask, session, redirect, url_for, request, render_template, Blueprint
 from user import user_pages
+from flights import flight_pages
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
 app.register_blueprint(user_pages)
+app.register_blueprint(flight_pages)
 
 @app.before_first_request
 def start():
@@ -17,7 +19,9 @@ def utility_processor():
         return ''
     def getURL(action):
         return url_for(action)
-    return dict(showMessage = showMessage, getURL = getURL)
+    def log(item):
+        print(item)
+    return dict(showMessage = showMessage, getURL = getURL, log = log)
 
 @app.route('/')
 def index():
