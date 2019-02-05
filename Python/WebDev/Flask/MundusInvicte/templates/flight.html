@@ -10,5 +10,19 @@
                 <p>{{ key }} - {{ flight[key] }}</p>
             {% endif %}
         {% endfor %}
+
+        <table>
+            <tbody>
+                {% for i in range(flight['rows'][0]|length, -1, -1) %}
+                    <tr>
+                        {% for row in flight['rows'] %}
+                            <td>
+                                {{ 0 if (row.values()|list)[i] == -1 else 1}}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </body>
 </html>

@@ -13,10 +13,9 @@ def flights():
 @flight_pages.route('/flight/<id>')
 def flight(id):
     flights = json.load(open('data/flights.json'))
-
+    
     for flight in flights['flights']:
         if flight['id'] == id:
-            print(flight)
             return render_template('flight.html', flight = flight)
 
     setMessage('Unable to find flight with that identification tag.', 'error')
