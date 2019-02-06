@@ -12,9 +12,19 @@
         {% endfor %}
 
         <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    {% for i in range(1, flight['rows']|length + 1) %}
+                        <th>{{ i }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
             <tbody>
-                {% for i in range(flight['rows'][0]|length, -1, -1) %}
+                {% for i in range(flight['rows'][0]|length - 1, -1, -1) %}
                     <tr>
+                        <th>{{ (flight['rows'][0].keys()|list)[i][1] }}</th>
+
                         {% for row in flight['rows'] %}
                             <td>
                                 {{ 0 if (row.values()|list)[i] == -1 else 1}}
