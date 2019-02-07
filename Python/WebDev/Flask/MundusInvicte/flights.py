@@ -4,6 +4,14 @@ import json
 
 flight_pages = Blueprint('flight_pages', __name__, template_folder='templates')
 
+def parseSeats(seat_str):
+    seats = []
+    rows = seat_str.split(';')
+    for row in rows:
+        row_seats = row.split(',')
+        seats.append(row_seats)
+    return seats
+
 @flight_pages.route('/flights')
 def flights():
     flights = json.load(open('data/flights.json'))['flights']
@@ -16,7 +24,7 @@ def flight(id):
     
     for flight in flights['flights']:
         if flight['id'] == id:
-            return render_template('flight.html', flight = flight)
+            return render_template('flight.html', flight = flight, seats = parseSeats(flight['seats']))
 
     setMessage('Unable to find flight with that identification tag.', 'error')
     return redirect(getURL('flights'))

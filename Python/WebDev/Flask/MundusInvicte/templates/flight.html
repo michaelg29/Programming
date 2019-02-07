@@ -6,7 +6,9 @@
 
     <body>
         {% for key in flight.keys() %}
-            {% if not(key == 'rows') %}
+            {% if key == 'date' %}
+                {{ formatDate(flight['date']) }}
+            {% elif not(key == 'seats') %}
                 <p>{{ key }} - {{ flight[key] }}</p>
             {% endif %}
         {% endfor %}
@@ -15,19 +17,20 @@
             <thead>
                 <tr>
                     <th></th>
-                    {% for i in range(1, flight['rows']|length + 1) %}
+                    {% for i in range(1, seats|length + 1) %}
                         <th>{{ i }}</th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% for i in range(flight['rows'][0]|length - 1, -1, -1) %}
+                {% for i in range(seats[0]|length - 1, -1, -1) %}
                     <tr>
-                        <th>{{ (flight['rows'][0].keys()|list)[i][1] }}</th>
+                        <th>{{ getAlphabet()[i] }}</th>
 
-                        {% for row in flight['rows'] %}
+                        {% for row in seats %}
                             <td>
-                                {{ 0 if (row.values()|list)[i] == -1 else 1}}
+                                {{ log(row[i]) }}
+                                {{ 0 if row[i]|int == 0 else 1 }}
                             </td>
                         {% endfor %}
                     </tr>
