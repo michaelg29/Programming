@@ -16,7 +16,7 @@ def parseSeats(seat_str):
 def flights():
     flights = json.load(open('data/flights.json'))['flights']
 
-    return render_template('flights.html', flights = flights)
+    return render_template('flights/flights.html', flights = flights)
 
 @flight_pages.route('/flight/<id>')
 def flight(id):
@@ -24,7 +24,7 @@ def flight(id):
     
     for flight in flights['flights']:
         if flight['id'] == id:
-            return render_template('flight.html', flight = flight, seats = parseSeats(flight['seats']))
+            return render_template('flights/flight.html', flight = flight, seats = parseSeats(flight['seats']))
 
     setMessage('Unable to find flight with that identification tag.', 'error')
     return redirect(getURL('flights'))
@@ -35,7 +35,9 @@ def seat(id, seat):
     
     for flight in flights['flights']:
         if flight['id'] == id:
-            return render_template('flight.html', flight = flight)
+            seats = parseSeats(flight['seats'])
+            
+            return render_template('flights/seat.html', flight = flight, seat = )
 
     setMessage('Unable to find flight with that identification tag.', 'error')
     return redirect(getURL('flights'))

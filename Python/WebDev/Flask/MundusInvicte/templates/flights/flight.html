@@ -29,7 +29,6 @@
 
                         {% for row in seats %}
                             <td>
-                                {{ log(row[i]) }}
                                 {{ 0 if row[i]|int == 0 else 1 }}
                             </td>
                         {% endfor %}
