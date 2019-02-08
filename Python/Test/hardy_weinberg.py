@@ -36,25 +36,27 @@ for i in range(generations):
     print('=' * 10, 'Generation', i, '=' * 10)
     print('p = ', p, '; q = ', q, sep='')
     print('=' * 10)
-    print('Individuals: ', end='')
+    print('%10s%10s%10s' % ('Gamete 1', 'Gamete 2', 'Zygote')
 
-    for o in range(offspring):
-        individual = ''
+    for j in range(offspring)
+        gamete_1 = gamete_2 = zygote = ''
         if random.random() <= p:
-            individual += dominant
+            gamete_1 = dominant
         else:
-            individual += recessive
+            gamete_1 = recessive
 
         if random.random() <= p:
-            individual += dominant
+            gamete_2 = dominant
         else:
-            individual += recessive
+            gamete2 += recessive
 
-        print(individual, end=' ')
+        zygote = gamete_1 + gamete_2
 
-        if individual == dominant * 2:
+        print('%10s%10s%10s' % (gamete_1, gamete_2, zygote))
+
+        if zygote = dominant * 2:
             hom_dom_count += 1
-        elif individual == recessive * 2:
+        elif zygote == recessive * 2:
             hom_rec_count += 1
         else:
             het_count += 1
