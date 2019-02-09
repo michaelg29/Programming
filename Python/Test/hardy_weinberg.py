@@ -1,4 +1,5 @@
 import random
+import math
 
 p = q = 0
 generations = 1
@@ -27,36 +28,44 @@ recessive = input('Input symbol for recessive allele: ')
 
 # cut out
 p = random.random()
-generations = 10
+generations = 2
 q = 1 - p
 # end cut
 
-for i in range(generations):
+for i in range(1, generations + 1):
     hom_dom_count = het_count = hom_rec_count = 0
     print('=' * 10, 'Generation', i, '=' * 10)
     print('p = ', p, '; q = ', q, sep='')
     print('=' * 10)
-    print('%10s%10s%10s' % ('Gamete 1', 'Gamete 2', 'Zygote')
+    print('%10s%10s%10s' % ('Gamete 1', 'Gamete 2', 'Zygote'))
 
-    for j in range(offspring)
-        gamete_1 = gamete_2 = zygote = ''
+    for j in range(offspring):
+        gamete1 = gamete2 = zygote = ''
         if random.random() <= p:
-            gamete_1 = dominant
+            gamete1 = dominant
         else:
-            gamete_1 = recessive
+            gamete1 = recessive
 
         if random.random() <= p:
-            gamete_2 = dominant
+            gamete2 = dominant
         else:
             gamete2 += recessive
 
-        zygote = gamete_1 + gamete_2
+        zygote = gamete1 + gamete2
 
-        print('%10s%10s%10s' % (gamete_1, gamete_2, zygote))
+        print('%10s%10s%10s' % (gamete1, gamete2, zygote))
 
-        if zygote = dominant * 2:
+        if zygote == dominant * 2:
             hom_dom_count += 1
         elif zygote == recessive * 2:
             hom_rec_count += 1
         else:
             het_count += 1
+
+    print('=' * 10)
+    print(dominant, dominant, ': ', hom_dom_count, sep='')
+    print(dominant, recessive, ': ', het_count, sep='')
+    print(recessive, recessive, ': ', hom_rec_count, sep='')
+
+    q = math.sqrt(hom_rec_count / offspring)
+    p = 1 - q
