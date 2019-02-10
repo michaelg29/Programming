@@ -1,70 +1,64 @@
 import socket
+import threading
 import sys
-from _thread import *
-from threading import Thread
 
-class TcpServer:
-    HOST = '0.0.0.0'
-    PORT = 9999
-    CLIENTS = []
+class Server:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connections = []
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def __init__(self):
+        self.sock.bind(('127.0.0.1', 9999))
+        self.sock.listen(1)
 
-    RUNNING = False
+    def handler(self, c, a):
+        while True:
+            try:
+                data = c.recv(1024)
+                print(data)
+                for connection in self.connections:
+                    connection.send(data)
+                if not data:
+                    print(str(a[0]) + ':' + str(a[1]), 'disconnected')
+                    self.connections.remove(c)
+                    c.close()
+                    break # disconnect
+            except ConnectionResetError:
+                print(str(a[0]) + ':' + str(a[1]), 'disconnected')
+                self.connections.remove(c)
+                c.close()
+                break # disconnect
 
-    def __init__(self, host, port):
-        self.HOST = host
-        self.PORT = port
+    def run(self):
+        while True:
+            c, a = self.sock.accept()
+            cThread = threading.Thread(target=self.handler, args=(c, a))
+            cThread.daemon = True
+            cThread.start()
+            self.connections.append(c)
+            print(str(a[0]) + ':' + str(a[1]), 'connected')
 
-    def logger(self, msg):
-        print(msg)
+class Client:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def start(self):
-        try:
-            self.s.bind((self.HOST, self.PORT))
-        except socket.error:
-            self.logger("binding failed")
-            sys.exit()
+    def sendMsg(self):
+        while True:
+            self.sock.send(bytes(input('').encode()))
 
-        self.logger("socket created and bound")
+    def __init__(self, address, port):
+        self.sock.connect((address, port))
 
-        self.s.listen(10)
-        self.logger("socket ready")
-        self.RUNNING = True
+        iThread = threading.Thread(target=self.sendMsg)
+        iThread.daemon = True # close when app ends
+        iThread.start() # in background
 
         while True:
-            cmd = input()
-            if cmd == 'exit':
-                for conn in self.CLIENTS:
-                    conn.send("Goodbye".encode())
-                    conn.close()
-                self.RUNNING = False
-                break
+            data = self.sock.recv(1024)
+            if not data:
+                break   # disconnect
+            print(data.decode())
 
-        sys.exit()
-
-        self.s.close()
-        self.logger("Disconnected")
-
-    def clientthread(self, conn):
-        conn.send("Welcome to the server. Type something in:\n\t".encode())
-        self.CLIENTS.append(conn)
-
-        while True:
-            data = conn.recv(1024)
-            reply = "OK." + data.decode()
-            if not data: # broken connection
-                break
-            self.logger(reply)
-            conn.sendall(reply.encode())
-
-        conn.close()
-
-    def waitthread(self):
-        while self.RUNNING:
-            conn, addr = self.s.accept()
-            self.logger("Connected with " + addr[0] + ":" + str(addr[1]))
-            start_new_thread(clientthread, (conn,))
-
-serv = TcpServer('192.168.1.193', 9999)
-serv.start()
+if (len(sys.argv) > 1):
+    client = Client(sys.argv[1], int(sys.argv[2]))
+else:
+    server = Server()
+    server.run()
