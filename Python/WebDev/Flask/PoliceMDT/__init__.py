@@ -1,6 +1,7 @@
 from flask import Flask, session, redirect, url_for, request, render_template, Blueprint
 from datetime import datetime
 from controllers.unauthorized import unauthorized_pages
+import actions
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -10,7 +11,7 @@ app.register_blueprint(unauthorized_pages)
 def start():
     session['user_id'] = -1
     session['message_present'] = False
-    
+    actions.start()
 
 @app.context_processor
 def utility_processor():

@@ -1,2 +1,2 @@
-python init.py
+python __init__.py
 pause
