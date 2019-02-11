@@ -1,17 +1,16 @@
 from flask import Flask, session, redirect, url_for, request, render_template, Blueprint
-from user import user_pages
-from flights import flight_pages
 from datetime import datetime
+from controllers.unauthorized import unauthorized_pages
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
-app.register_blueprint(user_pages)
-app.register_blueprint(flight_pages)
+app.register_blueprint(unauthorized_pages)
 
 @app.before_first_request
 def start():
     session['user_id'] = -1
     session['message_present'] = False
+    
 
 @app.context_processor
 def utility_processor():
