@@ -1,0 +1,51 @@
+#nav-list {
+    list-style-type: none;
+    width: 100%;
+}
+
+@media (orientation: landscape) {
+    #nav-list {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #333;
+    }
+
+    .nav-item {
+        display: inline;
+        padding: 15px;
+        float: left;
+        border-right: 1px solid black;
+        color: white;
+        cursor: pointer;
+
+        transition: all 500ms;
+    }
+
+    .nav-item > a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .nav-item:hover {
+        background-color: white;
+        color: black;
+    }
+
+    .nav-item:hover > a {
+        color: black;
+    }
+    
+    #nav-list > .nav-item:last-child {
+        border-right: none;
+    }
+
+    .nav-right {
+        float: right;
+    }
+}
+
+@media (orientation: portrait) {
+
+}

@@ -8,7 +8,10 @@ class Client:
         while True:
             self.sock.send(bytes(input('').encode()))
 
-    def __init__(self, address, port):
+    def __init__(self):
+        pass
+
+    def bind(address, port):
         self.sock.connect((address, port))
 
         iThread = threading.Thread(target=self.sendMsg)
