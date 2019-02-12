@@ -3,8 +3,8 @@ import pyodbc
 # connection
 server = 'localhost\sqlexpress' 
 database = 'MundusInvicte' 
-username = 'sa' 
-password = 'SO4--sulfate' 
+username = 'client' 
+password = 'client123' 
 cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 
 # cursor object
