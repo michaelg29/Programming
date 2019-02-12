@@ -22,6 +22,3 @@ def setMessage(content, type):
 
 def executeSQL(query):
     return dbController.execute(cursor, query)
-
-def validateUsername(deptId, username, password):
-    return True
