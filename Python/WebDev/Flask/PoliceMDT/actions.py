@@ -20,8 +20,8 @@ def setMessage(content, type):
     session['message_type'] = type
     session['message_present'] = True
 
-def getURL(action):
-    return url_for(action)
+def executeSQL(query):
+    return dbController.execute(cursor, query)
 
 def validateUsername(deptId, username, password):
     return True
