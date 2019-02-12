@@ -1,10 +1,16 @@
 from flask import Flask, session, redirect, url_for, request, render_template, Blueprint
 #from util.networking import client
-#from util.database import dbController
+from util.database import dbController
+
+import pyodbc
+
+cnxn = pyodbc.Connection
+cursor = pyodbc.Cursor
 
 def start():
-    # TODO: make readonly account
-    #dbController.connect('127.0.0.1', 'MundusInvicte', 'sa', 'SO4--sulfate')
+    global cnxn, cursor
+    cnxn = dbController.connect('localhost\sqlexpress', 'MundusInvicte', 'client', 'client123')
+    cursor = cnxn.cursor()
 
     # TODO: connect to server with client
     pass

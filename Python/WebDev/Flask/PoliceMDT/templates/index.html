@@ -36,6 +36,17 @@
 
             <div id="body-wrapper">
                 <h1>Police MDT</h1>
+                <table>
+                    <tbody>
+                        {% for row in data %}
+                            <tr>
+                                {% for item in row %}
+                                    <td>{{ item }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </section>
     </body>
