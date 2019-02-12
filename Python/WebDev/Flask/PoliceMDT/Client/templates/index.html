@@ -28,15 +28,25 @@
                     <li class="nav-item">
                         <a href="/about">About</a>
                     </li>
-                    <li class="dropdown nav-item">
-                        Account Options
-                        
+                    <li class="nav-item nav-right">
+                        <a href="/login">Login</a>
                     </li>
                 </ul>
             </div>
 
             <div id="body-wrapper">
                 <h1>Police MDT</h1>
+                {% if session['user_id'] == -1 %}
+                    <p>Not logged in</p>
+                {% else %}
+                    <ul>
+                        <li>{{ session['user_id'] }}</li>
+                        <li>{{ session['dept_code'] }}</li>
+                        <li>{{ session['last_name'] }}</li>
+                        <li>{{ session['first_name'] }}</li>
+                        <li>{{ session['username'] }}</li>
+                    </ul>
+                {% endif %}
             </div>
         </section>
     </body>

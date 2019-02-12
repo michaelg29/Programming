@@ -1,6 +1,6 @@
 from flask import Flask, session, redirect, url_for, request, render_template, Blueprint
 from util.database import dbController
-from actions import getURL, executeSQL
+from actions import executeSQL
 
 unauthorized_pages = Blueprint('unauthorized_pages', __name__, template_folder='templates/unauthorized')
 
@@ -16,11 +16,11 @@ def login():
         if len(results) > 0:
             results = executeSQL('select * from dbo.mdt_Users where DeptCode = %d and Username = \'%s\' and Password = \'%s\'' % (int(dept_code), user, password))
             if len(results) > 0:
-                session['user_id'] = results[0]
-                session['dept_code'] = results[1]
-                session['last_name'] = results[2]
-                session['first_name'] = results[3]
-                session['username'] = results[4]
+                session['user_id'] = results[0][0]
+                session['dept_code'] = results[0][1]
+                session['last_name'] = results[0][2]
+                session['first_name'] = results[0][3]
+                session['username'] = results[0][4]
                 return redirect(url_for('index'))
             else:
                 setMessage('Invalid username or password', 'error')
