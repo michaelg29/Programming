@@ -2,7 +2,6 @@ from flask import Flask, session, redirect, url_for, request, render_template, B
 from datetime import datetime
 from controllers.unauthorized import unauthorized_pages
 import actions
-from util.database import dbController
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -32,7 +31,7 @@ def utility_processor():
 
 @app.route('/')
 def index():
-    return render_template('index.html', data = dbController.execute(actions.cursor, 'select * from dbo.Users'))
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run('127.0.0.1', 5000)

@@ -23,30 +23,19 @@
             <div id="nav-wrapper">
                 <ul id="nav-list">
                     <li class="nav-item">
-                        <a href="index.html">Home</a>
+                        <a href="/index">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a href="index.html">About</a>
+                        <a href="/about">About</a>
                     </li>
                     <li class="nav-item nav-right">
-                        <a href="index.html">Login</a>
+                        <a href="/login">Login</a>
                     </li>
                 </ul>
             </div>
 
             <div id="body-wrapper">
                 <h1>Police MDT</h1>
-                <table>
-                    <tbody>
-                        {% for row in data %}
-                            <tr>
-                                {% for item in row %}
-                                    <td>{{ item }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
         </section>
     </body>
