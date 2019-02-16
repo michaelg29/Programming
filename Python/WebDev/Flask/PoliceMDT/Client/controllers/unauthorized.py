@@ -7,20 +7,20 @@ unauthorized_pages = Blueprint('unauthorized_pages', __name__, template_folder='
 @unauthorized_pages.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
-        data = request.form
+        data      = request.form
         dept_code = data['dept_code']
-        user = data['username']
-        password = data['password']
+        user      = data['username']
+        password  = data['password']
 
         results = executeSQL('select * from dbo.mdt_Users where DeptCode = %d' % int(dept_code))
         if len(results) > 0:
             results = executeSQL('select * from dbo.mdt_Users where DeptCode = %d and Username = \'%s\' and Password = \'%s\'' % (int(dept_code), user, password))
             if len(results) > 0:
-                session['user_id'] = results[0][0]
-                session['dept_code'] = results[0][1]
-                session['last_name'] = results[0][2]
+                session['user_id']    = results[0][0]
+                session['dept_code']  = results[0][1]
+                session['last_name']  = results[0][2]
                 session['first_name'] = results[0][3]
-                session['username'] = results[0][4]
+                session['username']   = results[0][4]
                 return redirect(url_for('index'))
             else:
                 setMessage('Invalid username or password', 'error')

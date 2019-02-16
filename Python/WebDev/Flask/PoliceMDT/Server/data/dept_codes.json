@@ -1,0 +1,11 @@
+{
+    "departments" : [
+        {
+            "001" : {
+                "name" : "Los Santos Police Department",
+                "abbr" : "LSPD",
+                "location" : "Los Santos"
+            }
+        }
+    ]
+}
