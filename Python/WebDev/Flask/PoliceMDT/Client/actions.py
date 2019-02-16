@@ -9,15 +9,15 @@ cursor = pyodbc.Cursor
 
 def start():
     global cnxn, cursor
-    cnxn = dbController.connect('localhost\sqlexpress', 'MundusInvicte', 'client', 'client123')
+    cnxn   = dbController.connect('localhost\sqlexpress', 'MundusInvicte', 'client', 'client123')
     cursor = cnxn.cursor()
 
     # TODO: connect to server with client
     pass
 
 def setMessage(content, type):
-    session['message'] = content
-    session['message_type'] = type
+    session['message']         = content
+    session['message_type']    = type
     session['message_present'] = True
 
 def executeSQL(query):

@@ -9,7 +9,7 @@ app.register_blueprint(unauthorized_pages)
 
 @app.before_first_request
 def start():
-    session['user_id'] = -1
+    session['user_id']         = -1
     session['message_present'] = False
     actions.start()
 
