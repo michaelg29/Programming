@@ -18,8 +18,11 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
+    # Base
     path('admin/', admin.site.urls),
-    path('', views.home),
+    path('', views.home, name="home"),
+
+    # MDT
     path('MDT/', include('MDT.urls')),
     path('mdt/', include('MDT.urls')),
 ]
