@@ -21,6 +21,7 @@ urlpatterns = [
     # Base
     path('admin/', admin.site.urls),
     path('', views.home, name="home"),
+    path('about/', views.about, name="about"),
 
     # MDT
     path('MDT/', include('MDT.urls')),
