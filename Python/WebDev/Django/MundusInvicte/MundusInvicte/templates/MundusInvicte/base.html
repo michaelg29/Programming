@@ -1,0 +1,70 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% if title %}
+        <title>Mundus Invicte - {{ title }}</title>
+    {% else %}
+        <title>Mundus Invicte</title>
+    {% endif %}
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'MundusInvicte/main.css' %}">
+</head>
+<body>
+    <header>
+        <nav id="nav">
+            <a class="navbar-title" href="{% url 'home' %}">Mundus Invicte</a>
+
+            <input type="checkbox" id="nav-status"/>
+            <label for="nav-status" id="nav-label" class="small-nav">
+                <span class="fa fa-bars nav-item nav-action small-nav open-nav" id="open-menu-button"></span>
+            </label>
+
+            <ul id="nav-list">
+                <li class="nav-item small-nav">
+                    <label for="nav-status" id="nav-label-inner">
+                        <span class="fa fa-close" id="close-menu-button"></span>
+                    </label>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-action" href="{% url 'home' %}" title="Home">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-action" href="#" title="Home">About</a>
+                </li>
+
+                <li class="nav-dropdown">
+                    <a class="nav-action" href="#">Account <span class="fa fa-chevron-down"></span></a>
+                    <ul class="dropdown-list">
+                        {% if loggedIn %}
+                            <li class="nav-item dropdown-item">
+                                <a class="nav-action" href="#">Account Settings</a>
+                            </li>
+                            <li class="nav-divider"></li>
+                            <li class="nav-item dropdown-item">
+                                <a class="nav-action" href="#">Logout</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item dropdown-item">
+                                <a class="nav-action" href="#">Login</a>
+                            </li>
+                            <li class="nav-item dropdown-item">
+                                <a class="nav-action" href="#">Register</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    {% block content %}{% endblock content %}
+</body>
+</html>
