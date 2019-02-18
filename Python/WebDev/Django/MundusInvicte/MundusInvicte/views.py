@@ -7,4 +7,5 @@ def home(request):
     return render(request, 'MundusInvicte/home.html')
 
 def about(request):
-    return HttpResponse('<h1>About</h1>')
+    context_processors.editContext('loggedIn', False)
+    return render(request, 'MundusInvicte/about.html')
