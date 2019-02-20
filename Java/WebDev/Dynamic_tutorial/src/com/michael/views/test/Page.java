@@ -10,20 +10,20 @@ import javax.servlet.http.HttpServletResponse;
 import com.michael.util.Views;
 
 /**
- * Servlet implementation class Index
+ * Servlet implementation class Page
  */
-@WebServlet("")
-public class Index extends HttpServlet {
+@WebServlet("/Page")
+public class Page extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public Index() {
+    public Page() {
         super();
     }
 
-	/**
+    /**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
