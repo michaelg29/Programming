@@ -4,7 +4,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.michael.util.views.ReturnToForm;
+import com.michael.util.views.forms.ReturnToForm;
 
 /**
  * Servlet implementation class MyServlet

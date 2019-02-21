@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.michael.util.Views;
+import com.michael.util.views.Views;
 
 /**
  * Servlet implementation class Page

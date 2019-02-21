@@ -1,44 +1,59 @@
 package com.michael.models;
 
-public class User {
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.michael.util.data.db.sqlserver.DbObject;
+
+public class User extends DbObject {
 	private int id;
 	private String username;
 	private String email;
 	private String firstname;
 	private String lastname;
 	
-	public User() {
-		
+	public User(ResultSet data) throws SQLException {
+		super(data);
 	}
 	
+	@Override
+	public void handleAttribute(String name, Object value) {
+		switch (name) {
+		case "ID":
+			id = Integer.parseInt(value.toString());
+			break;
+		case "FirstName":
+			firstname = value.toString();
+			break;
+		case "LastName":
+			lastname = value.toString();
+			break;
+		case "Username":
+			username = value.toString();
+			break;
+		case "Email":
+			email = value.toString();
+			break;
+		}
+	}
+
 	public int getId() {
 		return id;
 	}
-	public void setId(int id) {
-		this.id = id;
-	}
+
 	public String getUsername() {
 		return username;
 	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
+
 	public String getEmail() {
 		return email;
 	}
-	public void setEmail(String email) {
-		this.email = email;
-	}
+
 	public String getFirstname() {
 		return firstname;
 	}
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
-	}
+
 	public String getLastname() {
 		return lastname;
-	}
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
 	}
 }
