@@ -2,6 +2,8 @@
 
 #include "TcpListener.h"
 
+#include <map>
+
 class WebServer : public TcpListener {
 public:
 
@@ -18,5 +20,8 @@ protected:
 
 	// handler for message from client
 	virtual void onMessageReceived(int clientSocket, const char* msg, int length);
+
+private:
+	std::map<std::string, std::string> context;
 
 };
