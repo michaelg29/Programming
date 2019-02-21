@@ -1,13 +1,12 @@
-package com.michael.util.views;
+package com.michael.util.views.forms;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.michael.util.Views;
+import com.michael.util.views.Views;
 
 /**
  * Servlet implementation class ReturnToForm

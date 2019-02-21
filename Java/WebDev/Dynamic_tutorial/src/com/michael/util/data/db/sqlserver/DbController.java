@@ -1,36 +1,12 @@
+package com.michael.util.data.db.sqlserver;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class Sql {
-	public static void main(String[] args) throws Exception {
-		String server = "localhost",
-				db_ = "MundusInvicte",
-				user = "client",
-				pass = "client123";
-		int port = 1433;
-		
-		DbController db  = new DbController(server, db_, port);
-		db.login(user, pass);
-		ResultSet rs = db.executeQuery("select * from dbo.Users where Username = 'michaelg20' and LastName = 'Grieco'");
-	
-        // Iterate through the data in the result set and display it.  
-        while (rs.next())  
-        {  
-        	ResultSetMetaData rsmd = rs.getMetaData();
-    		for (int i = 1; i < rsmd.getColumnCount(); i++) {
-    			String name = rsmd.getColumnName(i);
-    			Object value = rs.getObject(name);
-    			System.out.println(name + ' ' + value);
-    		}
-        }
-    } 
-}
-
-class DbController {
+public class DbController {
 	private String server, dbName;
 	private int port;
 	private Connection conn;
