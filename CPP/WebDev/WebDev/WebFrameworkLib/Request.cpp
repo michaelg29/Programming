@@ -1,4 +1,4 @@
-#include "Request.h"
+#include "WebFramework/Requests/Request.h"
 
 #include <istream>
 #include <sstream>
@@ -6,12 +6,15 @@
 #include <vector>
 #include <iterator>
 
+#include <iostream>
+
 std::string Request::parse() {
 	std::istringstream iss(m_request);
 	std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
-	method = Global::stoMethod[parsed[0]];
-	route = Global::getFilePath(parsed[1]);
+	method = parsed[0];
+	route = server_atts.getFilePath(parsed[1]);
+	std::cout << parsed[1] << " --- " << route << std::endl;
 	protocol = parsed[3];
 	host = parsed[7];
 
@@ -54,13 +57,13 @@ std::string Request::parse() {
 		std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 
 		for (std::pair<std::string, std::string> pair : sendingClient.context) {
-			std::replace_all(str, "{{ " + pair.first + " }}", pair.second);
+			WebServerUtil::replace_all(str, "{{ " + pair.first + " }}", pair.second);
 		}
 
 		content = str;
 		code = 200;
 
-		if (route == Global::contextRoute + "/" + Global::errorFile)
+		if (route == server_atts.contextRoute + "/" + server_atts.errorFile)
 			code = 404;
 	}
 
