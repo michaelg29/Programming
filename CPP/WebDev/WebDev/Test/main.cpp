@@ -18,6 +18,7 @@ int main() {
 	webserver.attributes.contextRoute = "wwwroot";		// folder name containing html files next to executable
 	webserver.attributes.defaultFile = "index.html";	// file linked to request of "/"
 	webserver.attributes.errorFile = "error.html";		// file displayed when error code 404
+	webserver.attributes.templateRoute = "templates";	// template folder in contextRoute folder
 
 	if (webserver.init() != 0)
 		return -1;
@@ -29,7 +30,6 @@ int main() {
 
 void home(Request request) {
 	if (request.method == "POST") {
-		std::cout << request.data["test"] << std::endl;
 		request.setContext("test", request.data["test"]);
 		request.readFile("wwwroot/foo.html");
 	}

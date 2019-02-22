@@ -1,12 +1,5 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Foo Doc</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
+﻿{{ template(base.html) }}
+{{ start_block(content-block1) }}
     <h1>Hello, foo.html!</h1>
     <ul>
         <li>This</li>
@@ -17,5 +10,4 @@
     <p>What's up?</p>
 
     <p>test = {{ test }}</p>
-</body>
-</html>
+{{ end_block(content-block1) }}

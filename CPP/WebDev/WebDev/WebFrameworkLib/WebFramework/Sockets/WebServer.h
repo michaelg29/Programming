@@ -30,6 +30,7 @@ protected:
 
 	// handler for message from client
 	virtual void onMessageReceived(int clientSocket, const char* msg, int length);
+
 };
 
 #endif
