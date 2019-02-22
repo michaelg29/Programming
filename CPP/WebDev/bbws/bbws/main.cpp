@@ -1,4 +1,6 @@
 #include "WebServer.h"
+#include <iostream>
+#include <string>
 
 void main()
 {

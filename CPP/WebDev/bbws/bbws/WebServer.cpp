@@ -6,7 +6,6 @@
 #include <vector>
 #include <iterator>
 #include "WebServer.h"
-#include <iostream>
 
 void WebServer::onClientConnected(int clientSocket) {
 
@@ -16,14 +15,13 @@ void WebServer::onClientDisconnected(int clientSocket) {
 
 }
 
-std::string replace_all(std::string str, const std::string &from, const std::string &to) {
+void replace_all(std::string &str, const std::string &from, const std::string &to) {
 	int pos = 0;
 	int flen = from.length();
 	while ((pos = str.find(from, pos)) != -1) {
 		str.replace(pos, flen, to);
 		pos += flen;
 	}
-	return str;
 }
 
 void WebServer::onMessageReceived(int clientSocket, const char* msg, int length) {
@@ -32,7 +30,6 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 	// parse document requested
 	std::istringstream iss(msg);
 	std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-	
 
 	// Some defaults for output to the client (404 file not found 'page')
 	std::string content = "<h1>404 Not Found</h1>";
@@ -50,7 +47,6 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 			bool addingToKey = true;
 			for (std::string::size_type i = 0; i < params.size(); ++i) {
 				char c = params[i];
-				std::cout << c << std::endl;
 				if (c == '=') {
 					addingToKey = false;
 					continue;
@@ -60,7 +56,6 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 					context[key] = val + c;
 					key = "";
 					val = "";
-					std::cout << key << ' ' << val << std::endl;
 					continue;
 				}
 				
@@ -88,7 +83,7 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 		std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 
 		for (std::pair<std::string, std::string> pair : context) {
-			str = replace_all(str, "{{ " + pair.first + " }}", pair.second);
+			replace_all(str, "{{ " + pair.first + " }}", pair.second);
 		}
 
 		content = str;
@@ -96,6 +91,8 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 	}
 
 	f.close();
+
+	
 
 	// write the document back to the client
 	std::ostringstream oss;
