@@ -23,7 +23,14 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 		if (client.socket == clientSocket) {
 			Request request(client, std::string(msg), attributes);
 			request.parse();
-			attributes.getView(request.route)(request);
+			View view = attributes.getView(request.route);
+			if (view == nullptr) {
+				request.readFile(attributes.contextRoute + '/' + attributes.errorFile);
+				request.forward();
+			}
+			else {
+				view(request);
+			}
 		}
 	}
 }

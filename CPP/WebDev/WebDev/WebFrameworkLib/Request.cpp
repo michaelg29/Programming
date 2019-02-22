@@ -16,8 +16,8 @@ void Request::parse() {
 	host = parsed[7];
 
 	std::string params = parsed[parsed.size() - 1];
-
-	if (params.find('=') < params.length() && params.find('=') > -1) {
+	
+	if (method == "POST") {
 		std::string key = "", val = "";
 		bool addingToKey = true;
 		for (std::string::size_type i = 0; i < params.size(); ++i) {
@@ -91,4 +91,12 @@ void Request::forward() {
 	int size = output.size() + 1;
 
 	send(sendingClient.socket, output.c_str(), size, 0);
+}
+
+void Request::setContext(std::string key, std::string value) {
+	sendingClient.context[key] = value;
+}
+
+std::map<std::string, std::string> Request::context() {
+	return sendingClient.context;
 }

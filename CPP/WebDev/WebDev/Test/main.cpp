@@ -1,5 +1,7 @@
 #include <Sockets/WebServer.h>
 
+#include <iostream>
+
 #define IP_ADDRESS ("127.0.0.1")
 #define PORT 8080
 
@@ -10,7 +12,7 @@ int main() {
 
 	webserver.attributes.routes = {
 		{"", home},
-		{"home", home}
+		{"home", home},
 	};
 
 	webserver.attributes.contextRoute = "wwwroot";		// folder name containing html files next to executable
@@ -26,6 +28,13 @@ int main() {
 }
 
 void home(Request request) {
-	request.readFile("wwwroot/index.html");
+	if (request.method == "POST") {
+		std::cout << request.data["test"] << std::endl;
+		request.setContext("test", request.data["test"]);
+		request.readFile("wwwroot/foo.html");
+	}
+	else
+		request.readFile("wwwroot/index.html");
+	
 	request.forward();
 }
