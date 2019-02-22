@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{12259D7C-16AF-48CC-AE01-AEA0A594A34F}</ProjectGuid>
-    <RootNamespace>bbws</RootNamespace>
+    <ProjectGuid>{EADF113F-ED63-42C5-8D72-71F142A6DC6A}</ProjectGuid>
+    <RootNamespace>WebFramework</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -115,17 +115,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Items\Global.cpp" />
+    <ClCompile Include="Items\TcpListener.cpp" />
+    <ClCompile Include="Items\WebServer.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="MultiClientChat.cpp" />
-    <ClCompile Include="TcpListener.cpp" />
-    <ClCompile Include="WebServer.cpp" />
+    <ClCompile Include="Items\Request.cpp" />
+    <ClCompile Include="Items\View.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MultiClientChat.h" />
-    <ClInclude Include="TcpListener.h" />
-    <ClInclude Include="WebServer.h" />
+    <ClInclude Include="Items\Global.h" />
+    <ClInclude Include="Items\Request.h" />
+    <ClInclude Include="Items\Response.h" />
+    <ClInclude Include="Items\TcpListener.h" />
+    <ClInclude Include="Items\View.h" />
+    <ClInclude Include="Items\WebClient.h" />
+    <ClInclude Include="Items\WebServer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="wwwroot\error.html" />
     <None Include="wwwroot\foo.html" />
     <None Include="wwwroot\index.html" />
   </ItemGroup>

@@ -18,29 +18,48 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TcpListener.cpp">
+    <ClCompile Include="Items\Request.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MultiClientChat.cpp">
+    <ClCompile Include="Items\View.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WebServer.cpp">
+    <ClCompile Include="Items\TcpListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Items\WebServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Items\Global.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TcpListener.h">
+    <ClInclude Include="Items\Request.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MultiClientChat.h">
+    <ClInclude Include="Items\View.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WebServer.h">
+    <ClInclude Include="Items\TcpListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Items\WebServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Items\WebClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Items\Response.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Items\Global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\foo.html" />
     <None Include="wwwroot\index.html" />
+    <None Include="wwwroot\error.html" />
   </ItemGroup>
 </Project>
