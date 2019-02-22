@@ -9,6 +9,7 @@ class WEBFRAMEWORK_API Global;
 class WEBFRAMEWORK_API TcpListener;
 class WEBFRAMEWORK_API WebServer;
 struct WEBFRAMEWORK_API WebClient;
+struct WEBFRAMEWORK_API WebServerAttributes;
 
 // requests
 class WEBFRAMEWORK_API Request;

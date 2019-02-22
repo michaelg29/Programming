@@ -3,11 +3,14 @@
 #define IP_ADDRESS ("127.0.0.1")
 #define PORT 8080
 
+void home(Request request);
+
 int main() {
 	WebServer webserver(IP_ADDRESS, PORT);
 
 	webserver.attributes.routes = {
-		{"home", "index.html"}
+		{"", home},
+		{"home", home}
 	};
 
 	webserver.attributes.contextRoute = "wwwroot";		// folder name containing html files next to executable
@@ -20,4 +23,9 @@ int main() {
 	webserver.run();
 
 	return 0;
+}
+
+void home(Request request) {
+	request.readFile("wwwroot/index.html");
+	request.forward();
 }

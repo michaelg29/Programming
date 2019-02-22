@@ -7,19 +7,11 @@
 
 #include "TcpListener.h"
 #include "WebClient.h"
+#include "WebServerAttributes.h"
+#include "../Requests/Request.h"
 
 #include <vector>
 #include <string>
-
-struct WebServerAttributes {
-	std::string contextRoute;
-	std::string defaultFile;
-	std::string errorFile;
-
-	std::map<std::string, std::string> routes;
-
-	std::string getFilePath(std::string route);
-};
 
 class WebServer : public TcpListener {
 public:
