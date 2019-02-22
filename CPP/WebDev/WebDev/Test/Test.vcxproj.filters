@@ -23,5 +23,6 @@
     <None Include="wwwroot\error.html" />
     <None Include="wwwroot\foo.html" />
     <None Include="wwwroot\index.html" />
+    <None Include="wwwroot\templates\base.html" />
   </ItemGroup>
 </Project>

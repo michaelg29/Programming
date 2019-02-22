@@ -36,6 +36,9 @@
     <ClInclude Include="WebFramework\Sockets\WebServerAttributes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WebFramework\Files\FileParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TcpListener.cpp">
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WebServerAttributes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

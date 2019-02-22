@@ -1,24 +1,19 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Barebones Web Server</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-    <h1>Hello, index.html!</h1>
-    <ul>
-        <li>This</li>
-        <li>is</li>
-        <li>a</li>
-        <li>list!</li>
-    </ul>
-    <p>What's up?</p>
+﻿{{ template(base.html) }}
+{{ start_block(content-block1) }}
+<h1>Hello, index.html!</h1>
+<ul>
+    <li>This</li>
+    <li>is</li>
+    <li>a</li>
+    <li>list!</li>
+</ul>
+<p>What's up?</p>
     
-    <form method="POST" action="home">
-        <input type="text" name="test"/>
-        <input type="submit" value="Submit"/>
-    </form>
-</body>
-</html>
+<form method="POST" action="home">
+    <input type="text" name="test"/>
+    <input type="submit" value="Submit"/>
+</form>
+{{ end_block(content-block1) }}
+{{ start_block(content-block2) }}
+<h2>Block 2</h2>
+{{ end_block(content-block2) }}

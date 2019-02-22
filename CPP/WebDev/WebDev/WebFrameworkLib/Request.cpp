@@ -1,5 +1,7 @@
 #include "WebFramework/Requests/Request.h"
 
+#include "WebFramework/Files/FileParser.h"
+
 #include <istream>
 #include <sstream>
 #include <fstream>
@@ -48,33 +50,7 @@ void Request::setContent(std::string content) {
 }
 
 void Request::readFile(std::string filePath) {
-	int code = 404;
-	std::string content = "";
-
-	// Read file
-	// Open the document in the local file system
-	std::ifstream f(filePath);
-
-	// Check if it opened and if it did, grab the entire contents
-	if (f.good())
-	{
-		std::string str((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
-
-		for (std::pair<std::string, std::string> pair : sendingClient.context) {
-			WebServerUtil::replace_all(str, "{{ " + pair.first + " }}", pair.second);
-		}
-
-		content = str;
-		code = 200;
-
-		if (route == server_atts.contextRoute + "/" + server_atts.errorFile)
-			code = 404;
-	}
-
-	f.close();
-
-	output_code = code;
-	output_content = content;
+	output_content = FileParser::parseFile(filePath, this);
 }
 
 void Request::forward() {

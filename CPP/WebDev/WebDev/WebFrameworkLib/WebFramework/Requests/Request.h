@@ -26,19 +26,17 @@ public:
 	void setContext(std::string key, std::string value);	// sets value in client context
 	std::map<std::string, std::string> context();			// returns client context
 
-	std::string							route;				// request route
-	std::string							method;				// method of request
-	std::string							protocol;			// request protocol
-	std::string							host;				// request host
-	std::map<std::string, std::string>	data;				// request form data
-
-private:
 	WebClient							sendingClient;		// client that sent it
 	WebServerAttributes					server_atts;		// attributes of hosting server
 	std::string							m_request;			// request body
 
 	std::string							output_content;		// content to be sent back
 	int									output_code;		// output code
+	std::string							route;				// request route
+	std::string							method;				// method of request
+	std::string							protocol;			// request protocol
+	std::string							host;				// request host
+	std::map<std::string, std::string>	data;				// request form data
 };
 
 #endif
