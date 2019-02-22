@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="WebFramework\Sockets\WebServerAttributes.h" />
     <ClInclude Include="WebFramework\Util\Util.h" />
     <ClInclude Include="WebFramework\Requests\Request.h" />
     <ClInclude Include="WebFramework\Sockets\WebClient.h" />
@@ -154,6 +155,7 @@
     <ClCompile Include="TcpListener.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="Request.cpp" />
+    <ClCompile Include="WebServerAttributes.cpp" />
     <ClCompile Include="WebServer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

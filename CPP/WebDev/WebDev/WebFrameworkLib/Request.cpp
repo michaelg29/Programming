@@ -6,15 +6,12 @@
 #include <vector>
 #include <iterator>
 
-#include <iostream>
-
-std::string Request::parse() {
+void Request::parse() {
 	std::istringstream iss(m_request);
 	std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
 	method = parsed[0];
-	route = server_atts.getFilePath(parsed[1]);
-	std::cout << parsed[1] << " --- " << route << std::endl;
+	route = parsed[1];
 	protocol = parsed[3];
 	host = parsed[7];
 
@@ -43,13 +40,20 @@ std::string Request::parse() {
 				val += c;
 		}
 	}
+}
 
+void Request::setContent(std::string content) {
+	output_content = content;
+	output_code = 200;
+}
+
+void Request::readFile(std::string filePath) {
 	int code = 404;
 	std::string content = "";
 
 	// Read file
 	// Open the document in the local file system
-	std::ifstream f(route);
+	std::ifstream f(filePath);
 
 	// Check if it opened and if it did, grab the entire contents
 	if (f.good())
@@ -69,20 +73,22 @@ std::string Request::parse() {
 
 	f.close();
 
-	return sendBack(code, content);
+	output_code = code;
+	output_content = content;
 }
 
-std::string Request::sendBack(int code, std::string content) {
+void Request::forward() {
 	// write the document back to the client
 	std::ostringstream oss;
-	oss << "HTTP/1.1 " << code << " OK\r\n";
+	oss << "HTTP/1.1 " << output_code << " OK\r\n";
 	oss << "Cache-Control: no-cache, private\r\n";
 	oss << "Content-Type: text/html\r\n";
-	oss << "Content-Length: " << content.size() << "\r\n";
+	oss << "Content-Length: " << output_content.size() << "\r\n";
 	oss << "\r\n";
-	oss << content;
+	oss << output_content;
 
 	std::string output = oss.str();
+	int size = output.size() + 1;
 
-	return output;
+	send(sendingClient.socket, output.c_str(), size, 0);
 }

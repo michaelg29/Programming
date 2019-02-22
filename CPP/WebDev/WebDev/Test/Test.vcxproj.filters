@@ -19,4 +19,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\error.html" />
+    <None Include="wwwroot\foo.html" />
+    <None Include="wwwroot\index.html" />
+  </ItemGroup>
 </Project>
