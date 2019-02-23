@@ -1,6 +1,8 @@
 #ifndef ENGINE
 #define ENGINE
 
+#include "IO/Joystick.h"
+
 #include "GLFW/glfw3.h"
 #pragma comment(lib, "opengl32.lib")
 
@@ -19,11 +21,15 @@ public:
 	void BeginRender();
 	void EndRender();
 
+	Joystick GetJoystick(int id);
+
 private:
 	static GLFWwindow* window;
 
 	static double dt;
 	double lastTime;
+
+	Joystick joysticks[GLFW_JOYSTICK_LAST];
 };
 
 #endif
