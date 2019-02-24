@@ -1,13 +1,11 @@
-#pragma once
-
-#ifndef WEBCLIENT_H
-#define WEBCLIENT_H
+#ifndef WEBCLIENT
+#define WEBCLIENT
 
 #include "../WebFramework.h"
 
 #include <map>
 
-struct WebClient {
+struct WEBFRAMEWORK_API WebClient {
 public:
 	int socket;
 	std::map<std::string, std::string> context;		// context values to be accessed in the web pages

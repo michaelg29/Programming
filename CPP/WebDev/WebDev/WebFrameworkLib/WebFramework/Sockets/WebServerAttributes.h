@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef WEBSERVERATTRIBUTES_H
-#define WEBSERVERATTRIBUTES_H
+#ifndef WEBSERVERATTRIBUTES
+#define WEBSERVERATTRIBUTES
 
 #include "../WebFramework.h"
 
@@ -11,7 +9,7 @@
 // method template for view
 typedef void(*View)(Request request);
 
-struct WebServerAttributes {
+struct WEBFRAMEWORK_API WebServerAttributes {
 public:
 	std::string contextRoute;
 	std::string defaultFile;

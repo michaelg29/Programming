@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef WEBSERVER_H
-#define WEBSERVER_H
+#ifndef WEBSERVER
+#define WEBSERVER
 
 #include "../WebFramework.h"
 
@@ -13,7 +11,7 @@
 #include <vector>
 #include <string>
 
-class WebServer : public TcpListener {
+class WEBFRAMEWORK_API WebServer : public TcpListener {
 public:
 	WebServer(const char* ipAddress, int port);
 
