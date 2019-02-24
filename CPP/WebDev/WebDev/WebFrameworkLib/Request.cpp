@@ -1,7 +1,5 @@
 #include "WebFramework/Requests/Request.h"
 
-#include "WebFramework/Files/FileParser.h"
-
 #include <istream>
 #include <sstream>
 #include <fstream>
@@ -50,7 +48,7 @@ void Request::setContent(std::string content) {
 }
 
 void Request::readFile(std::string filePath) {
-	output_content = FileParser::parseFile(filePath, this);
+	output_content = WebServerUtil::FileParser::parseFile(filePath, this);
 }
 
 void Request::forward() {

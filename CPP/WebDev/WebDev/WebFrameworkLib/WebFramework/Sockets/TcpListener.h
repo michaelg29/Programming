@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef TCPLISTENER_H
-#define TCPLISTENER_H
+#ifndef TCPLISTENER
+#define TCPLISTENER
 
 #include "../WebFramework.h"
 

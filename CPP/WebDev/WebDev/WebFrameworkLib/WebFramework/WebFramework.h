@@ -1,9 +1,7 @@
-#pragma once
+#ifndef WEBFRAMEWORK
+#define WEBFRAMEWORK
 
 #define WEBFRAMEWORK_API __declspec(dllexport)
-
-// data
-class WEBFRAMEWORK_API Global;
 
 // server and client bodies
 class WEBFRAMEWORK_API TcpListener;
@@ -13,3 +11,5 @@ struct WEBFRAMEWORK_API WebServerAttributes;
 
 // requests
 class WEBFRAMEWORK_API Request;
+
+#endif

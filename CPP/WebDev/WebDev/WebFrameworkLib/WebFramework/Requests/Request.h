@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef REQUEST_H
-#define REQUEST_H
+#ifndef REQUEST
+#define REQUEST
 
 #include "../WebFramework.h"
 
@@ -13,7 +11,7 @@
 #include <string>
 #include <map>
 
-class Request
+class WEBFRAMEWORK_API Request
 {
 public:
 	Request(WebClient sendingClient, std::string request, WebServerAttributes server_atts) :

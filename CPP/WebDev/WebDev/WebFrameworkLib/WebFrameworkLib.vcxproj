@@ -143,7 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="WebFramework\Files\FileParser.h" />
     <ClInclude Include="WebFramework\Sockets\WebServerAttributes.h" />
     <ClInclude Include="WebFramework\Util\Util.h" />
     <ClInclude Include="WebFramework\Requests\Request.h" />
@@ -156,7 +155,6 @@
     <ClCompile Include="TcpListener.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="Request.cpp" />
-    <ClCompile Include="FileParser.cpp" />
     <ClCompile Include="WebServerAttributes.cpp" />
     <ClCompile Include="WebServer.cpp" />
   </ItemGroup>
