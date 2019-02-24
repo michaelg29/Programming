@@ -55,6 +55,8 @@ public:
 	float TriggerState(int trigger);
 	unsigned char ButtonState(int button);
 
+	static int GetId(int i);
+
 private:
 	int present;
 

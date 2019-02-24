@@ -11,23 +11,7 @@ Joystick::Joystick() {
 Joystick::Joystick(int i) {
 	/*id = GLFW_JOYSTICK_1;*/
 
-	switch (i) {
-	case 0: id = GLFW_JOYSTICK_1; break;
-	case 1: id = GLFW_JOYSTICK_2; break;
-	case 2: id = GLFW_JOYSTICK_3; break;
-	case 3: id = GLFW_JOYSTICK_4; break;
-	case 4: id = GLFW_JOYSTICK_5; break;
-	case 5: id = GLFW_JOYSTICK_6; break;
-	case 6: id = GLFW_JOYSTICK_7; break;
-	case 7: id = GLFW_JOYSTICK_8; break;
-	case 8: id = GLFW_JOYSTICK_9; break;
-	case 9: id = GLFW_JOYSTICK_10; break;
-	case 10: id = GLFW_JOYSTICK_11; break;
-	case 11: id = GLFW_JOYSTICK_12; break;
-	case 12: id = GLFW_JOYSTICK_13; break;
-	case 13: id = GLFW_JOYSTICK_14; break;
-	case 14: id = GLFW_JOYSTICK_15; break;
-	}
+	id = GetId(i);
 
 	present = glfwJoystickPresent(id);
 
@@ -63,4 +47,25 @@ unsigned char Joystick::ButtonState(int button) {
 	}
 
 	return GLFW_RELEASE;
+}
+
+int Joystick::GetId(int i) {
+	switch (i) {
+	case 0: return GLFW_JOYSTICK_1;
+	case 1: return GLFW_JOYSTICK_2;
+	case 2: return GLFW_JOYSTICK_3;
+	case 3: return GLFW_JOYSTICK_4;
+	case 4: return GLFW_JOYSTICK_5;
+	case 5: return GLFW_JOYSTICK_6;
+	case 6: return GLFW_JOYSTICK_7;
+	case 7: return GLFW_JOYSTICK_8;
+	case 8: return GLFW_JOYSTICK_9;
+	case 9: return GLFW_JOYSTICK_10; 
+	case 10: return GLFW_JOYSTICK_11;
+	case 11: return GLFW_JOYSTICK_12;
+	case 12: return GLFW_JOYSTICK_13;
+	case 13: return GLFW_JOYSTICK_14;
+	case 14: return GLFW_JOYSTICK_15;
+	default: return -1;
+	}
 }

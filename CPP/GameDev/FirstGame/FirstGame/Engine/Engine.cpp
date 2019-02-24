@@ -45,11 +45,7 @@ bool Engine::Initialize(const char* windowTitle) {
 
 	glfwSetKeyCallback(window, Keyboard::KeyCallback);
 
-	for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) {
-		joysticks[i] = Joystick(i);
-	}
-
-	//joysticks[0] = Joystick(GLFW_JOYSTICK_1);
+	
 
 	const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 	int xPos = (mode->width - SCREEN_WIDTH) / 2;
@@ -75,15 +71,25 @@ bool Engine::Initialize(const char* windowTitle) {
 	return true;
 }
 
+void Engine::UseJoysticks() {
+	for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) {
+		joysticks[i] = Joystick(i);
+	}
+
+	joystickUse = true;
+}
+
 void Engine::Update() {
 	double now = glfwGetTime();
 	dt = (now - lastTime);
 	lastTime = now;
 
-	for (Joystick &j : joysticks) {
-		j.Update();
+	if (joystickUse) {
+		for (Joystick &j : joysticks) {
+			j.Update();
+		}
 	}
-
+	
 	glfwPollEvents();
 }
 
@@ -101,5 +107,8 @@ void Engine::EndRender() {
 }
 
 Joystick Engine::GetJoystick(int id) {
+	if (!joystickUse)
+		return NULL;
+
 	return joysticks[id];
 }
