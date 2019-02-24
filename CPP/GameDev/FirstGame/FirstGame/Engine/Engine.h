@@ -16,6 +16,7 @@ public:
 	~Engine();
 
 	bool Initialize(const char* windowTitle);
+	void UseJoysticks();
 
 	void Update();
 	void BeginRender();
@@ -28,6 +29,7 @@ private:
 
 	static double dt;
 	double lastTime;
+	bool joystickUse;
 
 	Joystick joysticks[GLFW_JOYSTICK_LAST];
 };
