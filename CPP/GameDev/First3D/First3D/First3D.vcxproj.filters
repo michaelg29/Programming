@@ -24,4 +24,8 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="vertex_core.glsl" />
+    <None Include="fragment_core.glsl" />
+  </ItemGroup>
 </Project>

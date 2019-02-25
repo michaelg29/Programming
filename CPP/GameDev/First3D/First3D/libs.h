@@ -1,4 +1,10 @@
+#ifndef LIBS
+#define LIBS
+
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
 
 #include <GL/glew.h>
 #include <glfw3.h>
@@ -11,3 +17,11 @@
 #include <gtc\type_ptr.hpp>
 
 #include <SOIL2.h>
+
+struct Vertex {
+	glm::vec3 position;
+	glm::vec3 color;
+	glm::vec2 texcoord;
+};
+
+#endif LIBS
