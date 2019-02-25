@@ -24,6 +24,10 @@
   <ItemGroup>
     <ClInclude Include="libs.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="fragment_core.glsl" />
+    <None Include="vertex_core.glsl" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}</ProjectGuid>
