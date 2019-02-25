@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "First3D", "First3D\First3D.vcxproj", "{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}.Debug|x64.ActiveCfg = Debug|x64
+		{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}.Debug|x64.Build.0 = Debug|x64
+		{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}.Debug|x86.ActiveCfg = Debug|Win32
+		{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}.Debug|x86.Build.0 = Debug|Win32
+		{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}.Release|x64.ActiveCfg = Release|x64
+		{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}.Release|x64.Build.0 = Release|x64
+		{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}.Release|x86.ActiveCfg = Release|Win32
+		{CDA5C18F-DF02-4FF1-8580-BFA1A172389F}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2B20BC31-C09A-465D-B134-79FFC674D9AA}
+	EndGlobalSection
+EndGlobal
