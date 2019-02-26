@@ -29,6 +29,10 @@ int main() {
 }
 
 void home(Request request) {
+	for (std::pair<std::string, std::string> param : request.params) {
+		request.setContext(param.first, param.second);
+	}
+
 	if (request.method == "POST") {
 		request.setContext("test", request.data["test"]);
 		request.readFile("wwwroot/foo.html");

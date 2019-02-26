@@ -6,39 +6,31 @@
 #include <vector>
 #include <iterator>
 
+#include <iostream>
+
 void Request::parse() {
 	std::istringstream iss(m_request);
 	std::vector<std::string> parsed((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
 
 	method = parsed[0];
 	route = parsed[1];
+
+	std::string route_params = "";
+	int idx = route.find('?');
+
+	if (idx != std::string::npos) {
+		route_params = route.substr(idx + 1);
+		route = route.substr(0, idx);
+		params = WebServerUtil::parse_attribute_string(route_params);
+	}
+
 	protocol = parsed[3];
 	host = parsed[7];
 
-	std::string params = parsed[parsed.size() - 1];
+	std::string post_data = parsed[parsed.size() - 1];
 	
 	if (method == "POST") {
-		std::string key = "", val = "";
-		bool addingToKey = true;
-		for (std::string::size_type i = 0; i < params.size(); ++i) {
-			char c = params[i];
-			if (c == '=') {
-				addingToKey = false;
-				continue;
-			}
-			else if (c == '&' || i == params.size() - 1) {
-				addingToKey = true;
-				data[key] = val + c;
-				key = "";
-				val = "";
-				continue;
-			}
-
-			if (addingToKey)
-				key += c;
-			else
-				val += c;
-		}
+		data = WebServerUtil::parse_attribute_string(post_data);
 	}
 }
 

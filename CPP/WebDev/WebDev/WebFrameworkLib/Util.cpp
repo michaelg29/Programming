@@ -15,6 +15,34 @@ void WebServerUtil::replace_all(std::string &str, const std::string &from, const
 	}
 }
 
+std::map<std::string, std::string> WebServerUtil::parse_attribute_string(std::string str) {
+	std::map<std::string, std::string> data;
+
+	std::string key = "", val = "";
+	bool addingToKey = true;
+	for (std::string::size_type i = 0; i < str.size(); ++i) {
+		char c = str[i];
+		if (c == '=') {
+			addingToKey = false;
+			continue;
+		}
+		else if (c == '&' || i == str.size() - 1) {
+			addingToKey = true;
+			data[key] = val + c;
+			key = "";
+			val = "";
+			continue;
+		}
+
+		if (addingToKey)
+			key += c;
+		else
+			val += c;
+	}
+
+	return data;
+}
+
 std::string WebServerUtil::FileParser::parseFile(std::string path, Request *request) {
 	int code = 404;
 	std::string content = "";
