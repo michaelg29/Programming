@@ -240,7 +240,9 @@ int main() {
 		glBindVertexArray(VAO);
 
 		// draw
-		glDrawElements(GL_TRIANGLES, nrOfIndices, GL_UNSIGNED_INT, 0);
+		//glDrawElements(GL_TRIANGLES, nrOfIndices, GL_UNSIGNED_INT, 0);
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glRectf(0.5f, 0.5f, -0.5f, -0.5f);
 
 		// end draw
 		glfwSwapBuffers(window);
