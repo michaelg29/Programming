@@ -35,6 +35,7 @@ public:
 	std::string							protocol;			// request protocol
 	std::string							host;				// request host
 	std::map<std::string, std::string>	data;				// request form data
+	std::map<std::string, std::string>	params;				// specified parameters in url request
 };
 
 #endif
