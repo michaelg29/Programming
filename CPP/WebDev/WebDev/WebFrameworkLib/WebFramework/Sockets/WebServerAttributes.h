@@ -15,6 +15,7 @@ public:
 	std::string defaultFile;
 	std::string errorFile;
 	std::string templateRoute;
+	std::string stylesheetRoute;
 
 	std::map<std::string, View> routes;
 

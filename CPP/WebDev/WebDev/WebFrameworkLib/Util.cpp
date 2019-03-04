@@ -6,6 +6,8 @@
 #include <vector>
 #include <iterator>
 
+#include <iostream>
+
 void WebServerUtil::replace_all(std::string &str, const std::string &from, const std::string &to) {
 	int pos = 0;
 	int flen = from.length();
@@ -58,6 +60,7 @@ std::string WebServerUtil::FileParser::parseFile(std::string path, Request *requ
 
 		insertTemplates(str, request);
 		addContext(str, request);
+		addStylesheets(str, request);
 
 		content = str;
 		code = 200;
@@ -87,8 +90,7 @@ void WebServerUtil::FileParser::insertTemplates(std::string &content, Request *r
 		if (_pos2 == -1)
 			break;
 
-		int len = _pos2 - _pos1;
-		std::string template_filepath = request->server_atts.contextRoute + '/' + request->server_atts.templateRoute + '/' + content.substr(_pos1, len);
+		std::string template_filepath = request->server_atts.contextRoute + '/' + request->server_atts.templateRoute + '/' + content.substr(_pos1, _pos2 - _pos1);
 		std::string template_content = parseFile(template_filepath, request);
 
 		// get content blocks
@@ -116,5 +118,25 @@ void WebServerUtil::FileParser::insertTemplates(std::string &content, Request *r
 		}
 
 		content = template_content;
+	}
+}
+
+void WebServerUtil::FileParser::addStylesheets(std::string &content, Request *request) {
+	int _pos1 = 0, _pos2 = 0, _pos3 = 0;
+	while ((_pos1 = content.find("{{ style(", _pos1)) != -1) {
+		_pos2 = _pos1 + 9;
+		_pos3 = content.find(") }}", _pos2);
+
+		std::string style_filepath = request->server_atts.contextRoute + '/' + request->server_atts.stylesheetRoute + '/' + content.substr(_pos2, _pos3 - _pos2);
+		
+		std::ifstream f(style_filepath);
+
+		// Check if it opened and if it did, grab the entire contents
+		if (f.good())
+		{
+			std::string style_content((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+			_pos3 += 4;
+			WebServerUtil::replace_all(content, content.substr(_pos1, _pos3 - _pos1), "<style>\n" + style_content + "\n</style>");
+		}
 	}
 }

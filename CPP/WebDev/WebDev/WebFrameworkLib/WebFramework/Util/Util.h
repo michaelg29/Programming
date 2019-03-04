@@ -17,6 +17,8 @@ namespace WebServerUtil {
 		std::string parseFile(std::string path, Request *request);
 		void addContext(std::string &content, Request *request);
 		void insertTemplates(std::string &content, Request *request);
+		void insertTemplates(std::string &content, Request *request);
+		void addStylesheets(std::string &content, Request *request);
 	}
 }
 

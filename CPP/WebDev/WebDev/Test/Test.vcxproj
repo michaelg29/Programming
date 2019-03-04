@@ -139,6 +139,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="wwwroot\style\style.css" />
     <None Include="wwwroot\templates\base.html" />
     <None Include="wwwroot\error.html" />
     <None Include="wwwroot\foo.html" />

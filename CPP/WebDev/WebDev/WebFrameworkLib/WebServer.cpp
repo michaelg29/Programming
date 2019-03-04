@@ -7,6 +7,7 @@ WebServer::WebServer(const char* ipAddress, int port) :
 	attributes.defaultFile = "index.html";
 	attributes.errorFile = "error.html";
 	attributes.templateRoute = "templates";
+	attributes.stylesheetRoute = "style";
 	attributes.routes = {};
 }
 
