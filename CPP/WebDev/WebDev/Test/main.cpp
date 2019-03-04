@@ -19,6 +19,7 @@ int main() {
 	webserver.attributes.defaultFile = "index.html";	// file linked to request of "/"
 	webserver.attributes.errorFile = "error.html";		// file displayed when error code 404
 	webserver.attributes.templateRoute = "templates";	// template folder in contextRoute folder
+	webserver.attributes.stylesheetRoute = "style";		// style folder in contextRoute folder
 
 	if (webserver.init() != 0)
 		return -1;

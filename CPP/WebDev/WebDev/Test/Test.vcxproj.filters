@@ -24,5 +24,6 @@
     <None Include="wwwroot\foo.html" />
     <None Include="wwwroot\index.html" />
     <None Include="wwwroot\templates\base.html" />
+    <None Include="wwwroot\style\style.css" />
   </ItemGroup>
 </Project>
