@@ -1,149 +1,100 @@
 package com.michael.webserver.sockets;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import com.michael.webserver.util.Logger;
 
 public class TcpListener {
-    protected int port                    	= 0000;
-    protected String addr_str             	= "";
-    protected InetAddress addr            	= null;
-    protected ServerSocket ss             	= null;
-    protected List<Socket> clients 			= null;
-    protected boolean running             	= false;
-    protected Logger logger					= null;
-
-    public TcpListener(String addr, int port, Logger logger) {
-        this.port = port;
-        this.addr_str = addr;
-    }
-
-    public void run() {
-    	if (!running) {
-    		try {
-    			this.addr = InetAddress.getByName(addr_str);
-    		} catch (UnknownHostException e1) {
-    			logger.Log("Could not find address.");
-    			return;
-    		}
-            this.clients = new ArrayList<>();
-
-            try {
-                this.ss = new ServerSocket(this.port, -1, this.addr);
-            } catch (Exception e) {
-            	logger.Log("Failed to start server.");
-            	return;
-            }
-
-            running = true;
-            
-            while (running) {
-            	try {
-            		final Socket client = ss.accept();
-            		onClientConnected(client);
-            		clients.add(client);
-            		
-            		Executors.newSingleThreadExecutor().execute(new Runnable() {
-            		    @Override
-            		    public void run() {
-            		        clientHandler(client);
-            		    }
-            		});
-            	} catch (Exception e) {
-            		logger.Log(e.getMessage());
-            		try {
-    					ss.close();
-    				} catch (IOException e1) {
-    					logger.Log("Could not stop server");
-    				}
-            	}
-            }
-            
-            try {
-    			ss.close();
-    		} catch (IOException e1) {
-    			logger.Log("Could not stop server");
-    		}
-    	}
-    }
-    
-    public void send(Socket client, String message) throws IOException {
-    	DataOutputStream dos = new DataOutputStream(client.getOutputStream());
-    	send(dos, message);
-    }
-    
-    public void send(DataOutputStream dos, String message) throws IOException {
-    	dos.writeUTF(message);
-    	dos.flush();
-    }
-    
-    public void broadcast(String message) throws IOException {
-    	for (Socket client : clients) {
-    		send(client, message);
-    	}
-    }
-    
-    private void clientHandler(Socket client) {
-    	DataInputStream dis = null;
-    	DataOutputStream dos = null;
-		try {
-			dis = new DataInputStream(client.getInputStream());
-			dos = new DataOutputStream(client.getOutputStream());
-		} catch (IOException e1) {
-			e1.printStackTrace();
+	protected int port;
+	protected String ipAddr_str;
+	protected InetAddress ipAddr;
+	protected Logger logger;
+	protected ServerSocket socket;
+	protected boolean running;
+	protected List<TcpClient> clients;
+	
+	public TcpListener(int port, String ipAddr_str, Logger logger)  {
+		this.port = port;
+		this.ipAddr_str = ipAddr_str;
+		this.logger = logger;
+		this.running = false;
+	}
+	
+	public void bind() throws IOException {
+		this.ipAddr = InetAddress.getByName(ipAddr_str);
+		this.socket = new ServerSocket(this.port, -1, this.ipAddr);
+		clients = new ArrayList<>();
+		this.running = false;
+	}
+	
+	public void run() throws IOException {
+		if (!running) {
+			this.running = true;
+			
+			while (this.running) {
+				Socket client = socket.accept();
+				TcpClient tcpClient = new TcpClient(client);
+				clients.add(tcpClient);
+				Runnable clientRunnable = () -> {
+					clientThread(tcpClient);
+				};
+				Thread clientThread = new Thread(clientRunnable);
+				
+				clientThread.start();
+				onClientConnected(client);
+			}
 		}
-		
-		String received;
-
-        while (true) {
-            try {
-                received = dis.readUTF();
-                messageReceieved(client, received);
-
-                if (received.equals("Exit")) {
-                    client.close();
-                    clients.remove(client);
-                    break;
-                }
-            } catch (Exception e) { 
-            	clients.remove(client);
-                onClientDisconnected(client); 
-                break;
-            } 
-        }
-
-        try { 
-            dis.close(); 
-            dos.close(); 
-              
-        } catch(IOException e){ 
-            e.printStackTrace(); 
-        }
-    }
-    
-    protected void onClientConnected(Socket client) {
-    	System.out.println(client + " connected");
-    }
-    
-    protected void onClientDisconnected(Socket client) {
-    	System.out.println(client + " disconnected");
-    }
-    
-    protected void messageReceieved(Socket client, String message) {
-    	System.out.printf("%s said: %s\n", client.toString(), message);
-    	try {
-			send(client, message);
+	}
+	
+	public final void send(TcpClient receiver, String msg) throws IOException {
+		receiver.send(msg);
+	}
+	
+	public final void broadcast(String msg) throws IOException {
+		for (TcpClient client : clients) {
+			send(client, msg);
+		}
+	}
+	
+	private void clientThread(TcpClient client) {
+		while (this.running) {
+			try {
+				String input = client.reader.readLine();
+				if (input == null) {
+					clients.remove(client);
+					onClientDisconnected(client.socket);
+					break;
+				}
+				onMessageReceived(client.socket, input);
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				clients.remove(client);
+				onClientDisconnected(client.socket);
+				break;
+			}
+		}
+	}
+	
+	protected void onClientConnected(Socket client) {
+		logger.Log(client + " connected");
+	}
+	
+	protected void onClientDisconnected(Socket client) {
+		logger.Log(client + " disconnected");
+	}
+	
+	protected void onMessageReceived(Socket sender, String msg) {
+		logger.Log(sender + " says: " + msg);
+		try {
+			broadcast(msg);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-    }
+	}
 }
