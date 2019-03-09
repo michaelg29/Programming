@@ -16,6 +16,7 @@ public class TcpListener {
 	protected Logger logger;
 	protected ServerSocket socket;
 	protected boolean running;
+	protected boolean binded;
 	protected List<TcpClient> clients;
 	
 	public TcpListener(int port, String ipAddr_str, Logger logger)  {
@@ -23,17 +24,19 @@ public class TcpListener {
 		this.ipAddr_str = ipAddr_str;
 		this.logger = logger;
 		this.running = false;
+		this.binded = false;
 	}
 	
-	public void bind() throws IOException {
+	protected final void bind() throws IOException {
 		this.ipAddr = InetAddress.getByName(ipAddr_str);
 		this.socket = new ServerSocket(this.port, -1, this.ipAddr);
 		clients = new ArrayList<>();
 		this.running = false;
+		this.binded = true;
 	}
 	
 	public void run() throws IOException {
-		if (!running) {
+		if (!running && binded) {
 			this.running = true;
 			
 			while (this.running) {
@@ -61,6 +64,16 @@ public class TcpListener {
 		}
 	}
 	
+	public final TcpClient getClient(Socket sock) {
+		for (TcpClient client : clients) {
+			if (client.socket == sock) {
+				return client;
+			}
+		}
+		
+		return null;
+	}
+	
 	private void clientThread(TcpClient client) {
 		while (this.running) {
 			try {
@@ -81,20 +94,9 @@ public class TcpListener {
 		}
 	}
 	
-	protected void onClientConnected(Socket client) {
-		logger.Log(client + " connected");
-	}
+	protected void onClientConnected(Socket client) {}
 	
-	protected void onClientDisconnected(Socket client) {
-		logger.Log(client + " disconnected");
-	}
+	protected void onClientDisconnected(Socket client) {}
 	
-	protected void onMessageReceived(Socket sender, String msg) {
-		logger.Log(sender + " says: " + msg);
-		try {
-			broadcast(msg);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	protected void onMessageReceived(Socket sender, String msg) {}
 }
