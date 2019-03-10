@@ -1,6 +1,6 @@
 #include "libs.h"
 
-// https://www.youtube.com/playlist?list=PL6xSOsbVA1eYSZTKBxnoXYboy7wc4yg-Z part 13
+// https://www.youtube.com/playlist?list=PL6xSOsbVA1eYSZTKBxnoXYboy7wc4yg-Z part 14
 
 Vertex vertices[] = {
 	// Position							// color						// texcoords
@@ -219,6 +219,9 @@ int main() {
 
 	// bind VAO 0
 	glBindVertexArray(0);
+
+	// TEXTURE INIT
+
 
 	// main loop
 	bool gameRunning = true;
