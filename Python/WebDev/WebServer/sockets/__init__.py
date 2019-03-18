@@ -1,1 +1,1 @@
-__all__ = ['TcpListener', 'WebServer']
+__all__ = ['TcpListener', 'WebServer', 'Request']
