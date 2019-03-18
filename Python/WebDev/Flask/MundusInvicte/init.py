@@ -1,6 +1,6 @@
 from flask import Flask, session, redirect, url_for, request, render_template, Blueprint
-from user import user_pages
-from flights import flight_pages
+from .user import user_pages
+from .flights import flight_pages
 from datetime import datetime
 
 app = Flask(__name__)
