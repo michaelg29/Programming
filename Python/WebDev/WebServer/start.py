@@ -1,16 +1,27 @@
 from sockets.WebServer import WebServer
+from sockets.Request import Request
 import threading
+
+def home(request):
+    request.client.context["name"] = request.params["name"]
+    request.render_template("content/index.html")
 
 def cmdThread(ws):
     cmd = input()
     if cmd == "stop":
-        ws.stop()
+	    ws.stop()
 
-ws = WebServer("127.0.0.1", 9000)
+if __name__ == "__main__":
+    ws = WebServer("127.0.0.1", 8080)
 
-t = threading.Thread(target=cmdThread, args=(ws,))
-t.start()
+    ws.routes = { "/" : home, 
+                  "/index" : home,
+    }
 
-ws.open()
+    t = threading.Thread(target=cmdThread, args=(ws,))
+    t.start()
 
-t.join()
+    ws.open()
+
+    t.join()
+

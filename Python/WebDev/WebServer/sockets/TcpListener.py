@@ -36,19 +36,22 @@ class TcpListener:
     # don't override
     def clientThread(self, clientSock, clientAddr):
         self.clientConnected(clientSock, clientAddr)
-        #self.csocket.send(bytes("Hi, This is from Server..",'utf-8'))
         msg = ''
         while True:
             data = clientSock.recv(2048)
             msg = data.decode()
-            if msg == '':
+            if not msg:
                 break
-            elif not msg:
+            elif msg.isspace():
                 continue
             self.msgReceived(clientSock, clientAddr, msg)
-            clientSock.send(bytes(msg,'UTF-8'))
+            self.send(clientSock, msg)
         clientSock.close()
         self.clientDisconnected(clientSock, clientAddr)
+
+    # don't override
+    def send(self, clientSock, msg):
+        clientSock.send(bytes(msg,'UTF-8'))
 
     def stop(self):
         self.__running = False
