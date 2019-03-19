@@ -1,11 +1,13 @@
 from .TcpListener import TcpListener
 from .WebClient import WebClient
 from .Request import Request
+from jinja2 import Environment, FileSystemLoader
 
 class WebServerAttributes:
     def __init__(self, contextRoute, errorFile):
         self.contextRoute = contextRoute
         self.errorFile = errorFile
+        self.jinja_env = Environment(loader=FileSystemLoader(self.contextRoute))
 
 class WebServer(TcpListener):
     def __init__(self, ipAddr, port):
