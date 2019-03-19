@@ -9,7 +9,7 @@ class WebServerAttributes:
 
 class WebServer(TcpListener):
     def __init__(self, ipAddr, port):
-        super().__init__(ipAddr, port)
+        super().__init__(ipAddr, port, True)
         self.routes = {}
         self.clients = []
         self.atts = WebServerAttributes("content", "error.html")
@@ -46,8 +46,12 @@ class WebServer(TcpListener):
     def serverEvent(self, msg):
         print("SERVER>", msg)
 
-    def open(self):
-        super().open()
+    def cmdThread(self):
+        cmd = input()
+        if cmd == "stop":
+            print("Server shutting down")
+            exit()
 
-    def stop(self):
-        super().stop()
+    def run(self):
+        super().open()
+        print("Type in 'stop' to stop server")
