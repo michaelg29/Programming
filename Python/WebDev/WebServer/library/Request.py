@@ -11,18 +11,7 @@ def parseAttributeString(atts):
     return data
 
 class Request:
-    """
-    std::string							output_content;		// content to be sent back
-        int									output_code;		// output code
-        std::string							route;				// request route
-        std::string							method;				// method of request
-        std::string							protocol;			// request protocol
-        std::string							host;				// request host
-        std::map<std::string, std::string>	data;				// request form data
-        std::map<std::string, std::string>	params;				// specified parameters in url request
-    """
-
-    def __init__(self, request, client):
+    def __init__(self, request, client, serverAtts):
         self.request_body = request
         self.client = client
         self.method = ""
@@ -33,6 +22,7 @@ class Request:
         self.response_code = 200
         self.response = ""
         self.type = "text/html"
+        self.serverAtts = serverAtts
 
     def parse(self):
         request = self.request_body.split()
@@ -58,17 +48,24 @@ class Request:
                 self.data = parseAttributeString(data)
         else:
             self.type = "text/css"
-            self.render_template(self.route[1:])
+            self.render_template(self.route)
 
     def render_template(self, file_path):
         content = ""
-        with open(file_path, 'r') as content_file:
-            content = content_file.read()
 
-        if self.route.find(".css") == -1:
-            self.render_content(content)
+        try:
+            with open(self.serverAtts.contextRoute + "/" + file_path, 'r') as content_file:
+                content = content_file.read()
+        except:
+            self.response_code = 404
+            with open(self.serverAtts.contextRoute + "/" + self.serverAtts.errorFile, 'r') as error_file:
+                content = error_file.read()
+                self.render_content(content)
         else:
-            self.response_content = content
+            if self.route.find(".css") == -1:
+                self.render_content(content)
+            else:
+                self.response_content = content
 
     def render_content(self, content):
         template = Template(content)
