@@ -1,10 +1,11 @@
-from sockets.WebServer import WebServer
-from sockets.Request import Request
+from library.WebServer import WebServer
+from library.Request import Request
 import threading
 
 def home(request):
-    request.client.context["name"] = request.params["name"]
-    request.render_template("content/index.html")
+    if "name" in request.params.keys():
+        request.client.context["name"] = request.params["name"]
+    request.render_template("index.html")
 
 def cmdThread(ws):
     cmd = input()
