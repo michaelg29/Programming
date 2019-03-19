@@ -1,4 +1,4 @@
-from jinja2 import Template
+from jinja2 import Template, PackageLoader, select_autoescape
 
 def parseAttributeString(atts):
     data = {}
@@ -54,13 +54,12 @@ class Request:
         content = ""
 
         try:
-            with open(self.serverAtts.contextRoute + "/" + file_path, 'r') as content_file:
-                content = content_file.read()
+            template = self.serverAtts.jinja_env.get_template(file_path)
+            content = template.render(self.client.context)
         except:
             self.response_code = 404
-            with open(self.serverAtts.contextRoute + "/" + self.serverAtts.errorFile, 'r') as error_file:
-                content = error_file.read()
-                self.render_content(content)
+            template = self.serverAtts.jinja_env.get_template(self.serverAtts.errorFile)
+            content = template.render(self.client.context)
         else:
             if self.route.find(".css") == -1:
                 self.render_content(content)
