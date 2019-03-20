@@ -34,7 +34,7 @@ class WebServer(TcpListener):
                 found = False
 
                 for key in self.routes.keys():
-                    if key == request.route:
+                    if key == request.route[1:]:
                         self.routes[key](request)
                         found = True
 

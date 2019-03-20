@@ -52,6 +52,7 @@ class Request:
 
     def render_template(self, file_path):
         content = ""
+        print(file_path)
 
         try:
             template = self.serverAtts.jinja_env.get_template(file_path)
