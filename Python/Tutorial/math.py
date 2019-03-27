@@ -1,3 +1,5 @@
+from math import *
+
 x = 100.05
 y = 5
 
