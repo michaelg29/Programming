@@ -1,3 +1,7 @@
+:root {
+    --nav-bg-color: #303030;
+}
+
 .nav-list {
     visibility: hidden;
     opacity: 1;
@@ -39,7 +43,7 @@
 }
 
 .nav-list > li:hover > a, .dropdown-list > li:hover > a {
-    color: #0D0B44;
+    color: var(--nav-bg-color);
 }
 
 .nav-list > li.dropdown {
@@ -50,7 +54,7 @@ li.dropdown:hover > .dropdown-list {
     visibility: visible;
     opacity: 1;
     z-index: 999;
-    background-color: #0D0B44;
+    background-color: var(--nav-bg-color);
     
     margin: 0;
     padding: 0;
@@ -66,7 +70,7 @@ li.dropdown:hover > .dropdown-list {
 
 #nav-label-container {
     width: 100%;
-    background-color: #0D0B44;
+    background-color: var(--nav-bg-color);
 }
 
 #nav-label {
@@ -92,7 +96,7 @@ li.dropdown:hover > .dropdown-list {
 
 #nav-label > p > i:hover {
     background-color: white;
-    color: #0D0B44;
+    color: var(--nav-bg-color);
 }
 
 @media (orientation: portrait) {
@@ -103,17 +107,17 @@ li.dropdown:hover > .dropdown-list {
     #nav {
         height: 100%;
         width: 100%;
-        position: absolute;
-        top: -16px;
-        left: 0;
-        z-index: 999;
+        position: relative;
+        z-index: 998;
     }
 
     .nav-list {
         padding: 0;
         margin: -16px 0;
-        background-color: #0D0B44;
+        background-color: var(--nav-bg-color);
         height: calc(100% - 40px);
+
+        z-index: 999;
     }
 
     li.dropdown:hover > .dropdown-list {
@@ -122,9 +126,10 @@ li.dropdown:hover > .dropdown-list {
 
     #content {
         position: absolute;
-        padding: 0;
         top: 40px;
-        z-index: 5;
+        left: 0;
+        width: 100%;
+        z-index: 1;
     }
 }
 
@@ -133,7 +138,7 @@ li.dropdown:hover > .dropdown-list {
         visibility: visible;
         opacity: 1;
         z-index: 999;
-        background-color: #0D0B44;
+        background-color: var(--nav-bg-color);
         width: 100%;
 
         padding: 0;
@@ -160,7 +165,7 @@ li.dropdown:hover > .dropdown-list {
     }
 
     .nav-list > li, .dropdown-list > li {
-        background-color: #0D0B44;
+        background-color: var(--nav-bg-color);
         transition: all 500ms;
     }
 
