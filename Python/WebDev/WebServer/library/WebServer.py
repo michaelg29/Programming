@@ -31,15 +31,16 @@ class WebServer(TcpListener):
 
                 print(request.method + " " + request.route)
 
-                found = False
+                if request.type != "text/css":
+                    found = False
 
-                for key in self.routes.keys():
-                    if key == request.route[1:]:
-                        self.routes[key](request)
-                        found = True
+                    for key in self.routes.keys():
+                        if key == request.route[1:]:
+                            self.routes[key](request)
+                            found = True
 
-                if not found:
-                    request.render_template(self.atts.errorFile)
+                    if not found:
+                        request.render_template(self.atts.errorFile)
 
                 self.send(clientSock, request.getResponse())
 
@@ -56,4 +57,4 @@ class WebServer(TcpListener):
 
     def run(self):
         super().open()
-        print("Type in 'stop' to stop server")
+        print("Type 'stop' to stop server")

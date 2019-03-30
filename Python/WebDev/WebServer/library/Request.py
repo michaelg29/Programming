@@ -48,7 +48,12 @@ class Request:
                 self.data = parseAttributeString(data)
         else:
             self.type = "text/css"
-            self.render_template(self.route)
+            
+            contents = ""
+            with open("content/" + self.route) as f:
+                for line in f.readlines():
+                    contents += line
+            self.response_content = contents
 
     def render_template(self, file_path):
         content = ""
