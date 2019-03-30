@@ -5,9 +5,49 @@
     <title>{% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="style/style.css" type="text/css"/>
+    <link rel="stylesheet" href="style/nav.css" type="text/css"/>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     {% block head %}{% endblock %}
 </head>
 <body>
+    <div id="nav">
+        <input type="checkbox" id="nav-toggle"/>
+        <div id="nav-label-container">
+                <label id="nav-label" for="nav-toggle">
+                    <p>
+                        <i class="material-icons"></i>
+                    </p>
+                </label>
+            </div>
+        <ul class="nav-list">
+            <li>
+                <a href="#">Home</a>
+            </li>
+            <li>
+                <a href="#">Shop</a>
+            </li>
+            <li class="dropdown">
+                <a href="#">
+                    Products
+                </a>
+                <ul class="dropdown-list">
+                    <li>
+                        <a href="#">App 1</a>
+                    </li>
+                    <li>
+                        <a href="#">App 2</a>
+                    </li>
+                    <li>
+                        <a href="#">Product 1722324</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="right">
+                <a href="#">Account</a>
+            </li>
+        </ul>
+    </div>
     {% block content %}{% endblock %}
 </body>
 </html>
