@@ -49,6 +49,9 @@ class WebServer(TcpListener):
 
                 break
 
+    def registerContextMethods(self, args):
+        self.atts.jinja_env.globals.update(args)
+
     def serverEvent(self, msg):
         print("SERVER>", msg)
 
