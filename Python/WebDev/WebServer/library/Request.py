@@ -31,15 +31,22 @@ class Request:
         # request method
         self.method = request[0]
 
-        route = request[1]
-        self.route = route
+        self.route = request[1]
 
-        if self.route.find("css") == -1 and self.route.find("jpg") == -1:
-            query_idx = route.find("?")
+        if self.route.find("css") > 0:
+            self.type = "text/css"
+        elif self.route.find("jpg") > 0 or self.route.find("jpeg") > 0:
+            self.type = "image/jpeg"
+            self.bytes = True
+        elif self.route.find("png") > 0:
+            self.type = "image/png"
+            self.bytes = True
+        else:
+            query_idx = self.route.find("?")
             if query_idx != -1:
                 # request parameters'
-                self.route = route[:query_idx]
-                params = route[query_idx + 1:]
+                self.route = self.route[:query_idx]
+                params = self.route[query_idx + 1:]
                 self.params = parseAttributeString(params)
 
             # form data
@@ -47,21 +54,29 @@ class Request:
             if data.find("=") != -1:
                 # has data parameters from form
                 self.data = parseAttributeString(data)
-        else:
-            contents = ""
 
-            if self.route.find(".css") != -1:
-                self.type = "text/css"
-                with open(self.serverAtts.contextRoute + self.route) as f:
-                    for line in f.readlines():
-                        contents += line
-            elif self.route.find(".jpg") != -1:
-                self.bytes = True
-                self.type = "image/jpeg"
-                with open(self.serverAtts.contextRoute + self.route, "rb") as image_data:
-                    contents = image_data.read()
-            
-            self.response_content = contents
+            return 0
+        
+        if self.bytes:
+            content = self.readBytes(self.route)
+        else:
+            content = self.readText(self.route)
+
+        self.response_content = content
+
+    def readText(self, path):
+        content = ""
+        with open(self.serverAtts.contextRoute + path) as f:
+            content = f.read()
+
+        return content
+
+    def readBytes(self, path):
+        content = ""
+        with open(self.serverAtts.contextRoute + path, "rb") as f:
+            content = f.read()
+
+        return content
 
     def render_template(self, file_path):
         content = ""
@@ -74,10 +89,7 @@ class Request:
             template = self.serverAtts.jinja_env.get_template(self.serverAtts.errorFile)
             content = template.render(self.client.context)
         else:
-            if self.route.find(".css") == -1:
-                self.render_content(content)
-            else:
-                self.response_content = content
+            self.render_content(content)
 
     def render_content(self, content):
         template = Template(content)
