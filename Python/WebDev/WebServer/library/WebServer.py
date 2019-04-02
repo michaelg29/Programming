@@ -31,9 +31,9 @@ class WebServer(TcpListener):
 
                 print(request.method + " " + request.route)
 
-                if request.route.find(".ico") != -1:
+                if request.route.find(".ico") > -1:
                     continue
-                elif request.type != "text/css":
+                elif request.type != "text/css" and request.type.find("image") == -1:
                     found = False
 
                     for key in self.routes.keys():
@@ -43,9 +43,8 @@ class WebServer(TcpListener):
 
                     if not found:
                         request.render_template(self.atts.errorFile)
-                
 
-                self.send(clientSock, request.getResponse())
+                self.send(clientSock, request.getResponse(), False if request.bytes else True)
 
                 break
 
