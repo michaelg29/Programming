@@ -56,8 +56,8 @@ class TcpListener:
         self.clientDisconnected(clientSock, clientAddr)
 
     # don't override
-    def send(self, clientSock, msg):
-        clientSock.send(bytes(msg,'UTF-8'))
+    def send(self, clientSock, msg, encode=True):
+        clientSock.send(bytes(msg, "UTF-8") if encode else msg)
 
     def stop(self):
         self.__running = False

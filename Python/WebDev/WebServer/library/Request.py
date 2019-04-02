@@ -22,6 +22,7 @@ class Request:
         self.response_code = 200
         self.response = ""
         self.type = "text/html"
+        self.bytes = False
         self.serverAtts = serverAtts
 
     def parse(self):
@@ -33,7 +34,7 @@ class Request:
         route = request[1]
         self.route = route
 
-        if self.route.find(".css") == -1:
+        if self.route.find("css") == -1 and self.route.find("jpg") == -1:
             query_idx = route.find("?")
             if query_idx != -1:
                 # request parameters'
@@ -47,12 +48,19 @@ class Request:
                 # has data parameters from form
                 self.data = parseAttributeString(data)
         else:
-            self.type = "text/css"
-            
             contents = ""
-            with open("content/" + self.route) as f:
-                for line in f.readlines():
-                    contents += line
+
+            if self.route.find(".css") != -1:
+                self.type = "text/css"
+                with open(self.serverAtts.contextRoute + self.route) as f:
+                    for line in f.readlines():
+                        contents += line
+            elif self.route.find(".jpg") != -1:
+                self.bytes = True
+                self.type = "image/jpeg"
+                with open(self.serverAtts.contextRoute + self.route, "rb") as image_data:
+                    contents = image_data.read()
+            
             self.response_content = contents
 
     def render_template(self, file_path):
@@ -81,7 +89,11 @@ class Request:
                         "Cache-Control: no-cache, private" + return_char + \
                         "Content-Type: " + self.type + return_char + \
                         "Content-Length: " + str(len(self.response_content)) + return_char + \
-                        str(return_char) + \
-                        self.response_content
+                        (("Accept-Ranges: bytes" + return_char + return_char) if (self.type.find("image") > 0) else (return_char))
+
+        if self.type.find("image") > -1:
+            self.response = bytes(self.response, "UTF-8") + self.response_content
+        else:
+            self.response += self.response_content
 
         return self.response
