@@ -41,13 +41,17 @@ class Request:
         elif self.route.find("png") > 0:
             self.type = "image/png"
             self.bytes = True
+        elif self.route.find("ico") > 0:
+            return
         else:
             query_idx = self.route.find("?")
+            
             if query_idx != -1:
                 # request parameters'
-                self.route = self.route[:query_idx]
                 params = self.route[query_idx + 1:]
+                self.route = self.route[:query_idx]
                 self.params = parseAttributeString(params)
+                
 
             # form data
             data = request[-1]
@@ -80,7 +84,7 @@ class Request:
 
     def render_template(self, file_path):
         content = ""
-
+        
         try:
             template = self.serverAtts.jinja_env.get_template(file_path)
             content = template.render(self.client.context)
