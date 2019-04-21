@@ -1,0 +1,34 @@
+WindowManager:
+    MainWindow:
+    SecondWindow:
+
+<MainWindow>:
+    name: "main"
+
+    GridLayout:
+        cols: 1
+
+        GridLayout:
+            cols: 2
+
+            Label:
+                text: "Password:"
+
+            TextInput:
+                id: pass
+                multiline: False
+
+        Button:
+            text: "Submit"
+            on_release:
+                app.root.current = "second" if pass.text == "pass123" else "main"
+                root.manager.transition.direction = "left"
+
+<SecondWindow>:
+    name: "second"
+
+    Button:
+        text: "Go back"
+        on_release:
+            app.root.current = "main"
+            root.manager.transition.direction = "right"
