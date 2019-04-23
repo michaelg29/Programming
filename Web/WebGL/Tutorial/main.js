@@ -133,10 +133,41 @@ function initBuffers(gl) {
 
     // create array of positions
     const positions = [
-        -1.0, 1.0,
-        1.0, 1.0,
-        -1.0, -1.0,
-        1.0, -1.0,
+        // Front face
+        -1.0, -1.0,  1.0,
+         1.0, -1.0,  1.0,
+         1.0,  1.0,  1.0,
+        -1.0,  1.0,  1.0,
+        
+        // Back face
+        -1.0, -1.0, -1.0,
+        -1.0,  1.0, -1.0,
+         1.0,  1.0, -1.0,
+         1.0, -1.0, -1.0,
+        
+        // Top face
+        -1.0,  1.0, -1.0,
+        -1.0,  1.0,  1.0,
+         1.0,  1.0,  1.0,
+         1.0,  1.0, -1.0,
+        
+        // Bottom face
+        -1.0, -1.0, -1.0,
+         1.0, -1.0, -1.0,
+         1.0, -1.0,  1.0,
+        -1.0, -1.0,  1.0,
+        
+        // Right face
+         1.0, -1.0, -1.0,
+         1.0,  1.0, -1.0,
+         1.0,  1.0,  1.0,
+         1.0, -1.0,  1.0,
+        
+        // Left face
+        -1.0, -1.0, -1.0,
+        -1.0, -1.0,  1.0,
+        -1.0,  1.0,  1.0,
+        -1.0,  1.0, -1.0,
     ];
 
     // pass position list to webgl to build shape
@@ -203,7 +234,7 @@ function drawScene(gl, programInfo, buffers, dt) {
 
     // tell webgl how to parse positions from position buffer
     {
-        const numComponents = 2;    // pull out 2 vals per iteration
+        const numComponents = 3;    // pull out 2 vals per iteration
         const type = gl.FLOAT;      // data in buffer is 32bit float
         const normalize = false;    // don't normalize
         const stride = 0;           // how many bytes to get from one set of values to next
