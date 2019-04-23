@@ -10,21 +10,21 @@ function main() {
     const vsSource = `
         attribute vec4 aVertexPosition;
         attribute vec2 aTextureCoord;
-
+    
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
-
-        varying lowp vec2 vTextureCoord;
-
+    
+        varying highp vec2 vTextureCoord;
+        
         void main(void) {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-            vTextureCoord = aTextureColor;
+            vTextureCoord = aTextureCoord;
         }
     `;
 
     // Fragment shader program
     const fsSource = `
-        varying lowp vec2 vTextureCoord;
+        varying highp vec2 vTextureCoord;
 
         uniform sampler2D uSampler;
 
@@ -59,7 +59,7 @@ function main() {
         uniformLocations: {
             projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
             modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-            uSampler: gl.getUniformLocation(shaderProgram, 'uSampler');
+            uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
         }
     }
 
