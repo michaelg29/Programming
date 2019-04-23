@@ -9,24 +9,27 @@ function main() {
     // Vertex shader program
     const vsSource = `
         attribute vec4 aVertexPosition;
-        attribute vec4 aVertexColor;
+        attribute vec2 aTextureCoord;
 
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
 
-        varying lowp vec4 vColor;
+        varying lowp vec2 vTextureCoord;
 
         void main(void) {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-            vColor = aVertexColor;
+            vTextureCoord = aTextureColor;
         }
     `;
 
     // Fragment shader program
     const fsSource = `
-        varying lowp vec4 vColor;
+        varying lowp vec2 vTextureCoord;
+
+        uniform sampler2D uSampler;
+
         void main(void) {
-            gl_FragColor = vColor;
+            gl_FragColor = texture2D(uSampler, vTextureCoord);
         }
     `;
 
@@ -51,11 +54,12 @@ function main() {
         program: shaderProgram,
         attribLocations: {
             vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-            vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
+            vertexColor: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
         },
         uniformLocations: {
             projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
             modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+            uSampler: gl.getUniformLocation(shaderProgram, 'uSampler');
         }
     }
 
