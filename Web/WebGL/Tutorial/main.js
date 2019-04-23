@@ -7,12 +7,14 @@ function main() {
     // Vertex shader program
     const vsSource = `
         attribute vec4 aVertexPosition;
+        attribute vec4 aVertexColor;
 
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
 
-        void main() {
+        void main(void) {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+            vColor = aVertexColor;
         }
     `;
 
@@ -123,8 +125,20 @@ function initBuffers(gl) {
         new Float32Array(positions),
         gl.STATIC_DRAW);
 
+    const colors = [
+        1.0, 1.0, 1.0, 1.0,     // white
+        1.0, 0.0, 0.0, 1.0,     // red
+        0.0, 1.0, 0.0, 1.0,     // green
+        0.0, 0.0, 1.0, 1.0,     // blue
+    ];
+
+    const colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
     return {
         position: positionBuffer,
+        color: colorBuffer,
     }
 }
 
