@@ -175,12 +175,25 @@ function initBuffers(gl) {
         new Float32Array(positions),
         gl.STATIC_DRAW);
 
-    const colors = [
-        1.0, 1.0, 1.0, 1.0,     // white
-        1.0, 0.0, 0.0, 1.0,     // red
-        0.0, 1.0, 0.0, 1.0,     // green
-        0.0, 0.0, 1.0, 1.0,     // blue
+    const faceColors = [
+        [1.0,  1.0,  1.0,  1.0],    // Front face: white
+        [1.0,  0.0,  0.0,  1.0],    // Back face: red
+        [0.0,  1.0,  0.0,  1.0],    // Top face: green
+        [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
+        [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
+        [1.0,  0.0,  1.0,  1.0],    // Left face: purple
     ];
+
+    // convert array of colors into table for all vertices
+
+    var colors = [];
+
+    for (var j = 0; j < faceColors.length; j++) {
+        const c = faceColors[j];
+
+        // repeat each color four times for the four vertices of the face
+        colors = colors.concat(c, c, c, c);
+    }
 
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
