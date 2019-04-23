@@ -54,7 +54,7 @@ function main() {
         program: shaderProgram,
         attribLocations: {
             vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-            vertexColor: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
+            textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
         },
         uniformLocations: {
             projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
@@ -217,8 +217,9 @@ function initBuffers(gl) {
         1.0,  1.0,
         0.0,  1.0,
     ];
-    
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates),
+                    gl.STATIC_DRAW);
     
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -312,14 +313,21 @@ function drawScene(gl, programInfo, buffers, texture, dt) {
 
     // tell webgl how to parse texture coordinates
     {
-        const num = 2;
+        const numComponents = 2;
         const type = gl.FLOAT;
         const normalize = false;
         const stride = 0;
         const offset = 0;
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
-        gl.vertexAttribPointer(programInfo.attribLocations.textureCoord, num, type, normalize, stride, offset);
-        gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.textureCoord,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset);
+        gl.enableVertexAttribArray(
+            programInfo.attribLocations.textureCoord);
     }
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
@@ -382,7 +390,7 @@ function loadTexture(gl, url) {
     const image = new Image();
     image.onload = function() {
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, level, internalFOrmat,
+        gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
             srcFormat, srcType, image);
 
         // different requirements for power of 2 vs non power of 2
@@ -391,14 +399,15 @@ function loadTexture(gl, url) {
             gl.generateMipmap(gl.TEXTURE_2D);
         } else {
             // not power of 2, turn off mips, set wrapping to clamp to edge
-            // gl.NEAREST is also allowed, instead of gl.LINEAR, as neither mipmap.
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            // Prevents s-coordinate wrapping (repeating).
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             // Prevents t-coordinate wrapping (repeating).
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            // Prevents s-coordinate wrapping (repeating).
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            // gl.NEAREST is also allowed, instead of gl.LINEAR, as neither mipmap.
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         }
     }
+    image.crossOrigin = "anonymous";
     image.src = url;
 
     return texture;
