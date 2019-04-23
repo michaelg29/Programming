@@ -95,3 +95,31 @@ function loadShader(gl, type, source) {
 
     return shader;
 }
+
+//
+// create buffer with vertex positions
+//
+function initBuffers(gl) {
+    // create buffer for square's positions
+    const positionBuffer = gl.createBuffer();
+
+    // select positionBuffer as one to apply buffer ops to
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+    // create array of positions
+    const positions = [
+        -0.5, 0.5,
+        0.5, 0.5,
+        -0.5, -0.5,
+        0.5, -0.5,
+    ];
+
+    // pass position list to webgl to build shape
+    gl.bufferData(gl.ARRAY_BUFFER,
+        new Float32Array(positions),
+        gl.STATIC_DRAW);
+
+    return {
+        position: positionBuffer,
+    }
+}
