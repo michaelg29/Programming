@@ -258,10 +258,14 @@ function drawScene(gl, programInfo, buffers, dt) {
                     modelViewMatrix,    // matrix to translate
                     [-0.0, 0.0, -6.0]); // amount to translate
     // rotate cube
-    mat4.rotate(modelViewMatrix,        // destination matrix
-                modelViewMatrix,        // matrix to rotate
-                cubeRotation * .7,      // amount to rotate (radians)
-                [0, 1, 1]);             // axis to rotate around
+    mat4.rotate(modelViewMatrix,    // destination matrix
+        modelViewMatrix,            // matrix to rotate
+        cubeRotation,               // amount to rotate in radians
+        [0, 0, 1]);                 // axis to rotate around (Z)
+    mat4.rotate(modelViewMatrix,    // destination matrix
+            modelViewMatrix,        // matrix to rotate
+        cubeRotation * .7,          // amount to rotate in radians
+            [0, 1, 0]);             // axis to rotate around (X)
 
     // tell webgl how to parse positions from position buffer
     {
