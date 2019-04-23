@@ -75,7 +75,7 @@ function main() {
         const dt = now - then;
         then = now;
 
-        drawScene(gl, programInfo, buffers, dt);
+        drawScene(gl, programInfo, buffers, texture, dt);
 
         requestAnimationFrame(render);
     }
@@ -247,7 +247,7 @@ function initBuffers(gl) {
 //
 // render scene
 //
-function drawScene(gl, programInfo, buffers, dt) {
+function drawScene(gl, programInfo, buffers, texture, dt) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // clear to black
     gl.clearDepth(1.0);                 // clear everything
     gl.enable(gl.DEPTH_TEST);           // enable depth testing
@@ -310,25 +310,16 @@ function drawScene(gl, programInfo, buffers, dt) {
         );
     }
 
-    // tell webgl how to parse colors
+    // tell webgl how to parse texture coordinates
     {
-        const numComponents = 4;
+        const num = 2;
         const type = gl.FLOAT;
         const normalize = false;
         const stride = 0;
         const offset = 0;
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
-        gl.vertexAttribPointer(
-            programInfo.attribLocations.vertexColor,
-            numComponents,
-            type,
-            normalize,
-            stride,
-            offset
-        );
-        gl.enableVertexAttribArray(
-            programInfo.attribLocations.vertexColor
-        );
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
+        gl.vertexAttribPointer(programInfo.attribLocations.textureCoord, num, type, normalize, stride, offset);
+        gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
     }
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
@@ -347,6 +338,15 @@ function drawScene(gl, programInfo, buffers, dt) {
         false,
         modelViewMatrix
     );
+
+    // affect texture unit 0
+    gl.activeTexture(gl.TEXTURE0);
+
+    // bind texture to texture unit 0
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    // tell shader texture bound to texture unit 0
+    gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
 
     {
         const vertexCount = 36;
