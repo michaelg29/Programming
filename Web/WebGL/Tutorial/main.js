@@ -1,4 +1,4 @@
-var squareRotation = 0.0;
+var cubeRotation = 0.0;
 
 main();
 
@@ -257,11 +257,11 @@ function drawScene(gl, programInfo, buffers, dt) {
     mat4.translate(modelViewMatrix,     // destination matrix
                     modelViewMatrix,    // matrix to translate
                     [-0.0, 0.0, -6.0]); // amount to translate
-    // rotate square
+    // rotate cube
     mat4.rotate(modelViewMatrix,        // destination matrix
                 modelViewMatrix,        // matrix to rotate
-                squareRotation,         // amount to rotate (radians)
-                [0, 0, 1]);             // axis to rotate around
+                cubeRotation * .7,      // amount to rotate (radians)
+                [0, 1, 1]);             // axis to rotate around
 
     // tell webgl how to parse positions from position buffer
     {
@@ -306,6 +306,8 @@ function drawScene(gl, programInfo, buffers, dt) {
         );
     }
 
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+
     // tell webgl to use program
     gl.useProgram(programInfo.program);
 
@@ -322,11 +324,12 @@ function drawScene(gl, programInfo, buffers, dt) {
     );
 
     {
+        const vertexCount = 36;
+        const type = gl.UNSIGNED_SHORT;
         const offset = 0;
-        const vertexCount = 4;
-        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
 
     // update rotation for next draw
-    squareRotation += dt;
+    cubeRotation += dt;
 }
