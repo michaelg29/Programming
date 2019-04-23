@@ -12,17 +12,18 @@ function main() {
         uniform mat4 uModelViewMatrix;
         uniform mat4 uProjectionMatrix;
 
+        varying lowp vec4 vColor;
+
         void main(void) {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
             vColor = aVertexColor;
         }
     `;
 
-    // fragment shader program
+    // Fragment shader program
     const fsSource = `
         varying lowp vec4 vColor;
-
-        void main() {
+        void main(void) {
             gl_FragColor = vColor;
         }
     `;
@@ -48,6 +49,7 @@ function main() {
         program: shaderProgram,
         attribLocations: {
             vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+            vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
         },
         uniformLocations: {
             projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
@@ -198,6 +200,27 @@ function drawScene(gl, programInfo, buffers) {
         );
         gl.enableVertexAttribArray(
             programInfo.attribLocations.vertexPosition
+        );
+    }
+
+    // tell webgl how to parse colors
+    {
+        const numComponents = 4;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexColor,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset
+        );
+        gl.enableVertexAttribArray(
+            programInfo.attribLocations.vertexColor
         );
     }
 
