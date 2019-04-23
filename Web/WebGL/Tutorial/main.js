@@ -1,3 +1,5 @@
+var squareRotation = 0.0;
+
 main();
 
 //
@@ -59,7 +61,20 @@ function main() {
 
     const buffers = initBuffers(gl);
 
-    drawScene(gl, programInfo, buffers);
+    var then = 0;
+
+    // draw scene repeatedly
+    function render(now) {
+        now *= 0.001;       // convert to seconds
+        const dt = now - then;
+        then = now;
+
+        drawScene(gl, programInfo, buffers, dt);
+
+        requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
 }
 
 //
@@ -149,7 +164,7 @@ function initBuffers(gl) {
 //
 // render scene
 //
-function drawScene(gl, programInfo, buffers) {
+function drawScene(gl, programInfo, buffers, dt) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // clear to black
     gl.clearDepth(1.0);                 // clear everything
     gl.enable(gl.DEPTH_TEST);           // enable depth testing
@@ -178,8 +193,13 @@ function drawScene(gl, programInfo, buffers) {
 
     // move drawing position to square
     mat4.translate(modelViewMatrix,     // destination matrix
-                modelViewMatrix,        // matrix to translate
+                    modelViewMatrix,    // matrix to translate
                     [-0.0, 0.0, -6.0]); // amount to translate
+    // rotate square
+    mat4.rotate(modelViewMatrix,        // destination matrix
+                modelViewMatrix,        // matrix to rotate
+                squareRotation,         // amount to rotate (radians)
+                [0, 0, 1]);             // axis to rotate around
 
     // tell webgl how to parse positions from position buffer
     {
@@ -244,4 +264,7 @@ function drawScene(gl, programInfo, buffers) {
         const vertexCount = 4;
         gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
     }
+
+    // update rotation for next draw
+    squareRotation += dt;
 }
