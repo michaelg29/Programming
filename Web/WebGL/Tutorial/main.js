@@ -24,12 +24,27 @@ function main() {
 
     // Fragment shader program
     const fsSource = `
+        precision mediump float;
+    
+        // our textures
+        uniform sampler2D u_image0;
+        uniform sampler2D u_image1;
+        uniform sampler2D u_image2;
+        uniform sampler2D u_image3;
+        uniform sampler2D u_image4;
+        uniform sampler2D u_image5;
+        
+        // the texCoords passed in from the vertex shader.
         varying highp vec2 vTextureCoord;
-
-        uniform sampler2D uSampler;
-
-        void main(void) {
-            gl_FragColor = texture2D(uSampler, vTextureCoord);
+        
+        void main() {
+            vec4 color0 = texture2D(u_image0, vTextureCoord);
+            vec4 color1 = texture2D(u_image1, vTextureCoord);
+            vec4 color2 = texture2D(u_image2, vTextureCoord);
+            vec4 color3 = texture2D(u_image3, vTextureCoord);
+            vec4 color4 = texture2D(u_image4, vTextureCoord);
+            vec4 color5 = texture2D(u_image5, vTextureCoord);
+            gl_FragColor = color0 * color1 * color2 * color3 * color4 * color5;
         }
     `;
 
@@ -59,13 +74,19 @@ function main() {
         uniformLocations: {
             projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
             modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-            uSampler: gl.getUniformLocation(shaderProgram, 'uSampler'),
+            u_image0: gl.getUniformLocation(shaderProgram, 'u_image0'),
+            u_image1: gl.getUniformLocation(shaderProgram, 'u_image1'),
+            u_image2: gl.getUniformLocation(shaderProgram, 'u_image2'),
+            u_image3: gl.getUniformLocation(shaderProgram, 'u_image3'),
+            u_image4: gl.getUniformLocation(shaderProgram, 'u_image4'),
+            u_image5: gl.getUniformLocation(shaderProgram, 'u_image5'),
         }
     }
 
     const buffers = initBuffers(gl);
 
-    const texture = loadTexture(gl, 'cubetexture.png');
+    const textures = loadTextures(gl, 
+        ['cage.png', 'devito.png', 'elon.png', 'ewan.png', 'jeff.png', 'samuel.png']);
 
     var then = 0;
 
@@ -75,7 +96,7 @@ function main() {
         const dt = now - then;
         then = now;
 
-        drawScene(gl, programInfo, buffers, texture, dt);
+        drawScene(gl, programInfo, buffers, textures, dt);
 
         requestAnimationFrame(render);
     }
@@ -227,10 +248,16 @@ function initBuffers(gl) {
     // array defines face as two triangles
     const indices = [
         0,  1,  2,      0,  2,  3,    // front
+        0,  1,  2,      0,  2,  3,    // front
+        4,  5,  6,      4,  6,  7,    // back
         4,  5,  6,      4,  6,  7,    // back
         8,  9,  10,     8,  10, 11,   // top
+        8,  9,  10,     8,  10, 11,   // top
+        12, 13, 14,     12, 14, 15,   // bottom
         12, 13, 14,     12, 14, 15,   // bottom
         16, 17, 18,     16, 18, 19,   // right
+        16, 17, 18,     16, 18, 19,   // right
+        20, 21, 22,     20, 22, 23,   // left
         20, 21, 22,     20, 22, 23,   // left
     ];
 
@@ -248,7 +275,7 @@ function initBuffers(gl) {
 //
 // render scene
 //
-function drawScene(gl, programInfo, buffers, texture, dt) {
+function drawScene(gl, programInfo, buffers, textures, dt) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // clear to black
     gl.clearDepth(1.0);                 // clear everything
     gl.enable(gl.DEPTH_TEST);           // enable depth testing
@@ -283,11 +310,11 @@ function drawScene(gl, programInfo, buffers, texture, dt) {
     mat4.rotate(modelViewMatrix,    // destination matrix
         modelViewMatrix,            // matrix to rotate
         cubeRotation,               // amount to rotate in radians
-        [0, 0, 1]);                 // axis to rotate around (Z)
+        [0, 1, 1]);                 // axis to rotate around (Z)
     mat4.rotate(modelViewMatrix,    // destination matrix
-            modelViewMatrix,        // matrix to rotate
+        modelViewMatrix,            // matrix to rotate
         cubeRotation * .7,          // amount to rotate in radians
-            [0, 1, 0]);             // axis to rotate around (X)
+        [1, 0, 1]);                 // axis to rotate around (X)
 
     // tell webgl how to parse positions from position buffer
     {
@@ -347,20 +374,26 @@ function drawScene(gl, programInfo, buffers, texture, dt) {
         modelViewMatrix
     );
 
-    // affect texture unit 0
-    gl.activeTexture(gl.TEXTURE0);
+    const loc = [
+        programInfo.uniformLocations.u_image0,
+        programInfo.uniformLocations.u_image1,
+        programInfo.uniformLocations.u_image2,
+        programInfo.uniformLocations.u_image3,
+        programInfo.uniformLocations.u_image4,
+        programInfo.uniformLocations.u_image5,
+    ];
 
-    // bind texture to texture unit 0
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    var offset = 0;
+    const type = gl.UNSIGNED_SHORT;
+    const vertexCount = 12;
 
-    // tell shader texture bound to texture unit 0
-    gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+    for (var i = 0; i < textures.length; i++) {
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textures[i]);
+        gl.uniform1i(loc[i], 0);
 
-    {
-        const vertexCount = 36;
-        const type = gl.UNSIGNED_SHORT;
-        const offset = 0;
         gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+        offset += 24;
     }
 
     // update rotation for next draw
@@ -411,6 +444,16 @@ function loadTexture(gl, url) {
     image.src = url;
 
     return texture;
+}
+
+function loadTextures(gl, urls) {
+    var textures = [];
+    for (var i = 0; i < urls.length; i++) {
+        var texture = loadTexture(gl, urls[i]);
+        textures.push(texture);
+    }
+
+    return textures;
 }
 
 function isPowerOf2(value) {
