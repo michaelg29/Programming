@@ -1,4 +1,12 @@
+"""
 from .TcpListener import TcpListener
+"""
+
+import sys
+sys.path.append(r"C:\src\business-library\python")
+
+from mundusinvicte.networking.sockets.TcpListener import TcpListener
+
 from .WebClient import WebClient
 from .Request import Request
 from jinja2 import Environment, FileSystemLoader
@@ -16,37 +24,33 @@ class WebServer(TcpListener):
         self.clients = []
         self.atts = WebServerAttributes("content", "error.html")
 
-    def clientConnected(self, clientSock, clientAddr):
-        client = WebClient(clientSock, clientAddr)
+    def clientConnected(self, client):
+        client = WebClient(client.sock, client.addr)
         self.clients.append(client)
 
-    def clientDisconnected(self, clientSock, clientAddr):
+    def clientDisconnected(self, client):
         pass
 
-    def msgReceived(self, clientSock, clientAddr, msg):
-        for client in self.clients:
-            if client.sock == clientSock:
-                request = Request(msg, client, self.atts)
-                request.parse()
+    def msgReceived(self, client, msg):
+        request = Request(msg, client, self.atts)
+        request.parse()
 
-                print(request.method + " " + request.route)
+        print(request.method + " " + request.route)
 
-                if request.route.find(".ico") > -1:
-                    continue
-                elif request.type != "text/css" and request.type.find("image") == -1:
-                    found = False
+        if request.route.find(".ico") > -1:
+            pass
+        elif request.type != "text/css" and request.type.find("image") == -1:
+            found = False
 
-                    for key in self.routes.keys():
-                        if key == request.route[1:]:
-                            self.routes[key](request)
-                            found = True
+            for key in self.routes.keys():
+                if key == request.route[1:]:
+                    self.routes[key](request)
+                    found = True
 
-                    if not found:
-                        request.render_template(self.atts.errorFile)
+            if not found:
+                request.render_template(self.atts.errorFile)
 
-                self.send(clientSock, request.getResponse(), False if request.bytes else True)
-
-                break
+        self.send(clientSock, request.getResponse(), False if request.bytes else True)
 
     def registerContextMethods(self, args):
         self.atts.jinja_env.globals.update(args)
@@ -59,7 +63,3 @@ class WebServer(TcpListener):
         if cmd == "stop":
             print("Server shutting down")
             exit()
-
-    def run(self):
-        super().open()
-        print("Type 'stop' to stop server")
