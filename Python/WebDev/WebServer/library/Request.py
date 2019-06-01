@@ -51,16 +51,17 @@ class Request:
                 params = self.route[query_idx + 1:]
                 self.route = self.route[:query_idx]
                 self.params = parseAttributeString(params)
-                
 
             # form data
             data = request[-1]
-            if data.find("=") != -1:
+            if data.find("=") != -1 and data.find(";") == -1:
                 # has data parameters from form
                 self.data = parseAttributeString(data)
 
-            return 0
-        
+            return
+
+        content = ""
+
         if self.bytes:
             content = self.readBytes(self.route)
         else:
@@ -70,6 +71,7 @@ class Request:
 
     def readText(self, path):
         content = ""
+
         with open(self.serverAtts.contextRoute + path) as f:
             content = f.read()
 
@@ -84,16 +86,21 @@ class Request:
 
     def render_template(self, file_path):
         content = ""
-        
+
         try:
             template = self.serverAtts.jinja_env.get_template(file_path)
+            
             content = template.render(self.client.context)
+            
         except:
             self.response_code = 404
             template = self.serverAtts.jinja_env.get_template(self.serverAtts.errorFile)
             content = template.render(self.client.context)
         else:
             self.render_content(content)
+            return
+
+        self.response_content = content
 
     def render_content(self, content):
         template = Template(content)

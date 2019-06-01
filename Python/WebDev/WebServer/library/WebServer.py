@@ -20,9 +20,9 @@ class WebServerAttributes:
 class WebServer(TcpListener):
     def __init__(self, ipAddr, port):
         super().__init__(ipAddr, port, True)
-        self.routes = {}
         self.clients = []
         self.atts = WebServerAttributes("content", "error.html")
+        self.routes = {}
 
     def serverStarted(self):
         print("Server started at", self.ipAddr, "on port", self.port)
@@ -36,14 +36,14 @@ class WebServer(TcpListener):
         pass
 
     def msgReceived(self, client, msg):
-        request = Request(msg, client, self.atts)
+        request = Request(msg, self.getWebClient(client), self.atts)
         request.parse()
 
         print(request.method + " " + request.route)
 
         if request.route.find(".ico") > -1:
-            pass
-        elif request.type != "text/css" and request.type.find("image") == -1:
+            return
+        elif request.type == "text/html":
             found = False
 
             for key in self.routes.keys():
@@ -54,7 +54,14 @@ class WebServer(TcpListener):
             if not found:
                 request.render_template(self.atts.errorFile)
 
-        self.send(clientSock, request.getResponse(), False if request.bytes else True)
+        client.send(request.getResponse(), False if request.bytes else True)
+
+    def getWebClient(self, client):
+        for wclient in self.clients:
+            if client.sock == wclient.sock:
+                return wclient
+
+        return None
 
     def registerContextMethods(self, args):
         self.atts.jinja_env.globals.update(args)
