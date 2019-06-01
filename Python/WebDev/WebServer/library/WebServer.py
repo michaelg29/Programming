@@ -24,6 +24,10 @@ class WebServer(TcpListener):
         self.clients = []
         self.atts = WebServerAttributes("content", "error.html")
 
+    def serverStarted(self):
+        print("Server started at", self.ipAddr, "on port", self.port)
+        print(r"Type 'stop' to quit")
+
     def clientConnected(self, client):
         client = WebClient(client.sock, client.addr)
         self.clients.append(client)
