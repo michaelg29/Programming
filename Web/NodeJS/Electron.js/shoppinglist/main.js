@@ -5,7 +5,7 @@ const path = require('path');
 const {app, BrowserWindow, Menu, ipcMain} = electron;
 
 // SET ENV
-process.env.NODE_ENV = 'production';
+//process.env.NODE_ENV = 'production';
 
 let mainWindow;
 let addWindow;
@@ -73,12 +73,14 @@ const mainMenuTemplate = [
         submenu: [
             {
                 label: 'Add Item',
+                accelerator: process.platform == 'darwin' ? 'Command+P' : 'Ctrl+P',
                 click() {
                     createAddWindow();
                 }
             },
             {
                 label: 'Clear Items',
+                accelerator: process.platform == 'darwin' ? 'Command+W' : 'Ctrl+W',
                 click() {
                     mainWindow.webContents.send('item:clear');
                 }
