@@ -11,6 +11,8 @@
         </div>
     </nav>
 
+    <a href="sendWindow.html">Click here</a>
+
     <ul id="items"></ul>
 
     <p id="server-out"></p>
@@ -55,6 +57,9 @@
         ipcRenderer.on('server:connection-error', function(e, data) {
             serverOut.innerHTML = "Cannot connect to server";
         });
+
+        // on ready
+        ipcRenderer.send('window:ready');
     </script>
 </body>
 </html>
