@@ -11,12 +11,15 @@
         </div>
     </nav>
 
-    <ul></ul>
+    <ul id="items"></ul>
+
+    <p id="server-out"></p>
 
     <script>
         const electron = require('electron');
         const {ipcRenderer} = electron;
-        const ul = document.querySelector('ul');
+        const ul = document.querySelector('#items');
+        const serverOut = document.querySelector('#server-out');
 
         // add item
         ipcRenderer.on('item:add', function(e, item) {
@@ -43,6 +46,15 @@
                 ul.className = '';
             }
         }
+
+        // server alert
+        ipcRenderer.on('server:alert', function(e, data) {
+            serverOut.innerHTML = "Server says: " + data;
+        });
+
+        ipcRenderer.on('server:connection-error', function(e, data) {
+            serverOut.innerHTML = "Cannot connect to server";
+        });
     </script>
 </body>
 </html>

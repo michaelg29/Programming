@@ -1,14 +1,20 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
+var net = require('net');
 
 const {app, BrowserWindow, Menu, ipcMain} = electron;
+
+// client
+var client = new net.Socket();
+var offline = true;
 
 // SET ENV
 //process.env.NODE_ENV = 'production';
 
 let mainWindow;
 let addWindow;
+let sendWindow;
 
 // listen for app to be ready
 app.on('ready', function() {
@@ -34,6 +40,16 @@ app.on('ready', function() {
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     // insert menu
     Menu.setApplicationMenu(mainMenu);
+    
+    // connect client
+    client.connect(5500, '127.0.0.1', function() {
+        offline = false;
+        client.write('Hello, server! Love, Client.');
+    });
+});
+
+app.on('before-quit', function() {
+    client.destroy();
 });
 
 // handle create add window
@@ -60,10 +76,50 @@ function createAddWindow() {
     });
 }
 
+// handle create send window
+function createSendWindow() {
+    // create window
+    sendWindow = new BrowserWindow({
+        width: 300,
+        height: 200,
+        title: 'Send Message',
+        webPreferences: {
+            nodeIntegration: true
+        }
+    })
+    // load html into window
+    sendWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'sendWindow.html'),
+        protocol: 'file:',
+        slashes: true,
+    }));
+
+    // garbage collection
+    sendWindow.on('close', function() {
+        sendWindow = null;
+    });
+}
+
 // catch item add
 ipcMain.on('item:add', function(e, item) {
     mainWindow.webContents.send('item:add', item);
     addWindow.close();
+});
+
+// catch send
+ipcMain.on('server:send', function(e, data) {
+    client.write(data);
+    sendWindow.close();
+});
+
+// on data received
+client.on('data', function(data) {
+    mainWindow.webContents.send('server:alert', data);
+});
+
+// on client error
+client.on('error', function() {
+    mainWindow.webContents.send('server:connection-error');
 });
 
 // create menu template
@@ -83,6 +139,17 @@ const mainMenuTemplate = [
                 accelerator: process.platform == 'darwin' ? 'Command+W' : 'Ctrl+W',
                 click() {
                     mainWindow.webContents.send('item:clear');
+                }
+            },
+            {
+                label: 'Send Message',
+                accelerator: process.platform == 'darwin' ? "Command+S" : "Ctrl+S",
+                click() {
+                    if (offline) {
+                        alert("Cannot connect");
+                    } else {
+                        createSendWindow();
+                    }
                 }
             },
             {
