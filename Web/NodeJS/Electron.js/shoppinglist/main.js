@@ -44,7 +44,6 @@ app.on('ready', function() {
     // connect client
     client.connect(5500, '127.0.0.1', function() {
         offline = false;
-        client.write('Hello, server! Love, Client.');
     });
 });
 
@@ -108,18 +107,34 @@ ipcMain.on('item:add', function(e, item) {
 
 // catch send
 ipcMain.on('server:send', function(e, data) {
-    client.write(data);
+    let send = {
+        password: data
+    };
+    console.log('sending ' + JSON.stringify(send));
+    client.write(JSON.stringify(send));
     sendWindow.close();
 });
 
 // on data received
 client.on('data', function(data) {
-    mainWindow.webContents.send('server:alert', data);
+    console.log('received:\n' + data);
+    var obj = JSON.parse(data);
+    if (obj['password']) {
+        mainWindow.webContents.send('server:alert', "logged in");
+    } else {
+        mainWindow.webContents.send('server:alert', "failed login");
+    }
 });
 
 // on client error
 client.on('error', function() {
+    console.log('error');
     mainWindow.webContents.send('server:connection-error');
+});
+
+// on client close
+client.on('close', function() {
+    console.log('disconnecting');
 });
 
 // create menu template
