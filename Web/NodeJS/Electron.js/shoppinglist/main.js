@@ -40,11 +40,6 @@ app.on('ready', function() {
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     // insert menu
     Menu.setApplicationMenu(mainMenu);
-    
-    // connect client
-    client.connect(5500, '127.0.0.1', function() {
-        offline = false;
-    });
 });
 
 app.on('before-quit', function() {
@@ -99,6 +94,14 @@ function createSendWindow() {
     });
 }
 
+// catch window ready
+ipcMain.on('window:ready', function(e) {
+    // connect client
+    client.connect(5500, '127.0.0.1', function() {
+        offline = false;
+    });
+});
+
 // catch item add
 ipcMain.on('item:add', function(e, item) {
     mainWindow.webContents.send('item:add', item);
@@ -128,13 +131,12 @@ client.on('data', function(data) {
 
 // on client error
 client.on('error', function() {
-    console.log('error');
     mainWindow.webContents.send('server:connection-error');
 });
 
 // on client close
 client.on('close', function() {
-    console.log('disconnecting');
+    mainWindow.webContents.send('server:connection-error');
 });
 
 // create menu template
