@@ -1,20 +1,27 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
-var net = require('net');
+const net = require('net');
 
-const {app, BrowserWindow, Menu, ipcMain} = electron;
+const {app, BrowserWindow, Menu, ipcMain, dialog} = electron;
 
-// client
-var client = new net.Socket();
-var offline = true;
+var exports = module.exports = {};
+
+var add = require('./add.js');
+var networking = require('./send.js');
+
+exports.sendAlert = function(code) {
+    mainWindow.webContents.send(code);
+};
+
+exports.sendMsg = function(code, data) {
+    mainWindow.webContents.send(code, data);
+};
 
 // SET ENV
 //process.env.NODE_ENV = 'production';
 
 let mainWindow;
-let addWindow;
-let sendWindow;
 
 // listen for app to be ready
 app.on('ready', function() {
@@ -43,101 +50,16 @@ app.on('ready', function() {
 });
 
 app.on('before-quit', function() {
-    client.destroy();
+    add.finished();
+    networking.finished();
 });
-
-// handle create add window
-function createAddWindow() {
-    // create window
-    addWindow = new BrowserWindow({
-        width: 300,
-        height: 200,
-        title: 'Add Shopping List Item',
-        webPreferences: {
-            nodeIntegration: true
-        }
-    })
-    // load html into window
-    addWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'addWindow.html'),
-        protocol: 'file:',
-        slashes: true,
-    }));
-
-    // garbage collection
-    addWindow.on('close', function() {
-        addWindow = null;
-    });
-}
-
-// handle create send window
-function createSendWindow() {
-    // create window
-    sendWindow = new BrowserWindow({
-        width: 300,
-        height: 200,
-        title: 'Send Message',
-        webPreferences: {
-            nodeIntegration: true
-        }
-    })
-    // load html into window
-    sendWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'sendWindow.html'),
-        protocol: 'file:',
-        slashes: true,
-    }));
-
-    // garbage collection
-    sendWindow.on('close', function() {
-        sendWindow = null;
-    });
-}
 
 // catch window ready
 ipcMain.on('window:ready', function(e) {
-    // connect client
-    client.connect(5500, '127.0.0.1', function() {
-        offline = false;
-    });
+    add.ready();
+    networking.ready();
 });
 
-// catch item add
-ipcMain.on('item:add', function(e, item) {
-    mainWindow.webContents.send('item:add', item);
-    addWindow.close();
-});
-
-// catch send
-ipcMain.on('server:send', function(e, data) {
-    let send = {
-        password: data
-    };
-    console.log('sending ' + JSON.stringify(send));
-    client.write(JSON.stringify(send));
-    sendWindow.close();
-});
-
-// on data received
-client.on('data', function(data) {
-    console.log('received:\n' + data);
-    var obj = JSON.parse(data);
-    if (obj['password']) {
-        mainWindow.webContents.send('server:alert', "logged in");
-    } else {
-        mainWindow.webContents.send('server:alert', "failed login");
-    }
-});
-
-// on client error
-client.on('error', function() {
-    mainWindow.webContents.send('server:connection-error');
-});
-
-// on client close
-client.on('close', function() {
-    mainWindow.webContents.send('server:connection-error');
-});
 
 // create menu template
 const mainMenuTemplate = [
@@ -148,7 +70,7 @@ const mainMenuTemplate = [
                 label: 'Add Item',
                 accelerator: process.platform == 'darwin' ? 'Command+P' : 'Ctrl+P',
                 click() {
-                    createAddWindow();
+                    add.createAddWindow();
                 }
             },
             {
@@ -162,10 +84,19 @@ const mainMenuTemplate = [
                 label: 'Send Message',
                 accelerator: process.platform == 'darwin' ? "Command+S" : "Ctrl+S",
                 click() {
-                    if (offline) {
-                        alert("Cannot connect");
+                    if (networking.offline) {
+                        mainWindow.webContents.send('server:connection-error');
+                        const options = {
+                            type: 'error', // none, info, error, question
+                            buttons: ['Ok'],
+                            defaultId: 0,
+                            title: 'Alert',
+                            message: 'You are currently offline',
+                          };
+                        
+                        dialog.showMessageBox(mainWindow, options);
                     } else {
-                        createSendWindow();
+                        networking.createSendWindow();
                     }
                 }
             },
