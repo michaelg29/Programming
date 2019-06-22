@@ -55,6 +55,8 @@
         });
 
         ipcRenderer.on('server:connection-error', function(e, data) {
+            console.log(e);
+            console.log(data);
             serverOut.innerHTML = "Cannot connect to server";
         });
 

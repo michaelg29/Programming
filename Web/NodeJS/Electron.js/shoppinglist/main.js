@@ -11,11 +11,15 @@ var add = require('./add.js');
 var networking = require('./send.js');
 
 exports.sendAlert = function(code) {
-    mainWindow.webContents.send(code);
+    if (mainWindow) {
+        mainWindow.webContents.send(code);
+    }
 };
 
 exports.sendMsg = function(code, data) {
-    mainWindow.webContents.send(code, data);
+    if (mainWindow) {
+        mainWindow.webContents.send(code, data);
+    }
 };
 
 // SET ENV
@@ -60,7 +64,6 @@ ipcMain.on('window:ready', function(e) {
     networking.ready();
 });
 
-
 // create menu template
 const mainMenuTemplate = [
     {
@@ -84,6 +87,7 @@ const mainMenuTemplate = [
                 label: 'Send Message',
                 accelerator: process.platform == 'darwin' ? "Command+S" : "Ctrl+S",
                 click() {
+                    
                     if (networking.offline) {
                         mainWindow.webContents.send('server:connection-error');
                         const options = {

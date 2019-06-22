@@ -41,7 +41,7 @@ exports.createSendWindow = function() {
 exports.ready = function() {
     // connect client
     client.connect(5500, '127.0.0.1', function() {
-        offline = false;
+        exports.offline = false;
     });
 };
 
@@ -52,18 +52,24 @@ exports.finished = function() {
 // catch send
 ipcMain.on('server:send', function(e, data) {
     let send = {
-        password: data
+        type: 'post',
+        module: 'login',
+        data: {
+            username: data.substring(0, data.indexOf(',')),
+            password: data.substring(data.indexOf(',') + 1)
+        }
     };
     console.log('sending ' + JSON.stringify(send));
     client.write(JSON.stringify(send));
-    exports.sendWindow.close();
+    sendWindow.close();
 });
 
 // on data received
 client.on('data', function(data) {
     console.log('received:\n' + data);
     var obj = JSON.parse(data);
-    if (obj['password']) {
+
+    if (obj['data']['id'] != -1) {
         main.sendMsg('server:alert', "logged in");
     } else {
         main.sendMsg('server:alert', "failed login");
@@ -77,6 +83,5 @@ client.on('error', function() {
 
 // on client close
 client.on('close', function() {
-    main.sendAlert('server:connection-error');
     exports.offline = true;
 });
