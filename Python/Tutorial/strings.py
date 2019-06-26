@@ -119,4 +119,4 @@ outtab = "12345"
 trantab = maketrans(intab, outtab)
 
 str = "this is string example....wow!!!"
-print str.translate(trantab)                    # th3s 3s str3ng 2x1mpl2....w4w!!!
+print(str.translate(trantab))                    # th3s 3s str3ng 2x1mpl2....w4w!!!
