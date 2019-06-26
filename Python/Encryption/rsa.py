@@ -27,8 +27,10 @@ def isPrime(n):
 # def getPrimeNumber():
 #     return primeNums[random.randint(0, len(primeNums) - 1)]
 
+chars = r"0123456789!@#$%^&*()-=_+qwertyuiopasdfghjklzxcvbnm QWERTYUIOPASDFGHJKLZXCVBNM[]{}\|;':\",./<>?"
+
 dict = {}
-for idx, c in enumerate(string.printable):
+for idx, c in enumerate(chars):
     dict[c] = idx
 
 def coPrime(p, q):
@@ -50,7 +52,7 @@ def decrypt(d, n, c):
     ret = ""
     for part in parts:
         if part:
-            ret += string.printable[int(part) ** d % n]
+            ret += chars[int(part) ** d % n]
     
     return ret
 
@@ -61,7 +63,7 @@ if __name__ == "__main__":
 
     # get message
     # msg = input("Input message to be encrypted:")
-    msg = ''.join([string.printable[random.randint(0, 99)] for i in range(30)])
+    msg = ''.join([chars[random.randint(0, len(chars) - 1)] for i in range(30)])
     print("Message:", msg)
 
     print("Generating key pairs")
@@ -71,8 +73,8 @@ if __name__ == "__main__":
     # p = getPrimeNumber()
     # q = getPrimeNumber()
 
-    p = 173
-    q = 149
+    p = 307
+    q = 503
 
     # find co-prime numbers to phi(n)
     N = p * q # becomes modulus in encryption/decryption, p and q only factors
@@ -100,5 +102,4 @@ if __name__ == "__main__":
     c = encrypt(e, N, msg)
     print("Encrypted:", c)
     print("Decrypted:", decrypt(d, N, c))
-    
-
+    print("\a")
