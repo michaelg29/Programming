@@ -1,3 +1,4 @@
-ionic start <name> <template>
+ionic start <name> <template> --type=ionic-angular
+    <template> : [tabs, sidemenu, blank, super, tutorial]
 ionic serve --address=<ipAddress> --disableHostCheck
 ionic g page <name>
