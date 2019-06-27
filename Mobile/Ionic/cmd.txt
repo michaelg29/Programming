@@ -1,0 +1,3 @@
+ionic start <name> <template>
+ionic serve --address=<ipAddress> --disableHostCheck
+ionic g page <name>
