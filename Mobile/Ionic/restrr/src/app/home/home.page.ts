@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { Insomnia } from '@ionic-native/insomnia/ngx';
-import { NavController, NavParams } from '@ionic/angular';
-import { Router, NavigationExtras } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { SettingsPage } from '../settings/settings.page';
 
@@ -30,8 +29,8 @@ export class HomePage {
 
   settingsPage = SettingsPage;
 
-  constructor(private insomnia: Insomnia, private router : Router, public navExtras : NavigationExtras ) {
-    console.log(navExtras);
+  constructor(private insomnia: Insomnia, private router : Router, private route : ActivatedRoute ) {
+    this.route.params.forEach(x => this.fullTime = x['time']);
   }
 
   startTimer() {
@@ -101,6 +100,7 @@ export class HomePage {
   }
 
   settings() {
-    this.router.navigate(['settings', { time: this.fullTime }]);
+    console.log(this.fullTime);
+    this.router.navigate(['/settings/' + this.fullTime]);
   }
 }
