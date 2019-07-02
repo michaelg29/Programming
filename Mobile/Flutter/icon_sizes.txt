@@ -1,4 +1,4 @@
-android
+android/app/src/main/res
     mipmap-hdpi: 72x72 px
     mipmap-mdpi: 48x48 px
     mipmap-xhdpi: 96x96 px
