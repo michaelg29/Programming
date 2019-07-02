@@ -1,0 +1,6 @@
+android
+    mipmap-hdpi: 72x72 px
+    mipmap-mdpi: 48x48 px
+    mipmap-xhdpi: 96x96 px
+    mipmap-xxhdpi: 144x144 px
+    mipmap-xxxhdpi: 192x192 px
