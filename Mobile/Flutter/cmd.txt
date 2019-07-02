@@ -1,3 +1,4 @@
 flutter create <name>
 flutter run
 flutter build apk --release
+flutter build appbundle
