@@ -41,7 +41,7 @@ def gcd(p, q):
         p, q = q, p % q
     return p
 
-def encrypt(e, n, m):
+def encrypt(e, n, msg):
     m = ""
     for c in msg:
         m += str(dict[c] ** e % n) + ' '
