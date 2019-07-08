@@ -44,7 +44,7 @@ def gcd(p, q):
 def encrypt(e, n, msg):
     m = ""
     for c in msg:
-        m += str(dict[c] ** e % n) + ' '
+        m += str(ord(c) ** e % n) + ' '
     return m
 
 def decrypt(d, n, c):
@@ -52,7 +52,7 @@ def decrypt(d, n, c):
     ret = ""
     for part in parts:
         if part:
-            ret += chars[int(part) ** d % n]
+            ret += chr(int(part) ** d % n)
     
     return ret
 
@@ -63,7 +63,8 @@ if __name__ == "__main__":
 
     # get message
     # msg = input("Input message to be encrypted:")
-    msg = ''.join([chars[random.randint(0, len(chars) - 1)] for i in range(30)])
+    #msg = ''.join([chars[random.randint(0, len(chars) - 1)] for i in range(30)])
+    msg = "Hello, world!";
     print("Message:", msg)
 
     print("Generating key pairs")
