@@ -1,3 +1,5 @@
+https://www.youtube.com/watch?v=7uRK9iOk4uk&list=PLKK11LigqitiRH57AbtyJyzsfbNfA8nb-&index=2&ab_channel=What%27saCreel%3F 11:21
+
 #include <iostream>
 
 // adapted from https://www.youtube.com/watch?v=K2Xfm0-owS4&list=PLKK11LigqitiRH57AbtyJyzsfbNfA8nb-&index=3&ab_channel=What%27saCreel%3F
@@ -68,7 +70,9 @@ void mixColumns(unsigned char* state) {
 }
 
 void addRoundKey(unsigned char* state, unsigned char* roundKey) {
-
+	for (int i = 0; i < 16; i++) {
+		state[i] ^= roundKey[i]; // XOR
+	}
 }
 
 void encrypt(unsigned char* message, unsigned char* key) {
