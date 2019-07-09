@@ -21,18 +21,6 @@ def isPrime(n):
     # n is probably prime
     return True
 
-# primeNums = [i for i in range(int(9e9) + 1, int(1e10), 2) if isPrime(i)]
-# print('\a')
-
-# def getPrimeNumber():
-#     return primeNums[random.randint(0, len(primeNums) - 1)]
-
-chars = r"0123456789!@#$%^&*()-=_+qwertyuiopasdfghjklzxcvbnm QWERTYUIOPASDFGHJKLZXCVBNM[]{}\|;':\",./<>?"
-
-dict = {}
-for idx, c in enumerate(chars):
-    dict[c] = idx
-
 def coPrime(p, q):
     return gcd(p, q) == 1
 
@@ -52,7 +40,7 @@ def decrypt(d, n, c):
     ret = ""
     for part in parts:
         if part:
-            ret += chr(int(part) ** d % n)
+            ret += chr(pow(int(part), d, n))
     
     return ret
 
@@ -91,11 +79,14 @@ if __name__ == "__main__":
             break
 
     # ================================ ENCRYPT ======================================#
+    e = 7
+    N = 3203750633
     print("Encryption Key: (", e, ", ", N, ")", sep='')
 
     # choose d (decryption key)
     # (d * e) % phiN = 1
     d = int((2 * phiN + 1) / e)
+    d = 915324891
 
     # ================================ DECRYPT ======================================#
     print("Decryption Key: (", d, ", ", N, ")", sep='')
