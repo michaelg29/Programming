@@ -1,0 +1,76 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Manjari&display=swap');
+
+        * {
+            font-family: 'Manjari', sans-serif;
+            font-size: 20px;
+        }
+
+        form.condensed {
+            display: table;
+            margin: auto;
+        }
+
+        form.condensed input {
+            border: 0;
+            border-bottom: 1px solid lightgray;
+            outline: none;
+            transition: 500ms;
+        }
+
+        form.condensed input:focus {
+            border-color: darkslategray;
+            border-bottom-width: 2px;
+        }
+
+        form.condensed input, form.condensed label {
+            display: table-cell;
+        }
+
+        form.condensed .form-item {
+            padding: 15px;
+            border-top: 1px solid lightgray;
+            border-bottom: 1px solid lightgray;
+        }
+
+        form.condensed .form-item:first-child {
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+
+            border-top-width: 0px;
+        }
+
+        form.condensed .form-item:last-child {
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+
+            border-bottom-width: 0px;
+        }
+    </style>
+</head>
+<body>
+    <form class="condensed">
+        <div class="form-item">
+            <label for="item1">Username</label>
+            <input type="text" id="item1">
+        </div>
+
+        <div class="form-item">
+            <label for="item2">Email</label>
+            <input type="text" id="item2">
+        </div>
+
+        <div class="form-item">
+            <label for="item3">Password</label>
+            <input type="password" id="item3">
+        </div>
+    </form>
+</body>
+</html>
