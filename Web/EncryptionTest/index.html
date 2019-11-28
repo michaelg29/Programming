@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>AES Encryption Test</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <section class="encrypt-decrypt aes-ctr">
+            <h2 class="encrypt-decrypt-heading">AES-CTR</h2>
+            <section class="encrypt-decrypt-controls">
+                <div class="message-control">
+                <label for="aes-ctr-message">Enter a message to encrypt:</label>
+                <input type="text" id="aes-ctr-message" name="message" size="25"
+                        value="The tiger prowls at dawn">
+                </div>
+                <div class="ciphertext">Ciphertext:<span class="ciphertext-value"></span></div>
+                <div class="decrypted">Decrypted:<span class="decrypted-value"></span></div>
+                <input class="encrypt-button" type="button" value="Encrypt">
+                <input class="decrypt-button" type="button" value="Decrypt">
+            </section>
+        </section>
+        <script src="index.js"></script>
+    </body>
+</html>
