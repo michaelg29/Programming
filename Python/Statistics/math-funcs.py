@@ -31,8 +31,30 @@ def areaUnderCurve(func_def, a, b, arg='', n=1000):
 
     return area
 
+def integral(function, a, b, n):
+    dx = (b - a) / n
+
+    area = 0
+
+    xi = a
+
+    for i in range(n):
+        xi = a + i * dx + dx / 2
+        val = function(xi)
+
+        area += val * dx
+
+    return area
+
+def derivative(function, x):
+    dx = 1e-10
+    y1 = function(x)
+    y2 = function(x + dx)
+
+    return (y2 - y1) / dx
+
 def function(x):
-    return x ** 4
+    return x ** 2
 
 def tpdf(t, v):
     return gamma((v + 1)/2) / (sqrt(v * pi) * gamma(v / 2)) * (1 + (t ** 2) / v) ** (-.5 * (v + 1))
@@ -40,4 +62,4 @@ def tpdf(t, v):
 def tcdf(lower, upper, v):
     return areaUnderCurve(tpdf, lower, upper, v)
 
-print(tcdf(-1, 1, 15))
+print(derivative(function, 2))
