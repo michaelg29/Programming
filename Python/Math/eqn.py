@@ -4,7 +4,7 @@ class function:
     TYPE_FUNCTION = "f"
     TYPE_OPERATOR = "o"
 
-    def __init__(self, eval, t=TYPE_FUNCTION, prec=0, left=True):
+    def __init__(self, eval, t=TYPE_FUNCTION, prec=5, left=True):
         self.eval = eval
         self.t = t
         self.prec = prec
@@ -153,6 +153,9 @@ def RPN(eqn):
                         type = TYPE_ELSE
             i += n
 
+
+        #print(obj, queue, stack)
+
         if type == TYPE_CONST:
             # token is number
             queue.append(obj)
@@ -162,8 +165,7 @@ def RPN(eqn):
         elif type == TYPE_OP:
             # token is operator
             if len(stack) != 0:
-                while (stack[-1] in functions \
-                    or getPrecedence(stack[-1]) > getPrecedence(obj) \
+                while (getPrecedence(stack[-1]) > getPrecedence(obj) \
                     or (getPrecedence(stack[-1]) == getPrecedence(obj) and isLeftAssociative(stack[-1]))) \
                     and stack[-1] not in left_brackets:
                     queue.append(stack.pop())
@@ -181,6 +183,8 @@ def RPN(eqn):
         else:
             print(f'not identified \'{t}\'')
             break
+
+        #print(queue, stack)
 
     while len(stack) > 0:
         queue.append(stack.pop())
