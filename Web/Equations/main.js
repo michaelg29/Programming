@@ -141,7 +141,7 @@ function RPN(eqn) {
 					}
 				}
 			}
-			obj = parseFloat(obj);
+			obj = getNumVal(obj);
 		} else {
 			let data = findElement(i, eqn, functions);
 			let found = data[0];
@@ -185,15 +185,17 @@ function RPN(eqn) {
 			case TYPE_OP:
 				if (stack.length != 0) {
 					while (
+						(functions.includes(last_stack) && !operators.includes(last_stack)) ||
 						getPrecedence(last_stack) > getPrecedence(obj) ||
 						(getPrecedence(last_stack) === getPrecedence(obj) &&
-							isLeftAssociative(last_stack) &&
-							!left_brackets.includes(last_stack))
+							isLeftAssociative(last_stack)) &&
+							!left_brackets.includes(last_stack)
 					) {
 						queue.push(stack.pop());
 						if (stack.length === 0) {
 							break;
 						}
+						last_stack = stack[stack.length - 1];
 					}
 				}
 				stack.push(obj);
@@ -202,15 +204,16 @@ function RPN(eqn) {
 				stack.push('(');
 				break;
 			case TYPE_RPAREN:
-				while (last_stack !== '(') {
+				while (stack[stack.length - 1] !== '(') {
 					queue.push(stack.pop());
-					last_stack = stack[stack.length - 1];
 				}
 				stack.pop();
 				break;
 			default:
 				return null;
 		}
+
+		console.log(queue, stack);
 	}
 
 	while (stack.length > 0) {

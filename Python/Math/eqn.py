@@ -66,7 +66,7 @@ def isNumber(c):
     return c.isnumeric() or c in constants or c == '.'
 
 def getNumVal(c):
-    if type(c) in float:
+    if type(c) == float:
         return c
     elif c in constants:
         return constants[c]
@@ -130,7 +130,7 @@ def RPN(eqn):
                     if i >= len(eqn) - 1:
                         break
             i += 1
-            obj = float(obj)
+            obj = getNumVal(obj)
         else:
             # determine if operator or function
             # find operator
@@ -165,7 +165,8 @@ def RPN(eqn):
         elif type == TYPE_OP:
             # token is operator
             if len(stack) != 0:
-                while (getPrecedence(stack[-1]) > getPrecedence(obj) \
+                while ((stack[-1] in functions and stack[-1] not in operators)
+                    or getPrecedence(stack[-1]) > getPrecedence(obj) \
                     or (getPrecedence(stack[-1]) == getPrecedence(obj) and isLeftAssociative(stack[-1]))) \
                     and stack[-1] not in left_brackets:
                     queue.append(stack.pop())
@@ -249,9 +250,10 @@ if __name__ == "__main__":
     eqn = input("Equation: ")
 
     rpn = RPN(eqn)
-    tree = parse(rpn)
-    out = round(eval(tree), 8)
-
     print(f"Input:  {eqn}")
     print(f"RPN:    {rpn}")
+
+    tree = parse(rpn)
+    out = round(eval(tree), 8)
+    
     print(f"Result: {out}")
