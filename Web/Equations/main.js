@@ -1,7 +1,3 @@
-inelement = document.querySelector('#input');
-outelement = document.querySelector('#output');
-btn = document.querySelector('#btn');
-
 let TYPE_OP = 'o';
 let TYPE_CONST = 'c';
 let TYPE_FUNC = 'f';
@@ -33,6 +29,13 @@ let constants = {
 	pi: Math.PI,
 	e: Math.E
 };
+
+let varnames = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let variables = {};
+for (var i = 0, len = varnames.length; i < len; i++) {
+	variables[varnames.charAt(i)] = 0;
+}
+
 let constant_names = Object.keys(constants);
 
 let unary_functions = {
@@ -87,6 +90,10 @@ function getNumVal(c) {
 	}
 }
 
+function isVariable(c) {
+	return Object.keys(variables).includes(c);
+}
+
 function isFunction(c) {
 	return functions.includes(c);
 }
@@ -95,11 +102,11 @@ function findElement(i, eqn, list) {
 	for (var j = 0, len = list.length; j < len; j++) {
 		n = list[j].length;
 		if (eqn.substring(i, i + n) === list[j]) {
-			return [ true, list[j], n ];
+			return [true, list[j], n];
 		}
 	}
 
-	return [ false, '', 1 ];
+	return [false, '', 1];
 }
 
 function getPrecedence(op) {
@@ -142,6 +149,9 @@ function RPN(eqn) {
 				}
 			}
 			obj = getNumVal(obj);
+		} else if (isVariable(t)) {
+			type = TYPE_CONST;
+			obj = t;
 		} else {
 			let data = findElement(i, eqn, functions);
 			let found = data[0];
@@ -189,7 +199,7 @@ function RPN(eqn) {
 						getPrecedence(last_stack) > getPrecedence(obj) ||
 						(getPrecedence(last_stack) === getPrecedence(obj) &&
 							isLeftAssociative(last_stack)) &&
-							!left_brackets.includes(last_stack)
+						!left_brackets.includes(last_stack)
 					) {
 						queue.push(stack.pop());
 						if (stack.length === 0) {
@@ -212,8 +222,6 @@ function RPN(eqn) {
 			default:
 				return null;
 		}
-
-		console.log(queue, stack);
 	}
 
 	while (stack.length > 0) {
@@ -229,6 +237,8 @@ function parse(rpn) {
 	Array.from(rpn).forEach((t) => {
 		let tr = null;
 		if (isNumber(t)) {
+			tr = genNode(t, false);
+		} else if (isVariable(t)) {
 			tr = genNode(t, false);
 		} else {
 			if (Object.keys(binary_functions).includes(t)) {
@@ -277,27 +287,10 @@ function eval(tree, vars = {}) {
 	} else {
 		if (constant_names.includes(tree.val)) {
 			return constants[tree.val];
-		} else if (Object.keys(vars).includes(tree.val)) {
-			return vars[tree.val];
+		} else if (Object.keys(variables).includes(tree.val)) {
+			return variables[tree.val];
 		} else {
 			return tree.val;
 		}
 	}
 }
-
-btn.addEventListener('click', (e) => {
-	let eqn = inelement.value;
-	let rpn = RPN(eqn);
-
-	var out;
-
-	if (rpn) {
-		let tree = parse(rpn);
-		console.log(tree);
-		out = eval(tree);
-	} else {
-		out = 'could not parse equation';
-	}
-
-	outelement.innerHTML = out;
-});
