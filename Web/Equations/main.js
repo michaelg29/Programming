@@ -5,6 +5,10 @@ let TYPE_ELSE = 'e';
 let TYPE_LPAREN = '(';
 let TYPE_RPAREN = ')';
 
+function value(x, func) {
+
+}
+
 function genFunc(eval, type = TYPE_FUNC, prec = 0, left = true) {
 	return {
 		eval: eval,
@@ -53,7 +57,8 @@ let unary_functions = {
 	arccot: genFunc((x) => Math.atan(1 / x)),
 	ln: genFunc((x) => Math.log(x)),
 	log: genFunc((x) => Math.log10(x)),
-	sqrt: genFunc((x) => Math.sqrt(x))
+	sqrt: genFunc((x) => Math.sqrt(x)),
+	abs: genFunc((x) => Math.abs(x))
 };
 
 let binary_functions = {

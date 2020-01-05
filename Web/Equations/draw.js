@@ -100,14 +100,30 @@ canvas.addEventListener("wheel", (e) => {
 });
 
 function draw(tree) {
-    variables.X = minX;
-    let previousY = eval(tree);
-
+    var i = 0;
     dx = 1 / global_scale;
 
-    for (var i = 1, width = canvas.width; i < width; i++) {
+    var y;
+    variables.X = minX;
+
+    var width = canvas.width;
+
+    while ((y = eval(tree)) === NaN && i < width) {
         variables.X = minX + i * dx;
-        let y = (eval(tree) - minY) * global_scale;
+        i++;
+    }
+
+    let previousY = (y - minY) * global_scale;
+
+    for (; i < width; i++) {
+        variables.X = minX + i * dx;
+        y = eval(tree);
+
+        if (y === NaN) {
+            continue;
+        }
+
+        y = (y - minY) * global_scale;
 
         ctx.beginPath();
         ctx.moveTo(i - 1, previousY);
