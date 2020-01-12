@@ -1,7 +1,7 @@
-#include "node.h"
+#include "utils/node.h"
 
-#include "../func.h"
-#include "../ref.h"
+#include "func.h"
+#include "ref.h"
 
 Node::Node(const char* name, bool isFunc)
 	: name(name), isFunc(isFunc) {}

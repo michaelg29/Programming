@@ -77,7 +77,7 @@ bool isNumber(char c) {
 }
 
 bool isNumber(const char* c) {
-	return contains<std::string>(constantNames, c) || c == "." || containsNumbers(c);
+	return contains<std::string>(constantNames, c) || strcmp(c, ".") == 0 || containsNumbers(c);
 }
 
 double getNumericalVal(const char* c) {
@@ -106,7 +106,7 @@ short getPrecedence(std::string c) {
 
 std::string findElement(int i, const char* eqn, std::vector<std::string> list) {
 	for (std::string item : list) {
-		int n = item.size();
+		int n = (int)item.size();
 		if (std::string(eqn).substr(i, n) == item) {
 			return item;
 		}
