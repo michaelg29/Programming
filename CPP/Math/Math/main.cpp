@@ -2,13 +2,15 @@
 #include <vector>
 #include <string>
 
-#include "ref.h";
+#include "ref.h"
 #include "utils/node.h"
 #include "shunting-yard.h"
 
 int main() {
 	initRef();
 
+    std::cout << "Input equation: ";
+    
 	std::string eqn;
 	std::getline(std::cin, eqn);
 

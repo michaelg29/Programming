@@ -13,7 +13,7 @@ std::vector<std::string> RPN(const char* eqn) {
 	std::string obj = "";
 	char type = ' ';
 
-	for (int i = 0, eq_len = strlen(eqn); i < eq_len; i++) {
+	for (int i = 0, eq_len = (int)strlen(eqn); i < eq_len; i++) {
 		char t = eqn[i];
 
 		// skip spaces/commas
@@ -146,12 +146,12 @@ double eval(Node* tree) {
 	if (tree->isFunc) {
 		FuncNode* ftree = (FuncNode*)tree;
 		if (ftree->func.unary) {
-			return ftree->eval(eval(tree->left));
+			return ftree->eval(eval(tree->left), 0);
 		} else {
 			return ftree->eval(eval(tree->left), eval(tree->right));
 		}
 	} else {
 		NumNode* ntree = (NumNode*)tree;
-		return ntree->eval();
+		return ntree->eval(0, 0);
 	}
 }
