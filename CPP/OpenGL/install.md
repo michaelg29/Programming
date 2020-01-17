@@ -1,6 +1,7 @@
 # OpenGL Installation Process
 
-Following instructions starting at [Learn OpenGL](https://learnopengl.com/Getting-started/OpenGL)
+Following instructions starting at [Learn OpenGL](https://learnopengl.com/Getting-started/OpenGL).  
+Make sure everything you configure is set for **_x64_** in your IDE.
 
 ## Initial
 1. Create directory named 'Linking' in Solution Directory
