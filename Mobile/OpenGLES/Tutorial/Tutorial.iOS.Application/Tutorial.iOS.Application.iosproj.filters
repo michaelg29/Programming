@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Tutorial.iOS">
+      <UniqueIdentifier>{1e776076-486b-46f8-b227-259e3e9db6db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tutorial.iOS\Images.xcassets">
+      <UniqueIdentifier>{9740ba60-25cb-4af8-a6b9-a1971fc26540}</UniqueIdentifier>
+      <Extensions>Tutorial.iOS\Images.xcassets\*</Extensions>
+    </Filter>
+    <Filter Include="Tutorial.iOS\Images.xcassets\AppIcon.appiconset">
+      <UniqueIdentifier>{976b41ff-01d7-459a-ac44-1c46161169cc}</UniqueIdentifier>
+      <Extensions>Tutorial.iOS\Images.xcassets\AppIcon.appiconset\*</Extensions>
+    </Filter>
+    <Filter Include="Tutorial.iOS\Supporting Files">
+      <UniqueIdentifier>{8a960a14-ed0f-4d62-85f4-4b62eb2b26c0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Tutorial.iOS\AppDelegate.m">
+      <Filter>Tutorial.iOS</Filter>
+    </ClCompile>
+    <ClCompile Include="Tutorial.iOS\GameViewController.m">
+      <Filter>Tutorial.iOS</Filter>
+    </ClCompile>
+    <ClCompile Include="Tutorial.iOS\main.m">
+      <Filter>Tutorial.iOS\Supporting Files</Filter>
+    </ClCompile>
+    <ClInclude Include="Tutorial.iOS\AppDelegate.h">
+      <Filter>Tutorial.iOS</Filter>
+    </ClInclude>
+    <ClInclude Include="Tutorial.iOS\GameViewController.h">
+      <Filter>Tutorial.iOS</Filter>
+    </ClInclude>
+    <Content Include="Tutorial.iOS\Base.lproj\Main.storyboard">
+      <Filter>Tutorial.iOS</Filter>
+    </Content>
+    <Content Include="Tutorial.iOS\Images.xcassets\AppIcon.appiconset\Contents.json">
+      <Filter>Tutorial.iOS\Images.xcassets\AppIcon.appiconset</Filter>
+    </Content>
+    <InfoPlist Include="Tutorial.iOS\Info.plist">
+      <Filter>Tutorial.iOS\Supporting Files</Filter>
+    </InfoPlist>
+  </ItemGroup>
+</Project>
