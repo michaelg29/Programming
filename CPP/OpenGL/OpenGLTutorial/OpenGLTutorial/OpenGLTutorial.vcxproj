@@ -132,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\fragment_core.glsl" />
+    <None Include="src\fragment_core_2.glsl" />
     <None Include="src\vertex_core.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

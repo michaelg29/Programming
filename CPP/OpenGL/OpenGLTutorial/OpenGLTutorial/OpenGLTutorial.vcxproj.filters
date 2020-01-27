@@ -25,5 +25,6 @@
   <ItemGroup>
     <None Include="src\vertex_core.glsl" />
     <None Include="src\fragment_core.glsl" />
+    <None Include="src\fragment_core_2.glsl" />
   </ItemGroup>
 </Project>
