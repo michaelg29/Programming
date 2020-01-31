@@ -48,8 +48,6 @@ int main() {
 
 	glViewport(0, 0, 800, 600);
 
-	
-
 	// SHADERS=======================
 	// instruct how GPU should process vertex data
 
@@ -82,7 +80,7 @@ int main() {
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED" << std::endl << infoLog << std::endl;
 	}
 
-	fragmentShaders[1] = glCreateShader(GL_FRAGMENT_SHADER);
+	/*fragmentShaders[1] = glCreateShader(GL_FRAGMENT_SHADER);
 	fragShaderSrc = loadShaderSrc("src/fragment_core_2.glsl");
 	fragShader = fragShaderSrc.c_str();
 	glShaderSource(fragmentShaders[1], 1, &fragShader, NULL);
@@ -92,7 +90,7 @@ int main() {
 	if (!success) {
 		glGetShaderInfoLog(fragmentShaders[1], 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::FRAGMENT2::COMPILATION_FAILED" << std::endl << infoLog << std::endl;
-	}
+	}*/
 
 	// combine shaders in shader program
 	unsigned int shaderPrograms[2];
@@ -100,12 +98,12 @@ int main() {
 	glAttachShader(shaderPrograms[0], vertexShader);
 	glAttachShader(shaderPrograms[0], fragmentShaders[0]);
 
-	shaderPrograms[1] = glCreateProgram();
+	/*shaderPrograms[1] = glCreateProgram();
 	glAttachShader(shaderPrograms[1], vertexShader);
-	glAttachShader(shaderPrograms[1], fragmentShaders[1]);
+	glAttachShader(shaderPrograms[1], fragmentShaders[1]);*/
 
 	glLinkProgram(shaderPrograms[0]);
-	glLinkProgram(shaderPrograms[1]);
+	//glLinkProgram(shaderPrograms[1]);
 
 	glGetProgramiv(shaderPrograms[0], GL_LINK_STATUS, &success);
 	if (!success) {
@@ -113,15 +111,15 @@ int main() {
 		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED" << std::endl << infoLog << std::endl;
 	}
 
-	glGetProgramiv(shaderPrograms[1], GL_LINK_STATUS, &success);
+	/*glGetProgramiv(shaderPrograms[1], GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(shaderPrograms[1], 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::PROGRAM2::LINKING_FAILED" << std::endl << infoLog << std::endl;
-	}
+	}*/
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShaders[0]);
-	glDeleteShader(fragmentShaders[1]);
+	//glDeleteShader(fragmentShaders[1]);
 
 	// LINK VERTEX ATTRIBUTES ====================
 	// tell GPU how to interpret vertex data
@@ -153,11 +151,11 @@ int main() {
 	glEnableVertexAttribArray(0);
 
 	// second triangle
-	glBindVertexArray(VAOs[1]);
+	/*glBindVertexArray(VAOs[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(0);*/
 
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -177,9 +175,9 @@ int main() {
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		// second triangle
-		glUseProgram(shaderPrograms[1]);
+		/*glUseProgram(shaderPrograms[1]);
 		glBindVertexArray(VAOs[1]);
-		glDrawArrays(GL_TRIANGLES, 2, 3);
+		glDrawArrays(GL_TRIANGLES, 2, 3);*/
 
 		// draw triangle
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
