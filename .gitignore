@@ -259,3 +259,13 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/lib/glad.c
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/OpenGLTutorial.vcxproj
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/OpenGLTutorial.vcxproj.filters
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/src/fragment_core.glsl
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/src/fragment_core_2.glsl
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/src/glad.c
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/src/main.cpp
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/src/shader.cpp
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/src/shader.h
+CPP/OpenGL/OpenGLTutorial/OpenGLTutorial/src/vertex_core.glsl
