@@ -18,5 +18,20 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bigint\BigInteger.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bigint\BigIntegerAlgorithms.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bigint\BigIntegerUtils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bigint\BigUnsigned.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bigint\BigUnsignedInABase.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
