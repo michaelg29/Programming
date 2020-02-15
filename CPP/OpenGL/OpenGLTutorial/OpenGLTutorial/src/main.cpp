@@ -14,6 +14,7 @@ void processInput(GLFWwindow* window);
 std::string loadShaderSrc(const char* fileName);
 
 float level = 0.2f;
+float offset = 0.0f;
 
 int main() {
 	int success;
@@ -185,6 +186,8 @@ int main() {
 		float greenValue = sin(timeValue) / 2.0f + 0.5f;
 		ourShader.setFloat("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
 
+		ourShader.setFloat("offset", offset);
+
 		glBindVertexArray(VAO);
 		// draw triangle
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -221,6 +224,18 @@ void processInput(GLFWwindow* window) {
 		level -= 0.001;
 		if (level <= 0.0f) {
 			level = 0.0f;
+		}
+	}
+	else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		offset += 0.01f;
+		if (offset >= 0.5f) {
+			offset = 0.5f;
+		}
+	}
+	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		offset -= 0.01f;
+		if (offset <= -0.5f) {
+			offset = -0.5f;
 		}
 	}
 }
