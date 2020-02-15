@@ -1,8 +1,63 @@
 #include <cmath>
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <iterator>
+#include <vector>
 
 #include <BigIntegerLibrary.hh>
 #include <BigInteger.hh>
+
+std::vector<std::string> split(const char in[]);
+BigInteger pow(BigInteger x, BigInteger y, BigInteger p);
+bool millerRabinTest(BigInteger n, BigInteger d);
+bool isPrime(BigInteger n);
+BigInteger gcd(BigInteger p, BigInteger q);
+BigInteger egcd(BigInteger a, BigInteger b, BigInteger* x, BigInteger* y);
+bool isCoPrime(BigInteger p, BigInteger q);
+BigInteger generateLargeNum(int keysize = 1024);
+BigInteger generateLargePrime(int keysize = 1024);
+BigInteger modularInverse(BigInteger a, BigInteger m);
+BigInteger* generateKeys(int keysize = 1024);
+std::string encrypt(BigInteger e, BigInteger n, std::string msg);
+std::string decrypt(BigInteger d, BigInteger n, std::string cypher);
+
+BigUnsigned bintmax;
+
+int main() {
+	int keysize = 32;
+	for (int i = 0; i <= keysize; i++) {
+		bintmax.setBit(i, true);
+	}
+
+	BigInteger* keys = generateKeys(keysize);
+	BigInteger e = keys[0];
+	BigInteger d = keys[1];
+	BigInteger n = keys[2];
+
+	std::string msg = "Hello, world!";
+
+	std::string enc = encrypt(e, n, msg);
+	std::string dec = decrypt(d, n, enc);
+
+	std::cout << "Message: " << msg << std::endl;
+	std::cout << "e: " << e << std::endl;
+	std::cout << "d: " << d << std::endl;
+	std::cout << "N: " << n << std::endl;
+	std::cout << "enc: " << enc << std::endl;
+	std::cout << "dec: " << dec << std::endl;
+
+	return 0;
+}
+
+std::vector<std::string> split(const char in[]) {
+	std::istringstream iss(in);
+	std::istream_iterator<std::string> first(iss), last;
+
+	std::vector<std::string> parts;
+	std::copy(first, last, std::back_inserter(parts));
+	return parts;
+}
 
 // (x ^ y) % p
 BigInteger pow(BigInteger x, BigInteger y, BigInteger p) {
@@ -80,7 +135,7 @@ bool isPrime(BigInteger n) {
 	// try to prove not prime 16 times
 	int k = 16;
 	for (int i = 0; i < k; i++) {
-		if (!millerRabinTest(n, d)) {
+		if (!millerRabinTest((BigInteger)n, d)) {
 			return false;
 		}
 	}
@@ -89,6 +144,118 @@ bool isPrime(BigInteger n) {
 	return true;
 }
 
-int main() {
-	std::cout << isPrime(stringToBigInteger("98764321267")) << std::endl;
+BigInteger gcd(BigInteger p, BigInteger q) {
+	// euclidean algorithm
+
+	if (p == 0) {
+		return q;
+	}
+
+	return gcd(p % q, q);
+	return 0;
+}
+
+BigInteger egcd(BigInteger a, BigInteger b, BigInteger *x, BigInteger *y) {
+	if (a == 0) {
+		*x = 0;
+		*y = 1;
+		return b;
+	}
+
+	BigInteger x1, y1;
+	BigInteger gcd = egcd(b % a, a, &x1, &y1);
+
+	*x = y1 - (b / a) * x1;
+	*y = x1;
+
+	return gcd;
+}
+
+bool isCoPrime(BigInteger p, BigInteger q) {
+	return gcd(p, q) == 1;
+}
+
+BigInteger generateLargeNum(int keysize) {
+	//BigInteger a = BigInteger(2) + BigInteger(rand() / RAND_MAX) * ((n - 2) - 2);
+
+	BigInteger lower = pow(2, keysize - 1, bintmax);
+	BigInteger upper = pow(2, keysize, bintmax);
+
+	return lower + BigInteger(rand() / RAND_MAX) * (upper - lower);
+}
+
+BigInteger generateLargePrime(int keysize) {
+	BigInteger ret;
+
+	while (true) {
+		ret = generateLargeNum(keysize);
+	}
+
+	return ret;
+}
+
+BigInteger modularInverse(BigInteger a, BigInteger m) {
+	BigInteger x, y;
+	egcd(a, m, &x, &y);
+
+	if (x < 0) {
+		x += m;
+	}
+
+	return x;
+}
+
+BigInteger* generateKeys(int keysize) {
+	BigInteger e;
+	BigInteger d;
+	BigInteger n;
+
+	//BigInteger p = generateLargePrime(keysize);
+	//BigInteger q = generateLargePrime(keysize);
+	BigInteger p = 7;
+	BigInteger q = 17;
+
+	n = p * q;
+
+	BigInteger phiN = (p - 1) * (q - 1);
+
+	// choose e, which is coprime with phiN
+	while (true) {
+		e = generateLargeNum(keysize);
+		if (isCoPrime(e, phiN)) {
+			break;
+		}
+	}
+
+	d = modularInverse(e, phiN);
+
+	BigInteger* ret = new BigInteger[3];
+	ret[0] = e;
+	ret[1] = d;
+	ret[2] = n;
+
+	return ret;
+}
+
+std::string encrypt(BigInteger e, BigInteger n, std::string msg) {
+	std::stringstream cipher;
+
+	for (char c : msg) {
+		cipher << pow(c, e, n) << ' ';
+	}
+
+	return cipher.str();
+}
+
+std::string decrypt(BigInteger d, BigInteger n, std::string cipher) {
+	std::stringstream text;
+	std::vector<std::string> parts = split(cipher.c_str());
+	for (std::string part : parts) {
+		if (part != "") {
+			std::string dec = bigIntegerToString(pow(std::stoi(part), d, n));
+			text << char(std::stoi(dec));
+		}
+	}
+
+	return text.str();
 }
