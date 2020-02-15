@@ -4,11 +4,10 @@
 #include <streambuf>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include <stb/stb_image.h>
+
+#include "shader.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -54,51 +53,7 @@ int main() {
 	// SHADERS=======================
 	// instruct how GPU should process vertex data
 
-	// vertex
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertShaderSrc = loadShaderSrc("assets/vertex_core.glsl");
-	const GLchar* vertShader = vertShaderSrc.c_str();
-	glShaderSource(vertexShader, 1, &vertShader, NULL);
-	glCompileShader(vertexShader);
-
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED" << std::endl << infoLog << std::endl;
-	}
-
-	// fragment core
-	unsigned int fragmentShader;
-
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	std::string fragShaderSrc = loadShaderSrc("assets/fragment_core.glsl");
-	const GLchar* fragShader = fragShaderSrc.c_str();
-	glShaderSource(fragmentShader, 1, &fragShader, NULL);
-	glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED" << std::endl << infoLog << std::endl;
-	}
-
-	// combine shaders in shader program
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED" << std::endl << infoLog << std::endl;
-	}
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	Shader ourShader("assets/vertex_core.glsl", "assets/fragment_core.glsl");
 
 	// LINK VERTEX ATTRIBUTES ====================
 	// tell GPU how to interpret vertex data
@@ -203,9 +158,8 @@ int main() {
 	}
 	stbi_image_free(data);
 
-	glUseProgram(shaderProgram);
-	glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
-	glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
+	//glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
+	//glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
 
 	while (!glfwWindowShouldClose(window)) {
 		// process input
@@ -224,13 +178,12 @@ int main() {
 		glUniform1f(glGetUniformLocation(shaderProgram, "mixValue"), level);*/
 
 		// use shader program
-		glUseProgram(shaderProgram);
+		ourShader.use();
 
 		// update uniform color
 		float timeValue = glfwGetTime();
 		float greenValue = sin(timeValue) / 2.0f + 0.5f;
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+		ourShader.setFloat("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
 
 		glBindVertexArray(VAO);
 		// draw triangle
