@@ -57,7 +57,7 @@ int main() {
 	// vertex
 	unsigned int vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertShaderSrc = loadShaderSrc("src/vertex_core.glsl");
+	std::string vertShaderSrc = loadShaderSrc("assets/vertex_core.glsl");
 	const GLchar* vertShader = vertShaderSrc.c_str();
 	glShaderSource(vertexShader, 1, &vertShader, NULL);
 	glCompileShader(vertexShader);
@@ -72,7 +72,7 @@ int main() {
 	unsigned int fragmentShader;
 
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	std::string fragShaderSrc = loadShaderSrc("src/fragment_core.glsl");
+	std::string fragShaderSrc = loadShaderSrc("assets/fragment_core.glsl");
 	const GLchar* fragShader = fragShaderSrc.c_str();
 	glShaderSource(fragmentShader, 1, &fragShader, NULL);
 	glCompileShader(fragmentShader);
@@ -216,15 +216,22 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// bind Texture
-		glActiveTexture(GL_TEXTURE0);
+		/*glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		glUniform1f(glGetUniformLocation(shaderProgram, "mixValue"), level);
+		glUniform1f(glGetUniformLocation(shaderProgram, "mixValue"), level);*/
 
 		// use shader program
 		glUseProgram(shaderProgram);
+
+		// update uniform color
+		float timeValue = glfwGetTime();
+		float greenValue = sin(timeValue) / 2.0f + 0.5f;
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
 		glBindVertexArray(VAO);
 		// draw triangle
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
