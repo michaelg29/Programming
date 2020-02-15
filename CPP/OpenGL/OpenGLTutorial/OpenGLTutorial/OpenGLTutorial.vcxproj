@@ -127,18 +127,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="lib\glad.c" />
+    <ClCompile Include="src\glad.c" />
     <ClCompile Include="lib\stb.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\fragment_core.glsl" />
-    <None Include="src\fragment_core_2.glsl" />
-    <None Include="src\vertex_core.glsl" />
+    <None Include="assets\fragment_core.glsl" />
+    <None Include="assets\fragment_core_2.glsl" />
+    <None Include="assets\vertex_core.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\container.jpg" />
     <Image Include="assets\face.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
