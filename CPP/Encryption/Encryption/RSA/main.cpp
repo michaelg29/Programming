@@ -22,13 +22,8 @@ BigInteger* generateKeys(int keysize = 1024);
 std::string encrypt(BigInteger e, BigInteger n, std::string msg);
 std::string decrypt(BigInteger d, BigInteger n, std::string cypher);
 
-BigUnsigned bintmax;
-
 int main() {
-	int keysize = 32;
-	for (int i = 0; i <= keysize; i++) {
-		bintmax.setBit(i, true);
-	}
+	int keysize = 16;
 
 	BigInteger* keys = generateKeys(keysize);
 	BigInteger e = keys[0];
@@ -178,10 +173,27 @@ bool isCoPrime(BigInteger p, BigInteger q) {
 BigInteger generateLargeNum(int keysize) {
 	//BigInteger a = BigInteger(2) + BigInteger(rand() / RAND_MAX) * ((n - 2) - 2);
 
-	BigInteger lower = pow(2, keysize - 1, bintmax);
-	BigInteger upper = pow(2, keysize, bintmax);
+	BigUnsigned lower;
+	BigUnsigned upper;
 
-	return lower + BigInteger(rand() / RAND_MAX) * (upper - lower);
+	for (int i = 0; i < keysize; i++) {
+		lower.setBit(i, true);
+		upper.setBit(i, true);
+	}
+
+	lower.setBit(keysize - 1, false);
+	lower += 1;
+	upper -= 1;
+
+	std::cout << lower << std::endl << upper << std::endl;
+
+	BigInteger lowerInt = stringToBigInteger(bigUnsignedToString(lower));
+	BigInteger upperInt = stringToBigInteger(bigUnsignedToString(upper));
+
+	BigInteger diff = (upperInt - lowerInt) / 5000;
+	int randVal = (double)rand() / RAND_MAX * 5000;
+
+	return lowerInt + BigInteger(randVal) * diff;
 }
 
 BigInteger generateLargePrime(int keysize) {
@@ -189,9 +201,12 @@ BigInteger generateLargePrime(int keysize) {
 
 	while (true) {
 		ret = generateLargeNum(keysize);
-	}
+		std::cout << ret << std::endl;
 
-	return ret;
+		if (isPrime(ret)) {
+			return ret;
+		}
+	}
 }
 
 BigInteger modularInverse(BigInteger a, BigInteger m) {
@@ -210,10 +225,8 @@ BigInteger* generateKeys(int keysize) {
 	BigInteger d;
 	BigInteger n;
 
-	//BigInteger p = generateLargePrime(keysize);
-	//BigInteger q = generateLargePrime(keysize);
-	BigInteger p = 7;
-	BigInteger q = 17;
+	BigInteger p = generateLargePrime(keysize);
+	BigInteger q = generateLargePrime(keysize);
 
 	n = p * q;
 
