@@ -7,6 +7,10 @@
 #include <string>
 #include <stb/stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "shader.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -159,8 +163,13 @@ int main() {
 	}
 	stbi_image_free(data);
 
-	//glUniform1i(glGetUniformLocation(shaderProgram, "texture1"), 0);
-	//glUniform1i(glGetUniformLocation(shaderProgram, "texture2"), 1);
+	ourShader.use();
+	ourShader.setInt("texture1", 0);
+	ourShader.setInt("texture2", 1);
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0f));
+	trans = glm::scale(trans, glm::vec3(0.5f, 1.5f, 0.5f));
 
 	while (!glfwWindowShouldClose(window)) {
 		// process input
@@ -171,26 +180,30 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// bind Texture
-		/*glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
 
-		glUniform1f(glGetUniformLocation(shaderProgram, "mixValue"), level);*/
-
 		// use shader program
 		ourShader.use();
 
-		// update uniform color
-		float timeValue = glfwGetTime();
-		float greenValue = sin(timeValue) / 2.0f + 0.5f;
-		ourShader.setFloat("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
+		// update position
+		//ourShader.setFloat("offset", offset);
+		trans = glm::rotate(trans, glm::radians((float)glfwGetTime()) / 100, glm::vec3(0.1f, 0.1f, 0.1f));
+		ourShader.setMat4("transform", trans);
 
-		ourShader.setFloat("offset", offset);
+		// update mix level
+		ourShader.setFloat("mixValue", level);
 
 		glBindVertexArray(VAO);
 		// draw triangle
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));
+		ourShader.setMat4("transform", trans);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		trans = glm::translate(trans, glm::vec3(-0.5f, -0.5f, 0.0f));
+		ourShader.setMat4("transform", trans);
 
 		// send new frame to window
 		glfwSwapBuffers(window);
@@ -213,8 +226,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
+		return;
 	}
-	else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
 		level += 0.001;
 		if (level >= 1.0f) {
 			level = 1.0f;
@@ -226,7 +241,8 @@ void processInput(GLFWwindow* window) {
 			level = 0.0f;
 		}
 	}
-	else if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+	
+	/*if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
 		offset += 0.01f;
 		if (offset >= 0.5f) {
 			offset = 0.5f;
@@ -237,7 +253,7 @@ void processInput(GLFWwindow* window) {
 		if (offset <= -0.5f) {
 			offset = -0.5f;
 		}
-	}
+	}*/
 }
 
 std::string loadShaderSrc(const char* fileName) {
