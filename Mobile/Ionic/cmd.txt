@@ -1,7 +1,0 @@
-ionic start <name> <template> --type=ionic-angular
-    <template> : [tabs, sidemenu, blank, super, tutorial]
-ionic start
-ionic serve --address=<ipAddress> --disableHostCheck
-ionic g page <name>
-ionic cordova run android --prod
-ionic cordova emulate android
