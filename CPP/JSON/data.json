@@ -1,0 +1,10 @@
+{
+  "employees": [
+    {
+      "name": "Anne",
+      "age": 30,
+      "city": "NY",
+      "manager": false
+    }
+  ]
+}
