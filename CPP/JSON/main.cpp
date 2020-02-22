@@ -8,9 +8,10 @@ using namespace json;
 int main() {
 	std::cout << "Hello, JSON!" << std::endl;
 
-	std::string data = "true";
-	json_data jdata = json_data::parse(data);
+	json_data d = json_util::read("data.json");
+	std::cout << d.getType() << ' ' << d.stringify() << std::endl;
 
-
-	std::cout << jdata.getType() << ' ' << jdata.stringify() << std::endl;
+	//std::string data = "{\"hello\": 3, \"name\": true}";
+	//json_data jdata = json_data::parse(data);
+	//std::cout << jdata.getType() << ' ' << jdata.stringify() << std::endl;
 }
