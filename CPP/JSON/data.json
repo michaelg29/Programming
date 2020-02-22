@@ -5,6 +5,12 @@
       "age": 30,
       "city": "NY",
       "manager": false
+    },
+    {
+      "name": "Michael",
+      "age": 20,
+      "city": "NY",
+      "manager": true
     }
   ]
 }
