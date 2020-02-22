@@ -1,17 +1,15 @@
 #include <fstream>
 #include <sstream>
 
+#include <iostream>
+
 #include "json.h"
 using namespace json;
-
-json_data json_util::parse(std::string json_str) {
-	return json_data::parse(json_str);
-}
 
 json_data json_util::read(const char* filename) {
 	std::string content = json_util::readFile(filename);
 
-	return json_util::parse(content);
+	return json_data::parse(content);
 }
 
 std::string json_util::readFile(const char* filename) {
@@ -28,17 +26,12 @@ std::string json_util::readFile(const char* filename) {
 	return ret;
 }
 
-std::string json_util::stringify(json_data data) {
-	std::string ret = "";
-
-	return ret;
-}
-
 bool json_util::write(const char* filename, json_data val) {
-	return json_util::writeFile(filename, json_util::stringify(val));
+	return json_util::writeFile(filename, val.stringify());
 }
 
 bool json_util::writeFile(const char* filename, std::string content) {
+	std::cout << content << std::endl;
 	std::ofstream file(filename);
 	
 	if (file.is_open()) {
