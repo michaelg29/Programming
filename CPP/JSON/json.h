@@ -24,6 +24,10 @@ namespace json {
 			: type(json_type::json_string), s_val(val) {}
 		json_data(double val)
 			: type(json_type::json_num), n_val(val) {}
+		json_data(int val)
+			: type(json_type::json_num), n_val(val) {}
+		json_data(float val)
+			: type(json_type::json_num), n_val(val) {}
 		json_data(bool val)
 			: type(json_type::json_bool), b_val(val) {}
 		json_data(std::vector<json_data> val)
