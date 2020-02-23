@@ -13,12 +13,11 @@ int main() {
 
 	//json_util::write("data2.json", d);
 
-	std::map<std::string, json_data> test;
-	test["hello"] = json_data(5);
+	json_data test { {"hello", 5 } };
 
-	d["json"]->setVal(test);
+	d["json"] = { {"hello", 5 } };
 
-	std::cout << d.stringify() << std::endl;
+	//std::cout << d["json"]["hello"].stringify() << std::endl;
 
 	//std::string data = "{\"hello\": 3, \"name\": true}";
 	//json_data jdata = json_data::parse(data);
