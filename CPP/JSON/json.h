@@ -35,7 +35,7 @@ namespace json {
 			: type(json_type::json_list), l_val(val) {}
 		json_data(std::map<std::string, json_data> val)
 			: type(json_type::json_object), o_val(val) {}
-		json_data(std::initializer_list<std::pair<std::string, json_data>> val)
+		json_data(std::initializer_list<std::pair<const std::string, json_data>> val)
 			: type(json_type::json_object), o_val(val) {}
 
 		std::string stringify();
@@ -60,10 +60,11 @@ namespace json {
 		void operator=(bool val) { b_val = val; type = json_type::json_bool; }
 		void operator=(std::vector<json_data> val) { l_val = val; type = json_type::json_list; }
 		void operator=(std::map<std::string, json_data> val) { o_val = val; type = json_type::json_object; }
+		void operator=(std::initializer_list<std::pair<const std::string, json_data>> val) { o_val = val; type = json_type::json_object; }
 
-		json_data* operator[](int idx) { return &(l_val[idx]); }
+		json_data* operator[](int idx) { return &l_val[idx]; }
 
-		json_data* operator[](std::string key) { return &(o_val[key]); }
+		json_data* operator[](std::string key) { return &o_val[key]; }
 
 	protected:
 		std::string s_val;
@@ -124,17 +125,13 @@ namespace json {
 		std::vector<json_data> val() { return l_val; }
 
 		void push(json_data val) { l_val.push_back(val); }
-
-		json_data* operator[](int idx) {
-			return &(l_val[idx]);
-		}
 	};
 
 	class json_object : public json_data {
 	public:
 		json_object(std::map<std::string, json_data> val)
 			: json_data(val) {}
-		json_object(std::initializer_list<std::pair<std::string, json_data>> val)
+		json_object(std::initializer_list<std::pair<const std::string, json_data>> val)
 			: json_data(val) {}
 
 		json_object(json_data d)
@@ -142,10 +139,6 @@ namespace json {
 
 		std::string stringify();
 		std::map<std::string, json_data> val() { return o_val; }
-
-		json_data* operator[](std::string key) {
-			return &(o_val[key]);
-		}
 	};
 
 	class json_util {
