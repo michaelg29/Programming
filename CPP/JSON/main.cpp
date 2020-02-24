@@ -16,19 +16,9 @@ int main() {
 	json_data test { {"hello", 5 } };
 
 	d["json"] = { {"hello", 5 } };
+	d["json"]["hello"] = 7;
 
-	// TODO: cannot return address of value then set that to something
-	/*
-	in this case, must do:
-	json_data* data = d["json"]
-	*data = { {"hello", 5 } };
-	*/
-
-	//std::cout << d["json"]["hello"].stringify() << std::endl;
-
-	//std::string data = "{\"hello\": 3, \"name\": true}";
-	//json_data jdata = json_data::parse(data);
-	//std::cout << jdata.getType() << ' ' << jdata.stringify() << std::endl;
+	std::cout << d["json"]["hello"].stringify() << std::endl;
 
 	std::cout << "Goodbye, JSON!" << std::endl;
 }
