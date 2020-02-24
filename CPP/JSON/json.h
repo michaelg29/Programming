@@ -62,9 +62,9 @@ namespace json {
 		void operator=(std::map<std::string, json_data> val) { o_val = val; type = json_type::json_object; }
 		void operator=(std::initializer_list<std::pair<const std::string, json_data>> val) { o_val = val; type = json_type::json_object; }
 
-		json_data* operator[](int idx) { return &l_val[idx]; }
+		json_data& operator[](int idx) { return l_val[idx]; }
 
-		json_data* operator[](std::string key) { return &o_val[key]; }
+		json_data& operator[](std::string key) { return o_val[key]; }
 
 	protected:
 		std::string s_val;
