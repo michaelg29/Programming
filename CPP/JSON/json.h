@@ -7,6 +7,11 @@
 #include <initializer_list>
 
 namespace json {
+	class json_data;
+	typedef void(*ItemProcessed)(json_data val);
+
+	std::vector<json_data> getObj(std::string str, int& i, bool breakAfterAdd = false, int last_i_offset = 1, bool endBracket = false);
+
 	enum class json_type {
 		json_string,
 		json_num,
