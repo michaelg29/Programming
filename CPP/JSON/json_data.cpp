@@ -9,9 +9,10 @@ using namespace json;
 std::string json_bool::TRUE = "true";
 std::string json_bool::FALSE = "false";
 
-std::vector<json_data> json::getObj(std::string str, int &i, bool breakAfterAdd, int last_i_offset, bool endBracket) {
+std::vector<json_data> json::getObj(std::string str, int &i, bool breakAfterAdd, int last_i_offset, bool endBracket)
+{
 	std::vector<json_data> ret;
-	
+
 	char c;
 	std::string val;
 	int openCount = 0;
@@ -21,39 +22,48 @@ std::vector<json_data> json::getObj(std::string str, int &i, bool breakAfterAdd,
 	std::string openDelimeters = "[{";
 	std::string closeDelimeters = "]}";
 
-	for (; i < str.length() - last_i_offset; i++) {
+	for (; i < str.length() - last_i_offset; i++)
+	{
 		c = str[i];
 
-		if (isEmpty(c)) {
+		if (isEmpty(c))
+		{
 			// ignore whitespace
 			continue;
 		}
 
-		if (c == '"' && str[i - 1] != '\\') {
+		if (c == '"' && str[i - 1] != '\\')
+		{
 			openCount += quoteOpen ? -1 : 1;
 
 			quoteOpen = !quoteOpen;
 		}
 
-		if (!quoteOpen && str[i - 1] != '\\') {
-			if (strContains(openDelimeters, c)) {
+		if (!quoteOpen && str[i - 1] != '\\')
+		{
+			if (strContains(openDelimeters, c))
+			{
 				// open token
 				openCount++;
 			}
-			else if (strContains(closeDelimeters, c)) {
+			else if (strContains(closeDelimeters, c))
+			{
 				// close token
 				openCount--;
 			}
 		}
 
-		if (openCount == 0 && val != "" && (c == ',' || (endBracket && c == '}'))) {
+		if (openCount <= 0 && val != "" && (c == ',' || (endBracket && c == '}')))
+		{
 			ret.push_back(json_data::parse(val));
 			val = "";
-			if (breakAfterAdd) {
+			if (breakAfterAdd)
+			{
 				return ret;
 			}
 		}
-		else {
+		else
+		{
 			val += c;
 		}
 	}
@@ -63,7 +73,8 @@ std::vector<json_data> json::getObj(std::string str, int &i, bool breakAfterAdd,
 	return ret;
 }
 
-json_data json_data::parse(std::string str) {
+json_data json_data::parse(std::string str)
+{
 	std::string openDelimeters = "[{";
 	std::string closeDelimeters = "]}";
 
@@ -73,47 +84,56 @@ json_data json_data::parse(std::string str) {
 	// identify type
 	char c = str[0];
 
-	if (isNum(c)) {
+	if (isNum(c))
+	{
 		// number
 		return json_num(std::atof(str.c_str()));
 	}
-	else if (firstAndLastMatch(str, '"', '"') || firstAndLastMatch(str, '\'', '\'')) {
+	else if (firstAndLastMatch(str, '"', '"') || firstAndLastMatch(str, '\'', '\''))
+	{
 		// string
 		return json_string(str.substr(1, str.length() - 2));
 	}
-	else if (firstAndLastMatch(str, '[', ']')) {
+	else if (firstAndLastMatch(str, '[', ']'))
+	{
 		// list of data
 		int i = 1;
 		std::vector<json_data> ret = getObj(str, i);
 
 		return json_list(ret);
 	}
-	else if (firstAndLastMatch(str, '{', '}')) {
+	else if (firstAndLastMatch(str, '{', '}'))
+	{
 		// object (list of pairs)
 		int i = 1;
 
-		std::string key = "";;
+		std::string key = "";
+		;
 		json_data value;
 
 		std::map<std::string, json_data> ret;
 
-		while (i < str.length()) {
+		while (i < str.length())
+		{
 			// get key
 			c = str[i];
 
 			// get first character
-			while (isEmpty(c) && i < str.length()) {
+			while (isEmpty(c) && i < str.length())
+			{
 				c = str[++i];
 			}
 
-			if (c != '"') {
+			if (c != '"')
+			{
 				break;
 			}
 
 			c = str[++i];
 
 			// find end of string
-			while (c != '"' && str[i - 1] != '\\') {
+			while (c != '"' && str[i - 1] != '\\')
+			{
 				key += c;
 				c = str[++i];
 			}
@@ -121,59 +141,14 @@ json_data json_data::parse(std::string str) {
 			c = str[++i];
 
 			// skip to item
-			while (isEmpty(c) || c == ':') {
+			while (isEmpty(c) || c == ':')
+			{
 				c = str[++i];
 			}
 
 			// get value
-			bool itemOpen = false;
-			std::string val = "";
-
-			int last_i_offset = 0;
-			bool breakAfterAdd = true;
-			bool endBracket = true;
-
 			std::vector<json_data> retv;
-			//retv = getObj(str, &i, true, 0, true);
-
-			// get item
-
-			for (; i < str.length() - last_i_offset; i++) {
-				c = str[i];
-
-				if (isEmpty(c)) {
-					// ignore if whitespace
-					continue;
-				}
-
-				if (c == '"' && str[i - 1] != '\\') {
-					openCount += quoteOpen ? -1 : 1;
-
-					quoteOpen = !quoteOpen;
-				}
-
-				if (!quoteOpen && str[i - 1] != '\\') {
-					if (strContains(openDelimeters, c)) {
-						// open token
-						openCount++;
-					}
-					else if (strContains(closeDelimeters, c)) {
-						// close token
-						openCount--;
-					}
-				}
-
-				if (openCount <= 0 && val != "" && (c == ',' || (endBracket && c == '}'))) {
-					retv.push_back(json_data::parse(val));
-
-					if (breakAfterAdd) {
-						break;
-					}
-				}
-				else {
-					val += c;
-				}
-			}
+			retv = getObj(str, i, true, 0, true);
 
 			i++;
 
@@ -185,16 +160,20 @@ json_data json_data::parse(std::string str) {
 
 		return json_object(ret);
 	}
-	else if (c == 't') {
+	else if (c == 't')
+	{
 		// possibly true
-		if (str.substr(0, json_bool::TRUE.length()) == json_bool::TRUE) {
+		if (str.substr(0, json_bool::TRUE.length()) == json_bool::TRUE)
+		{
 			// is true
 			return json_bool(true);
 		}
 	}
-	else if (c == 'f') {
+	else if (c == 'f')
+	{
 		// possibly false
-		if (str.substr(0, json_bool::FALSE.length()) == json_bool::FALSE) {
+		if (str.substr(0, json_bool::FALSE.length()) == json_bool::FALSE)
+		{
 			// is false
 			return json_bool(false);
 		}
@@ -203,8 +182,10 @@ json_data json_data::parse(std::string str) {
 	return json_data();
 }
 
-std::string json_data::stringify() {
-	switch (type) {
+std::string json_data::stringify()
+{
+	switch (type)
+	{
 	case json_type::json_string:
 		return json_string(s_val).stringify();
 	case json_type::json_num:
@@ -220,8 +201,10 @@ std::string json_data::stringify() {
 	}
 }
 
-std::string json_data::getType() {
-	switch (type) {
+std::string json_data::getType()
+{
+	switch (type)
+	{
 	case json_type::json_string:
 		return "string";
 	case json_type::json_num:
@@ -237,7 +220,8 @@ std::string json_data::getType() {
 	}
 }
 
-std::string json_string::stringify() {
+std::string json_string::stringify()
+{
 	std::stringstream ret;
 
 	ret << '"' << s_val << '"';
@@ -245,7 +229,8 @@ std::string json_string::stringify() {
 	return ret.str();
 }
 
-std::string json_num::stringify() {
+std::string json_num::stringify()
+{
 	std::stringstream ret;
 
 	ret << n_val;
@@ -253,27 +238,32 @@ std::string json_num::stringify() {
 	return ret.str();
 }
 
-std::string json_bool::stringify() {
+std::string json_bool::stringify()
+{
 	return b_val ? "true" : "false";
 }
 
-std::string json_list::stringify() {
+std::string json_list::stringify()
+{
 	std::stringstream ret_ss;
 
-	for (json_data data : l_val) {
+	for (json_data data : l_val)
+	{
 		ret_ss << data.stringify() << ',' << std::endl;
 	}
 
 	std::string ret = ret_ss.str();
 	ret = ret.substr(0, ret.length() - 2);
-	
+
 	return '[' + ret + ']';
 }
 
-std::string json_object::stringify() {
+std::string json_object::stringify()
+{
 	std::stringstream ret_ss;
 
-	for (std::pair<std::string, json_data> pair : o_val) {
+	for (std::pair<std::string, json_data> pair : o_val)
+	{
 		ret_ss << '"' << pair.first << "\": " << pair.second.stringify() << ',' << std::endl;
 	}
 
