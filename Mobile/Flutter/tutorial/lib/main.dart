@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 
+import 'globals.dart' as globals;
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -24,7 +26,6 @@ class RandomWords extends StatefulWidget {
 
 class RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[]; // private variable
-  final Set<WordPair> _saved = Set<WordPair>();
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
   Widget _buildSuggestions() {
@@ -44,7 +45,7 @@ class RandomWordsState extends State<RandomWords> {
   }
 
   Widget _buildRow(WordPair pair) {
-    final bool alreadySaved = _saved.contains(pair);
+    final bool alreadySaved = globals.saved.contains(pair);
 
     return ListTile(
       title: Text(
@@ -58,41 +59,28 @@ class RandomWordsState extends State<RandomWords> {
       onTap: () {
         setState(() {
           if (alreadySaved) {
-            _saved.remove(pair);
+            globals.saved.remove(pair);
           } else {
-            _saved.add(pair);
+            globals.saved.add(pair);
           }
         });
       },
     );
   }
 
-  void _pushSaved() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (BuildContext context) {
-          final Iterable<ListTile> tiles = _saved.map(
-            (WordPair pair) {
-              return ListTile(
-                  title: Text(
-                pair.asPascalCase,
-                style: _biggerFont,
-              ));
-            },
-          );
-          final List<Widget> divided = ListTile.divideTiles(
-            context: context,
-            tiles: tiles,
-          ).toList();
+  Route _savedRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => SavedPage(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
 
-          return Scaffold(
-            appBar: AppBar(
-              title: Text("Saved Suggestions"),
-            ),
-            body: ListView(children: divided),
-          );
-        },
-      ),
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
     );
   }
 
@@ -103,10 +91,42 @@ class RandomWordsState extends State<RandomWords> {
       appBar: AppBar(
         title: Text("Name Generator"),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
+          IconButton(
+            icon: Icon(Icons.list),
+            onPressed: () {
+              Navigator.of(context).push(_savedRoute());
+            },
+          ),
         ],
       ),
       body: _buildSuggestions(),
+    );
+  }
+}
+
+class SavedPage extends StatelessWidget {
+  final _biggerFont = const TextStyle(fontSize: 18.0);
+
+  Widget build(BuildContext context) {
+    final Iterable<ListTile> tiles = globals.saved.map(
+      (WordPair pair) {
+        return ListTile(
+            title: Text(
+          pair.asPascalCase,
+          style: _biggerFont,
+        ));
+      },
+    );
+    final List<Widget> divided = ListTile.divideTiles(
+      context: context,
+      tiles: tiles,
+    ).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Saved Suggestions"),
+      ),
+      body: ListView(children: divided),
     );
   }
 }
