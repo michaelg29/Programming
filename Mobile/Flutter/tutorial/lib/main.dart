@@ -12,6 +12,7 @@ class MyApp extends StatelessWidget {
       title: "Word Generator",
       theme: ThemeData(
         primaryColor: Colors.white,
+        fontFamily: "NotoSans",
       ),
       home: RandomWords(),
       debugShowCheckedModeBanner: false,
@@ -68,9 +69,9 @@ class RandomWordsState extends State<RandomWords> {
     );
   }
 
-  Route _savedRoute() {
+  Route _getRoute(Widget route) {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => SavedPage(),
+      pageBuilder: (context, animation, secondaryAnimation) => route,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(0.0, 1.0);
         var end = Offset.zero;
@@ -94,12 +95,39 @@ class RandomWordsState extends State<RandomWords> {
           IconButton(
             icon: Icon(Icons.list),
             onPressed: () {
-              Navigator.of(context).push(_savedRoute());
+              Navigator.of(context).push(_getRoute(SavedPage()));
             },
           ),
         ],
       ),
       body: _buildSuggestions(),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Text("Pages"),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              title: Text("Saved Items"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(_getRoute(SavedPage()));
+              },
+            ),
+            ListTile(
+              title: Text("Tabs"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(_getRoute(TabbedPage()));
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -127,6 +155,52 @@ class SavedPage extends StatelessWidget {
         title: Text("Saved Suggestions"),
       ),
       body: ListView(children: divided),
+    );
+  }
+}
+
+class TabbedPage extends StatelessWidget {
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text("Tabs example"),
+            bottom: TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.directions_car)),
+                Tab(icon: Icon(Icons.directions_transit)),
+                Tab(icon: Icon(Icons.directions_bike)),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              Center(
+                child: Builder(
+                  builder: (context) => IconButton(
+                    icon: Icon(Icons.directions_car),
+                    onPressed: () {
+                      final snackBar = SnackBar(
+                        content: Text("Car directions retrieval"),
+                        action: SnackBarAction(
+                          label: "Cancel",
+                          onPressed: () {},
+                        ),
+                      );
+
+                      Scaffold.of(context).showSnackBar(snackBar);
+                    },
+                  ),
+                ),
+              ),
+              Icon(Icons.directions_transit),
+              Icon(Icons.directions_bike),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
