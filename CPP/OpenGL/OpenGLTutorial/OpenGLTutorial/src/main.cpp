@@ -12,13 +12,17 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
+#include "io/joystick.h"
+#include "io/keyboard.h"
+#include "io/mouse.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-std::string loadShaderSrc(const char* fileName);
 
 float level = 0.2f;
 float offset = 0.0f;
+
+Joystick mainJ(0);
 
 int main() {
 	int success;
@@ -46,6 +50,11 @@ int main() {
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+	glfwSetKeyCallback(window, Keyboard::keyCallback);
+
+	glfwSetMouseButtonCallback(window, Mouse::mouseButtonCallback);
+	glfwSetCursorPosCallback(window, Mouse::mousePositionCallback);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -229,17 +238,23 @@ void processInput(GLFWwindow* window) {
 		return;
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+	if (Keyboard::key(GLFW_KEY_UP)) {
 		level += 0.001;
 		if (level >= 1.0f) {
 			level = 1.0f;
 		}
 	}
-	else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+	else if (Keyboard::key(GLFW_KEY_DOWN)) {
 		level -= 0.001;
 		if (level <= 0.0f) {
 			level = 0.0f;
 		}
+	}
+
+	mainJ.update();
+
+	if (Keyboard::key(GLFW_KEY_SPACE)) {
+		std::cout << Mouse::getMouseX() << ' ' << Mouse::getMouseY() << std::endl;
 	}
 	
 	/*if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
@@ -254,26 +269,4 @@ void processInput(GLFWwindow* window) {
 			offset = -0.5f;
 		}
 	}*/
-}
-
-std::string loadShaderSrc(const char* fileName) {
-	std::ifstream in_file;
-	std::stringstream buffer;
-
-	std::string ret = "";
-
-	in_file.open(fileName);
-
-	if (in_file.is_open()) {
-		buffer << in_file.rdbuf();
-
-		ret = buffer.str();
-	}
-	else {
-		std::cout << "ERROR::SHADER::COULD_NOT_OPEN_FILE: " << fileName << std::endl;
-	}
-
-	in_file.close();
-
-	return ret;
 }
