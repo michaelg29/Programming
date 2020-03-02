@@ -11,8 +11,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Word Generator",
       theme: ThemeData(
-        primaryColor: Colors.white,
+        //primaryColor: Colors.white,
+        //brightness: Brightness.dark,
+        //accentColor: Colors.black,
         fontFamily: "NotoSans",
+        // textTheme: TextTheme(
+        //   headline: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+        // ),
       ),
       home: RandomWords(),
       debugShowCheckedModeBanner: false,
@@ -125,6 +130,12 @@ class RandomWordsState extends State<RandomWords> {
                 Navigator.of(context).push(_getRoute(TabbedPage()));
               },
             ),
+            ListTile(
+                title: Text("Form"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).push(_getRoute(FormPage()));
+                }),
           ],
         ),
       ),
@@ -200,6 +211,113 @@ class TabbedPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class FormPage extends StatefulWidget {
+  @override
+  FormPageState createState() {
+    return FormPageState();
+  }
+}
+
+class FormPageState extends State<FormPage> {
+  final _formKey = GlobalKey<FormState>();
+  final pwdController = TextEditingController();
+
+  FocusNode pwdNode;
+
+  @override
+  void initState() {
+    super.initState();
+    pwdController.addListener(_printVal);
+
+    pwdNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    pwdNode.dispose();
+    pwdController.dispose();
+    super.dispose();
+  }
+
+  _printVal() {
+    //print("PWD: ${pwdController.text}");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Form example"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "Please enter text";
+                  }
+                  return null;
+                },
+                decoration: InputDecoration(
+                  labelText: "Enter your username",
+                  hintText: "Username",
+                ),
+                onChanged: (text) {
+                  print("Username: $text");
+                },
+                autofocus: true,
+              ),
+              TextFormField(
+                validator: (value) {
+                  if (value != "abcd") {
+                    return "Incorrect password";
+                  }
+                  return null;
+                },
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "Enter password",
+                  hintText: "Password",
+                ),
+                controller: pwdController,
+                focusNode: pwdNode,
+              ),
+              Builder(
+                builder: (context) => RaisedButton(
+                  onPressed: () {
+                    if (_formKey.currentState.validate()) {
+                      return showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: Text("Password: ${pwdController.text}"),
+                          );
+                        },
+                      );
+                    }
+                  },
+                  child: Text("Submit"),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          FocusScope.of(context).requestFocus(pwdNode);
+        },
+        tooltip: "Edit password",
+        child: Icon(Icons.edit),
       ),
     );
   }
