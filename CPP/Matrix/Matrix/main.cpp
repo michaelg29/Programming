@@ -15,6 +15,11 @@ int main()
         " Fibonacci sequence values fit in an " <<
         "unsigned 64-bit integer." << std::endl;
 
+    test t;
+    t.print();
+
+    std::cout << test::generate() << std::endl;
+
     system("pause");
 
     return 0;

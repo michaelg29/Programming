@@ -2,7 +2,7 @@
 
 #include <utility>
 #include <limits.h>
-#include "MathLibrary.h"
+#include <iostream>
 
 // DLL internal state variables:
 static unsigned long long previous_;  // Previous value, if any
@@ -53,4 +53,16 @@ unsigned long long fibonacci_current()
 unsigned fibonacci_index()
 {
     return index_;
+}
+
+test::test() {
+    std::cout << "Created class" << std::endl;
+}
+
+void test::print() {
+    std::cout << "called print()" << std::endl;
+}
+
+int test::generate() {
+    return 5;
 }
