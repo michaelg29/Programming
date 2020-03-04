@@ -1,11 +1,7 @@
 #ifndef MATH_LIBRARY_H
 #define MATH_LIBRARY_H
 
-#ifdef MATHLIBRARY_EXPORTS
-#define MATHLIBRARY_API __declspec(dllexport)
-#else
-#define MATHLIBRARY_API __declspec(dllimport)
-#endif
+#include "framework.h"
 
 // The Fibonacci recurrence relation describes a sequence F
 // where F(n) is { n = 0, a
