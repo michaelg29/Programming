@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 
 import 'globals.dart' as globals;
+import 'style.dart' as styles;
+
+import 'json_photos.dart' as json_data;
 
 void main() => runApp(MyApp());
 
@@ -10,15 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Word Generator",
-      theme: ThemeData(
-        //primaryColor: Colors.white,
-        //brightness: Brightness.dark,
-        //accentColor: Colors.black,
-        fontFamily: "NotoSans",
-        // textTheme: TextTheme(
-        //   headline: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-        // ),
-      ),
+      theme: styles.main,
       home: RandomWords(),
       debugShowCheckedModeBanner: false,
     );
@@ -131,11 +126,19 @@ class RandomWordsState extends State<RandomWords> {
               },
             ),
             ListTile(
-                title: Text("Form"),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).push(_getRoute(FormPage()));
-                }),
+              title: Text("Form"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(_getRoute(FormPage()));
+              },
+            ),
+            ListTile(
+              title: Text("JSON"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(_getRoute(json_data.JsonPage()));
+              },
+            ),
           ],
         ),
       ),
