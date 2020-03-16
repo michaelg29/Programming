@@ -5,7 +5,7 @@
 
 typedef struct node {
 	const char* name;
-	std::vector<std::pair<struct node*, double>> neighbors = {};
+	std::vector<std::pair<struct node*, double>> neighbors;
 
 	bool operator==(const struct node& n) const;
 	bool operator!=(const struct node& n) const;

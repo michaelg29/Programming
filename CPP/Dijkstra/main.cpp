@@ -4,16 +4,18 @@
 
 #include "node.h"
 
-node* dijkstra(node* start);
-
 template<typename T>
 bool contains(std::vector<T*> v, T* x);
 
-node* findMinOnQueue(std::vector<std::pair<node*, double>> queue);
-int findOnQueue(std::vector<std::pair<node*, double>> queue, node* element);
-double calculateDistance(std::map<node*, double> weight, std::map<node*, node*> prevNode, node* element);
-double calculateDistance(node* shortestPathsTree, node* goal);
-node* generateTree(std::map<node*, double> weight, std::map<node*, node*> prevNode, node* n);
+namespace dijkstra {
+	node* findMinOnQueue(std::vector<std::pair<node*, double>> queue);
+	int findOnQueue(std::vector<std::pair<node*, double>> queue, node* element);
+	double calculateDistance(std::map<node*, double> weight, std::map<node*, node*> prevNode, node* element);
+	double calculateDistance(node* shortestPathsTree, node* goal);
+	node* generateTree(std::map<node*, double> weight, std::map<node*, node*> prevNode, node* n);
+
+	node* algorithm(node* start);
+}
 
 int main() {
 	std::cout << "Hello, Dijkstra!" << std::endl;
@@ -26,26 +28,20 @@ int main() {
 	node* F = node::genNode("F");
 	node* G = node::genNode("G");
 
-	A->neighbors.push_back({ B, 5 });
-	A->neighbors.push_back({ C, 3 });
-	B->neighbors.push_back({ C, 2 });
-	B->neighbors.push_back({ E, 3 });
-	B->neighbors.push_back({ G, 1 });
-	C->neighbors.push_back({ D, 7 });
-	C->neighbors.push_back({ E, 7 });
-	D->neighbors.push_back({ A, 2 });
-	D->neighbors.push_back({ F, 6 });
-	E->neighbors.push_back({ D, 2 });
-	E->neighbors.push_back({ F, 1 });
-	G->neighbors.push_back({ E, 1 });
+	A->neighbors = { { B, 5 }, { C, 3 } };
+	B->neighbors = { { C, 2 }, { E, 3 }, { G, 1 } };
+	C->neighbors = { { D, 7 }, { E, 7 } };
+	D->neighbors = { { A, 2 }, { F, 6 } };
+	E->neighbors = { { D, 2 }, { F, 1 } };
+	G->neighbors = { { E, 1 } };
 
-	node* tree = dijkstra(A);
-	std::cout << calculateDistance(tree, D) << std::endl;
+	node* tree = dijkstra::algorithm(A);
+	std::cout << dijkstra::calculateDistance(tree, D) << std::endl;
 
 	return 0;
 }
 
-node* dijkstra(node* start) {
+node* dijkstra::algorithm(node* start) {
 	std::map<node*, double> weight;
 	std::map<node*, node*> prevNode;
 
@@ -104,7 +100,7 @@ bool contains(std::vector<T*> v, T* x) {
 	return std::find(v.begin(), v.end(), x) != v.end();
 }
 
-node* generateTree(std::map<node*, double> weight, std::map<node*, node*> prevNode, node* n) {
+node* dijkstra::generateTree(std::map<node*, double> weight, std::map<node*, node*> prevNode, node* n) {
 	node* ret = node::genNode(n->name);
 
 	// each node only has one path pointing to it
@@ -118,7 +114,7 @@ node* generateTree(std::map<node*, double> weight, std::map<node*, node*> prevNo
 	return ret;
 }
 
-node* findMinOnQueue(std::vector<std::pair<node*, double>> queue) {
+node* dijkstra::findMinOnQueue(std::vector<std::pair<node*, double>> queue) {
 	double min = queue.at(0).second;
 	node* ret = queue.at(0).first;
 
@@ -133,7 +129,7 @@ node* findMinOnQueue(std::vector<std::pair<node*, double>> queue) {
 	return ret;
 }
 
-int findOnQueue(std::vector<std::pair<node*, double>> queue, node* element) {
+int dijkstra::findOnQueue(std::vector<std::pair<node*, double>> queue, node* element) {
 	for (int i = 0, size = queue.size(); i < size; i++) {
 		if (*(queue.at(i).first) == *element) {
 			return i;
@@ -143,7 +139,7 @@ int findOnQueue(std::vector<std::pair<node*, double>> queue, node* element) {
 	return -1;
 }
 
-double calculateDistance(std::map<node*, double> weight, std::map<node*, node*> prevNode, node* element) {
+double dijkstra::calculateDistance(std::map<node*, double> weight, std::map<node*, node*> prevNode, node* element) {
 	if (*(prevNode[element]) == *element) {
 		// distance from element to self is 0
 		return 0;
@@ -152,7 +148,7 @@ double calculateDistance(std::map<node*, double> weight, std::map<node*, node*> 
 	return weight[element] + calculateDistance(weight, prevNode, prevNode[element]);
 }
 
-double calculateDistance(node* shortestPathsTree, node* goal) {
+double dijkstra::calculateDistance(node* shortestPathsTree, node* goal) {
 	if (*shortestPathsTree == *goal) {
 		return 0;
 	}
