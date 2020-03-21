@@ -344,44 +344,38 @@ void processInput(GLFWwindow* window, double deltaTime) {
 	//mainJ.update();
 
 	// update camera
-	if (Keyboard::key(GLFW_KEY_TAB)) {
-		if (tabDownAlready) {
-			tabDownAlready = false;
-		}
-		else {
-			Camera::usingPrimaryCamera = !Camera::usingPrimaryCamera;
-			tabDownAlready = true;
-		}
+	if (Keyboard::keyWentDown(GLFW_KEY_TAB)) {
+		Camera::usingPrimaryCamera = !Camera::usingPrimaryCamera;
 	}
 
 	// camera position
-	int direction = (int)CameraMovement::NONE;
+	CameraMovement direction = CameraMovement::NONE;
 
 	if (Keyboard::key(GLFW_KEY_W)) {
-		direction = (int)CameraMovement::FORWARD;
+		direction = CameraMovement::FORWARD;
 	}
 	if (Keyboard::key(GLFW_KEY_A)) {
-		direction = (int)CameraMovement::LEFT;
+		direction = CameraMovement::LEFT;
 	}
 	if (Keyboard::key(GLFW_KEY_S)) {
-		direction = (int)CameraMovement::BACKWARD;
+		direction = CameraMovement::BACKWARD;
 	}
 	if (Keyboard::key(GLFW_KEY_D)) {
-		direction = (int)CameraMovement::RIGHT;
+		direction = CameraMovement::RIGHT;
 	}
 	if (Keyboard::key(GLFW_KEY_SPACE)) {
-		direction = (int)CameraMovement::UP;
+		direction = CameraMovement::UP;
 	}
 	if (Keyboard::key(GLFW_KEY_LEFT_SHIFT)) {
-		direction = (int)CameraMovement::DOWN;
+		direction = CameraMovement::DOWN;
 	}
 
-	if (direction) {
+	if (direction != CameraMovement::NONE) {
 		if (Camera::usingPrimaryCamera) {
-			Camera::defaultCamera.updateCameraDirection(direction, deltaTime);
+			Camera::defaultCamera.updateCameraPos(direction, deltaTime);
 		}
 		else {
-			Camera::secondaryCamera.updateCameraDirection(direction, deltaTime);
+			Camera::secondaryCamera.updateCameraPos(direction, deltaTime);
 		}
 	}
 }
