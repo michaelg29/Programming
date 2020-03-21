@@ -1,10 +1,7 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <streambuf>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <string>
+
 #include <stb/stb_image.h>
 
 #include <glm/glm.hpp>
@@ -15,27 +12,24 @@
 #include "io/joystick.h"
 #include "io/keyboard.h"
 #include "io/mouse.h"
+#include "io/screen.h"
+#include "io/camera.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, double deltaTime);
 
 float level = 0.2f;
 float offset = 0.0f;
 
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
-
 Joystick mainJ(0);
+Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 3.0f));
+bool Camera::usingPrimaryCamera = true;
+Camera Camera::secondaryCamera(glm::vec3(3.0f, 3.0f, 3.0f));
 
-float x = 0.0f;
-float y = 0.0f;
-float z = -3.0f;
+double deltaTime = 0.0f;	// Time between current frame and last frame
+double lastFrame = 0.0f;	// Time of last frame
 
 int main() {
-	int success;
-	char infoLog[512];
-
-	std::cout << "Hello, world!" << std::endl;
+	std::cout << "Hello, OpenGL!" << std::endl;
 
 	glfwInit();
 
@@ -49,18 +43,21 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COPMPAT, GL_TRUE);
 #endif
 
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL Tutorial", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(Screen::SCR_WIDTH, Screen::SCR_HEIGHT, "OpenGL Tutorial", NULL, NULL);
 	if (window == NULL) { // window not created
 		std::cout << "Could not create window." << std::endl;
 		glfwTerminate();
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetFramebufferSizeCallback(window, Screen::framebufferSizeCallback);
 
 	glfwSetKeyCallback(window, Keyboard::keyCallback);
 
 	glfwSetMouseButtonCallback(window, Mouse::mouseButtonCallback);
+	glfwSetScrollCallback(window, Mouse::mouseWheelCallback);
+
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // capture cursor in center of screen
 	glfwSetCursorPosCallback(window, Mouse::mousePositionCallback);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -71,7 +68,7 @@ int main() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+	glViewport(0, 0, Screen::SCR_WIDTH, Screen::SCR_HEIGHT);
 
 	// SHADERS=======================
 	// instruct how GPU should process vertex data
@@ -138,7 +135,7 @@ int main() {
 	};
 
 	// vertex buffer object, vertex arrays, element buffer objects
-	unsigned int VBO, VAO, EBO;
+	unsigned int VBO, VAO; //, EBO;
 	glGenBuffers(1, &VBO);
 	glGenVertexArrays(1, &VAO);
 	//glGenBuffers(1, &EBO);
@@ -233,9 +230,27 @@ int main() {
 	ourShader.setInt("texture1", 0);
 	ourShader.setInt("texture2", 1);
 
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
 	while (!glfwWindowShouldClose(window)) {
+		// delta time
+		double currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		// process input
-		processInput(window);
+		processInput(window, deltaTime);
 
 		// render
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -268,17 +283,29 @@ int main() {
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
 		model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-		view = glm::translate(view, glm::vec3(x, y, z)); // move camera back = move scene forward in Right Hand Coordinate System
-		projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f); // field of view, aspect ratio, near view, far view
+		//view = glm::translate(view, glm::vec3(x, y, z)); // move camera back = move scene forward in Right Hand Coordinate System
+		projection = glm::perspective(glm::radians(Camera::usingPrimaryCamera ? Camera::defaultCamera.zoom : Camera::secondaryCamera.zoom), (float)Screen::SCR_WIDTH / (float)Screen::SCR_HEIGHT, 0.1f, 100.0f); // field of view, aspect ratio, near view, far view
 
-		ourShader.setMat4("model", model);
+		//const float radius = 10.0f;
+		//float camX = sin(glfwGetTime()) * radius;
+		//float camZ = cos(glfwGetTime()) * radius;
+		//cameraPos = glm::vec3(camX, 0.0f, camZ);
+		view = Camera::usingPrimaryCamera ? Camera::defaultCamera.getViewMatrix() : Camera::secondaryCamera.getViewMatrix();
+		
 		ourShader.setMat4("view", view);
 		ourShader.setMat4("projection", projection); // can set outside of loop
 
 		glBindVertexArray(VAO);
 		// draw triangle
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		for (unsigned int i = 0; i < 10; i++) {
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			ourShader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 
 		// send new frame to window
 		glfwSwapBuffers(window);
@@ -294,63 +321,67 @@ int main() {
 	return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-	glViewport(0, 0, width, height);
-}
-
-void processInput(GLFWwindow* window) {
+bool tabDownAlready = false;
+void processInput(GLFWwindow* window, double deltaTime) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, true);
 		return;
 	}
 
 	if (Keyboard::key(GLFW_KEY_UP)) {
-		level += 0.001;
+		level += 0.001f;
 		if (level >= 1.0f) {
 			level = 1.0f;
 		}
 	}
 	else if (Keyboard::key(GLFW_KEY_DOWN)) {
-		level -= 0.001;
+		level -= 0.001f;
 		if (level <= 0.0f) {
 			level = 0.0f;
 		}
 	}
 
 	//mainJ.update();
-	
-	/*if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-		offset += 0.01f;
-		if (offset >= 0.5f) {
-			offset = 0.5f;
+
+	// update camera
+	if (Keyboard::key(GLFW_KEY_TAB)) {
+		if (tabDownAlready) {
+			tabDownAlready = false;
+		}
+		else {
+			Camera::usingPrimaryCamera = !Camera::usingPrimaryCamera;
+			tabDownAlready = true;
 		}
 	}
-	else if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-		offset -= 0.01f;
-		if (offset <= -0.5f) {
-			offset = -0.5f;
-		}
-	}*/
 
-	// move opposite of camera
-	if (Keyboard::key(GLFW_KEY_A)) {
-		x += 0.05f;
-	}
-	if (Keyboard::key(GLFW_KEY_D)) {
-		x -= 0.05f;
-	}
-
-	if (Keyboard::key(GLFW_KEY_SPACE)) {
-		y -= 0.05f;
-	}
-	if (Keyboard::key(GLFW_KEY_LEFT_SHIFT)) {
-		y += 0.05f;
-	}
+	// camera position
+	int direction = (int)CameraMovement::NONE;
 
 	if (Keyboard::key(GLFW_KEY_W)) {
-		z += 0.05f;
+		direction = (int)CameraMovement::FORWARD;
+	}
+	if (Keyboard::key(GLFW_KEY_A)) {
+		direction = (int)CameraMovement::LEFT;
 	}
 	if (Keyboard::key(GLFW_KEY_S)) {
-		z -= 0.05f;
+		direction = (int)CameraMovement::BACKWARD;
+	}
+	if (Keyboard::key(GLFW_KEY_D)) {
+		direction = (int)CameraMovement::RIGHT;
+	}
+	if (Keyboard::key(GLFW_KEY_SPACE)) {
+		direction = (int)CameraMovement::UP;
+	}
+	if (Keyboard::key(GLFW_KEY_LEFT_SHIFT)) {
+		direction = (int)CameraMovement::DOWN;
+	}
+
+	if (direction) {
+		if (Camera::usingPrimaryCamera) {
+			Camera::defaultCamera.updateCameraDirection(direction, deltaTime);
+		}
+		else {
+			Camera::secondaryCamera.updateCameraDirection(direction, deltaTime);
+		}
 	}
 }

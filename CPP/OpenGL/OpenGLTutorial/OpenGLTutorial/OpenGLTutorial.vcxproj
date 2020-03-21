@@ -127,11 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\io\camera.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="lib\stb.cpp" />
     <ClCompile Include="src\io\joystick.cpp" />
     <ClCompile Include="src\io\keyboard.cpp" />
     <ClCompile Include="src\io\mouse.cpp" />
+    <ClCompile Include="src\io\screen.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\shader.cpp" />
   </ItemGroup>
@@ -145,9 +147,11 @@
     <Image Include="assets\face.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\io\camera.h" />
     <ClInclude Include="src\io\joystick.h" />
     <ClInclude Include="src\io\keyboard.h" />
     <ClInclude Include="src\io\mouse.h" />
+    <ClInclude Include="src\io\screen.h" />
     <ClInclude Include="src\shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
