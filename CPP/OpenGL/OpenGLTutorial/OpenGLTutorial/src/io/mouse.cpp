@@ -14,6 +14,7 @@ double Mouse::dy = 0;
 bool Mouse::firstMouse = true;
 
 bool Mouse::buttons[GLFW_MOUSE_BUTTON_LAST] = { 0 };
+bool Mouse::buttonsChanged[GLFW_MOUSE_BUTTON_LAST] = { 0 };
 
 void Mouse::mousePositionCallback(GLFWwindow* window, double _x, double _y) {
 	x = _x;
@@ -30,15 +31,27 @@ void Mouse::mousePositionCallback(GLFWwindow* window, double _x, double _y) {
 	lastX = x;
 	lastY = y;
 
-	Camera::defaultCamera.updateCameraDirection(dx, dy);
+	if (Camera::usingPrimaryCamera) {
+		Camera::defaultCamera.updateCameraDirection(dx, dy);
+	}
+	else {
+		Camera::secondaryCamera.updateCameraDirection(dx, dy);
+	}
+	
 }
 
 void Mouse::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	buttons[button] = action != GLFW_RELEASE;
+	buttons[button] = action != GLFW_RELEASE && action != GLFW_REPEAT;
+	buttonsChanged[button] = action != GLFW_REPEAT;
 }
 
 void Mouse::mouseWheelCallback(GLFWwindow* window, double dx, double dy) {
-	Camera::defaultCamera.updateCameraZoom(dy);
+	if (Camera::usingPrimaryCamera) {
+		Camera::defaultCamera.updateCameraZoom(dy);
+	}
+	else {
+		Camera::secondaryCamera.updateCameraZoom(dy);
+	}
 }
 
 double Mouse::getMouseX() {
@@ -59,4 +72,18 @@ double Mouse::getDY() {
 
 bool Mouse::button(int _button) {
 	return buttons[_button];
+}
+
+bool Mouse::buttonChanged(int _button) {
+	bool ret = buttonsChanged[_button];
+	buttonsChanged[_button] = false;
+	return ret;
+}
+
+bool Mouse::buttonWentUp(int _button) {
+	return !buttons[_button] && buttonChanged(_button);
+}
+
+bool Mouse::buttonWentDown(int _button) {
+	return buttons[_button] && buttonChanged(_button);
 }
