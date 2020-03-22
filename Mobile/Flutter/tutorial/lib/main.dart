@@ -3,74 +3,30 @@ import 'package:english_words/english_words.dart';
 
 import 'globals.dart' as globals;
 import 'style.dart' as styles;
+import "fstream.dart" as fstream;
 
 import 'json_photos.dart' as json_data;
 import 'args.dart' as argsDisplay;
+import "counterFile.dart" as counter_file;
+
+import "navigator.dart" as nav;
 
 void main() => runApp(MyApp());
 
-Route _getRoute(Widget route) {
-  return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => route,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      var begin = Offset(0.0, 1.0);
-      var end = Offset.zero;
-      var curve = Curves.ease;
-      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-      var offsetAnimation = animation.drive(tween);
-
-      return SlideTransition(position: offsetAnimation, child: child);
-    },
-  );
-}
-
-Map<String, Widget Function(BuildContext, Map<String, dynamic>)> routes = {
-  "/": (context, args) => RandomWords(),
-  "/saved": (context, args) => SavedPage(),
-  "/tabs": (context, args) => TabbedPage(),
-  "/form": (context, args) => FormPage(),
-  "/json": (context, args) => json_data.JsonPage(),
-  argsDisplay.ArgsScreen.routeName: (context, args) =>
-      argsDisplay.ArgsScreen(args: args),
-};
-
-void sendTo(BuildContext context, String route, [Map<String, dynamic> args]) {
-  Navigator.pop(context);
-
-  Widget result;
-  // Widget Function(BuildContext, Map<String, dynamic>) callback = routes[route];
-
-  // if (args == null) {
-  //   result = callback(context, null);
-  // } else {
-  //   result = callback(context, args);
-  // }
-
-  switch (route) {
-    case "/":
-      result = RandomWords();
-      break;
-    case "/saved":
-      result = SavedPage();
-      break;
-    case "/tabs":
-      result = TabbedPage();
-      break;
-    case "/form":
-      result = FormPage();
-      break;
-    case "/json":
-      result = json_data.JsonPage();
-      break;
-    case argsDisplay.ArgsScreen.routeName:
-      result = argsDisplay.ArgsScreen(args: args);
-      break;
+class MyApp extends StatelessWidget {
+  MyApp() {
+    nav.setRoutes({
+      "/": (context) => RandomWords(),
+      "/saved": (context) => SavedPage(),
+      "/tabs": (context) => TabbedPage(),
+      "/form": (context) => FormPage(),
+      "/json": (context) => json_data.JsonPage(),
+      "/counter": (context) => counter_file.CounterFileScreen(),
+      argsDisplay.ArgsScreen.routeName: (context, args) =>
+          argsDisplay.ArgsScreen(args: args),
+    });
   }
 
-  Navigator.of(context).push(_getRoute(result));
-}
-
-class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -78,15 +34,6 @@ class MyApp extends StatelessWidget {
       theme: styles.main,
       home: RandomWords(),
       debugShowCheckedModeBanner: false,
-      // initialRoute: "/",
-      // routes: {
-      //   "/": (context) => RandomWords(),
-      //   "/saved": (context) => SavedPage(),
-      //   "/tabs": (context) => TabbedPage(),
-      //   "/form": (context) => FormPage(),
-      //   "/json": (context) => json_data.JsonPage(),
-      //   args.ArgsScreen.routeName: (context) => args.ArgsScreen(),
-      // },
     );
   }
 }
@@ -149,7 +96,7 @@ class RandomWordsState extends State<RandomWords> {
           IconButton(
             icon: Icon(Icons.list),
             onPressed: () {
-              Navigator.of(context).push(_getRoute(SavedPage()));
+              nav.sendTo(context, "/saved");
             },
           ),
         ],
@@ -168,7 +115,7 @@ class RandomWordsState extends State<RandomWords> {
             ListTile(
               title: Text("Saved Items"),
               onTap: () {
-                sendTo(context, "/saved");
+                nav.sendTo(context, "/saved");
               },
             ),
             ListTile(
@@ -177,19 +124,25 @@ class RandomWordsState extends State<RandomWords> {
                 //Navigator.pop(context);
                 //Navigator.of(context).push(_getRoute(TabbedPage()));
 
-                sendTo(context, "/tabs");
+                nav.sendTo(context, "/tabs");
               },
             ),
             ListTile(
               title: Text("Form"),
               onTap: () {
-                sendTo(context, "/form");
+                nav.sendTo(context, "/form");
               },
             ),
             ListTile(
               title: Text("JSON"),
               onTap: () {
-                sendTo(context, "/json");
+                nav.sendTo(context, "/json");
+              },
+            ),
+            ListTile(
+              title: Text("Counter File"),
+              onTap: () {
+                nav.sendTo(context, "/counter");
               },
             ),
           ],
@@ -222,6 +175,12 @@ class SavedPage extends StatelessWidget {
         title: Text("Saved Suggestions"),
       ),
       body: ListView(children: divided),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.backspace),
+        onPressed: () {
+          nav.sendTo(context, "/");
+        },
+      ),
     );
   }
 }
@@ -354,7 +313,7 @@ class FormPageState extends State<FormPage> {
                 builder: (context) => RaisedButton(
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      sendTo(context, argsDisplay.ArgsScreen.routeName, {
+                      nav.sendTo(context, argsDisplay.ArgsScreen.routeName, {
                         "username": unController.text,
                         "password": pwdController.text
                       });
