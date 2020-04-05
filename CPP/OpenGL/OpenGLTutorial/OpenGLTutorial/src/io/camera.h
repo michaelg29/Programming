@@ -6,9 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <vector>
-
-enum class CameraMovement {
+enum class CameraDirection {
 	NONE = 0,
 	FORWARD,
 	BACKWARD,
@@ -21,8 +19,8 @@ enum class CameraMovement {
 class Camera {
 public:
 	static Camera defaultCamera;
-	static Camera secondaryCamera;
-	static bool usingPrimaryCamera;
+	static Camera secondary;
+	static bool usingDefault;
 
 	glm::vec3 cameraPos;
 
@@ -32,18 +30,17 @@ public:
 
 	glm::vec3 worldUp;
 
-	float yaw;
-	float pitch;
+	float yaw; // x-axis
+	float pitch; // y-axis
 	float speed;
 	float sensitivity;
 	float zoom;
 
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = -90.0f, float pitch = 0.0f);
-	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw = -90.0f, float pitch = 0.0f);
+	Camera(glm::vec3 position);
 
-	void updateCameraDirection(double dx, double dy);
-	void updateCameraPos(CameraMovement direction, double dt);
-	void updateCameraZoom(double dy);
+	void updateCameraDirection(double dx, double dy); // moving mouse
+	void updateCameraPos(CameraDirection direction, double dt); // keyboard input
+	void updateCameraZoom(double dy); // scroll wheel
 
 	glm::mat4 getViewMatrix();
 

@@ -1,27 +1,21 @@
 #include "camera.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, float _yaw, float _pitch)
+Camera::Camera(glm::vec3 position)
 	: cameraPos(position),
-	worldUp(up),
-	yaw(_yaw),
-	pitch(_pitch),
+	worldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
+	yaw(-90.0f),
+	pitch(0.0f),
 	speed(2.5f),
-	sensitivity(0.1f),
+	sensitivity(1.0f),
 	zoom(45.0f),
 	cameraFront(glm::vec3(0.0f, 0.0f, -1.0f))
-	{
+{
 	updateCameraVectors();
 }
 
-Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float _yaw, float _pitch)
-	: Camera(glm::vec3(posX, posY, posZ), glm::vec3(upX, upY, upZ), _yaw, _pitch)
-	{
-	updateCameraVectors();
-}
-
-
+// mouse movement
 void Camera::updateCameraDirection(double dx, double dy) {
-	yaw += dx; 
+	yaw += dx;
 	pitch += dy;
 
 	if (pitch > 89.0f) {
@@ -34,26 +28,26 @@ void Camera::updateCameraDirection(double dx, double dy) {
 	updateCameraVectors();
 }
 
-void Camera::updateCameraPos(CameraMovement direction, double dt) {
+void Camera::updateCameraPos(CameraDirection direction, double dt) {
 	float velocity = (float)dt * speed;
 
 	switch (direction) {
-	case CameraMovement::FORWARD:
+	case CameraDirection::FORWARD:
 		cameraPos += cameraFront * velocity;
 		break;
-	case CameraMovement::BACKWARD:
+	case CameraDirection::BACKWARD:
 		cameraPos -= cameraFront * velocity;
 		break;
-	case CameraMovement::RIGHT:
+	case CameraDirection::RIGHT:
 		cameraPos += cameraRight * velocity;
 		break;
-	case CameraMovement::LEFT:
+	case CameraDirection::LEFT:
 		cameraPos -= cameraRight * velocity;
 		break;
-	case CameraMovement::UP:
+	case CameraDirection::UP:
 		cameraPos += cameraUp * velocity;
 		break;
-	case CameraMovement::DOWN:
+	case CameraDirection::DOWN:
 		cameraPos -= cameraUp * velocity;
 		break;
 	}
@@ -66,7 +60,7 @@ void Camera::updateCameraZoom(double dy) {
 	else if (zoom < 1.0f) {
 		zoom = 1.0f;
 	}
-	else {
+	else { // > 45.0f
 		zoom = 45.0f;
 	}
 }
@@ -74,7 +68,7 @@ void Camera::updateCameraZoom(double dy) {
 glm::mat4 Camera::getViewMatrix() {
 	return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 }
-
+	
 void Camera::updateCameraVectors() {
 	glm::vec3 direction;
 	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));

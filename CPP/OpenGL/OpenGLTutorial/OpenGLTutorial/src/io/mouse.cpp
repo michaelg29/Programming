@@ -1,12 +1,11 @@
 #include "mouse.h"
-#include "screen.h"
 #include "camera.h"
 
-double Mouse::x = Screen::SCR_WIDTH / 2;
-double Mouse::y = Screen::SCR_HEIGHT / 2;
+double Mouse::x = 0;
+double Mouse::y = 0;
 
-double Mouse::lastX = Screen::SCR_WIDTH / 2;
-double Mouse::lastY = Screen::SCR_HEIGHT / 2;
+double Mouse::lastX = 0;
+double Mouse::lastY = 0;
 
 double Mouse::dx = 0;
 double Mouse::dy = 0;
@@ -16,7 +15,7 @@ bool Mouse::firstMouse = true;
 bool Mouse::buttons[GLFW_MOUSE_BUTTON_LAST] = { 0 };
 bool Mouse::buttonsChanged[GLFW_MOUSE_BUTTON_LAST] = { 0 };
 
-void Mouse::mousePositionCallback(GLFWwindow* window, double _x, double _y) {
+void Mouse::cursorPosCallback(GLFWwindow* window, double _x, double _y) {
 	x = _x;
 	y = _y;
 
@@ -27,30 +26,36 @@ void Mouse::mousePositionCallback(GLFWwindow* window, double _x, double _y) {
 	}
 
 	dx = x - lastX;
-	dy = lastY - y; // y coordinates reversed
+	dy = lastY - y; // y coordinates are inverted
 	lastX = x;
 	lastY = y;
 
-	if (Camera::usingPrimaryCamera) {
+	if (Camera::usingDefault) {
 		Camera::defaultCamera.updateCameraDirection(dx, dy);
 	}
 	else {
-		Camera::secondaryCamera.updateCameraDirection(dx, dy);
+		Camera::secondary.updateCameraDirection(dx, dy);
 	}
-	
 }
 
 void Mouse::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	buttons[button] = action != GLFW_RELEASE && action != GLFW_REPEAT;
+	if (action != GLFW_RELEASE) {
+		if (!buttons[button]) {
+			buttons[button] = true;
+		}
+	}
+	else {
+		buttons[button] = false;
+	}
 	buttonsChanged[button] = action != GLFW_REPEAT;
 }
 
 void Mouse::mouseWheelCallback(GLFWwindow* window, double dx, double dy) {
-	if (Camera::usingPrimaryCamera) {
+	if (Camera::usingDefault) {
 		Camera::defaultCamera.updateCameraZoom(dy);
 	}
 	else {
-		Camera::secondaryCamera.updateCameraZoom(dy);
+		Camera::secondary.updateCameraZoom(dy);
 	}
 }
 
@@ -70,20 +75,20 @@ double Mouse::getDY() {
 	return dy;
 }
 
-bool Mouse::button(int _button) {
-	return buttons[_button];
+bool Mouse::button(int button) {
+	return buttons[button];
 }
 
-bool Mouse::buttonChanged(int _button) {
-	bool ret = buttonsChanged[_button];
-	buttonsChanged[_button] = false;
+bool Mouse::buttonChanged(int button) {
+	bool ret = buttonsChanged[button];
+	buttonsChanged[button] = false;
 	return ret;
 }
 
-bool Mouse::buttonWentUp(int _button) {
-	return !buttons[_button] && buttonChanged(_button);
+bool Mouse::buttonWentUp(int button) {
+	return !buttons[button] && buttonChanged(button);
 }
 
-bool Mouse::buttonWentDown(int _button) {
-	return buttons[_button] && buttonChanged(_button);
+bool Mouse::buttonWentDown(int button) {
+	return buttons[button] && buttonChanged(button);
 }

@@ -3,15 +3,7 @@
 
 #include <GLFW/glfw3.h>
 
-// axes
-#define GLFW_JOYSTICK_AXES_LEFT_STICK_X 0
-#define GLFW_JOYSTICK_AXES_LEFT_STICK_Y 1
-#define GLFW_JOYSTICK_AXES_RIGHT_STICK_X 2
-#define GLFW_JOYSTICK_AXES_LEFT_TRIGGER 3
-#define GLFW_JOYSTICK_AXES_RIGHT_TRIGGER 4
-#define GLFW_JOYSTICK_AXES_RIGHT_STICK_Y 5
-
-// analog input									//	  PS		|	  XBOX	|
+// analog input									//		PS		|		XBOX
 #define GLFW_JOYSTICK_BTN_LEFT 0				//	Square		|	X
 #define GLFW_JOYSTICK_BTN_DOWN 1				//	X			|	A
 #define GLFW_JOYSTICK_BTN_RIGHT 2				//	Circle		|	B
@@ -31,15 +23,27 @@
 #define GLFW_JOYSTICK_DPAD_DOWN 16				//	Dpad down	|	Dpad down
 #define GLFW_JOYSTICK_DPAD_LEFT 17				//	Dpad left	|	Dpad left
 
+// axes
+#define GLFW_JOYSTICK_AXES_LEFT_STICK_X 0
+#define GLFW_JOYSTICK_AXES_LEFT_STICK_Y 1
+#define GLFW_JOYSTICK_AXES_RIGHT_STICK_X 2
+#define GLFW_JOYSTICK_AXES_LEFT_TRIGGER 3
+#define GLFW_JOYSTICK_AXES_RIGHT_TRIGGER 4
+#define GLFW_JOYSTICK_AXES_RIGHT_STICK_Y 5
+
 class Joystick {
 public:
 	Joystick(int i);
 	void update();
 
-	float triggerState(int trigger);
+	float axesState(int axis);
 	unsigned char buttonState(int button);
 
+	int getAxesCount();
+	int getButtonCount();
+
 	bool isPresent();
+	const char* getName();
 
 	static int getId(int i);
 
