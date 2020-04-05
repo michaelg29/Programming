@@ -6,7 +6,7 @@
 
 class Mouse {
 public:
-	static void mousePositionCallback(GLFWwindow* window, double _x, double _y);
+	static void cursorPosCallback(GLFWwindow* window, double _x, double _y);
 	static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 	static void mouseWheelCallback(GLFWwindow* window, double dx, double dy);
 
@@ -16,10 +16,10 @@ public:
 	static double getDX();
 	static double getDY();
 
-	static bool button(int _button);
-	static bool buttonChanged(int _button);
-	static bool buttonWentUp(int _button);
-	static bool buttonWentDown(int _button);
+	static bool button(int button);
+	static bool buttonChanged(int button);
+	static bool buttonWentUp(int button);
+	static bool buttonWentDown(int button);
 
 private:
 	static double x;

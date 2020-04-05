@@ -4,8 +4,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "camera.h"
-
 class Screen {
 public:
 	static unsigned int SCR_WIDTH;
