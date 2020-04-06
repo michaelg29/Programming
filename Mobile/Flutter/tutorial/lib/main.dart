@@ -13,18 +13,47 @@ import "navigator.dart" as nav;
 
 void main() => runApp(MyApp());
 
+List<List<dynamic>> routes = [
+  [
+    "/",
+    "Home",
+    (context) => RandomWords(),
+  ],
+  [
+    "/saved",
+    "Saved",
+    (context) => SavedPage(),
+  ],
+  [
+    "/tabs",
+    "Tabs",
+    (context) => TabbedPage(),
+  ],
+  [
+    "/form",
+    "Form",
+    (context) => FormPage(),
+  ],
+  [
+    "/json",
+    "JSON",
+    (context) => json_data.JsonPage(),
+  ],
+  [
+    "/counter",
+    "Counter",
+    (context) => counter_file.CounterFileScreen(),
+  ],
+  [
+    argsDisplay.ArgsScreen.routeName,
+    "Args",
+    (context, args) => argsDisplay.ArgsScreen(args: args),
+  ]
+];
+
 class MyApp extends StatelessWidget {
   MyApp() {
-    nav.setRoutes({
-      "/": (context) => RandomWords(),
-      "/saved": (context) => SavedPage(),
-      "/tabs": (context) => TabbedPage(),
-      "/form": (context) => FormPage(),
-      "/json": (context) => json_data.JsonPage(),
-      "/counter": (context) => counter_file.CounterFileScreen(),
-      argsDisplay.ArgsScreen.routeName: (context, args) =>
-          argsDisplay.ArgsScreen(args: args),
-    });
+    nav.setRoutes(routes);
   }
 
   @override
@@ -103,8 +132,7 @@ class RandomWordsState extends State<RandomWords> {
       ),
       body: _buildSuggestions(),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: <Widget>[
             DrawerHeader(
               child: Text("Pages"),
@@ -112,39 +140,7 @@ class RandomWordsState extends State<RandomWords> {
                 color: Colors.blue,
               ),
             ),
-            ListTile(
-              title: Text("Saved Items"),
-              onTap: () {
-                nav.sendTo(context, "/saved");
-              },
-            ),
-            ListTile(
-              title: Text("Tabs"),
-              onTap: () {
-                //Navigator.pop(context);
-                //Navigator.of(context).push(_getRoute(TabbedPage()));
-
-                nav.sendTo(context, "/tabs");
-              },
-            ),
-            ListTile(
-              title: Text("Form"),
-              onTap: () {
-                nav.sendTo(context, "/form");
-              },
-            ),
-            ListTile(
-              title: Text("JSON"),
-              onTap: () {
-                nav.sendTo(context, "/json");
-              },
-            ),
-            ListTile(
-              title: Text("Counter File"),
-              onTap: () {
-                nav.sendTo(context, "/counter");
-              },
-            ),
+            nav.buildList(context),
           ],
         ),
       ),

@@ -19,9 +19,7 @@ class ArgsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(args["username"]),
-      ),
+      appBar: null,
       body: Center(
         child: Text(args["password"]),
       ),
