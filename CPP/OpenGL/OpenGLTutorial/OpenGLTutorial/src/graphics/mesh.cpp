@@ -5,7 +5,7 @@
 std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
 	std::vector<Vertex> ret(noVertices);
 
-	int stride = 5;
+	int stride = 8;
 
 	for (int i = 0; i < noVertices; i++) {
 		ret[i].pos = glm::vec3(

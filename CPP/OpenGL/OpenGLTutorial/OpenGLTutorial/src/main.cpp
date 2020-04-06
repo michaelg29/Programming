@@ -105,6 +105,7 @@ int main() {
 		shader.setFloat("mixVal", mixVal);
 		shader.set3Float("lightColor", lampColor);
 		shader.set3Float("lightPos", lampPos);
+		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 		
 		// camera view/projection
 		glm::mat4 view = glm::mat4(1.0f);
