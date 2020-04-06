@@ -15,9 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\fragment_core.glsl" />
-    <None Include="assets\vertex_core.glsl" />
     <None Include="glfw3.dll" />
+    <None Include="assets\lamp.fs" />
+    <None Include="assets\object.fs" />
+    <None Include="assets\object.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -86,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\models\lamp.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\models\textured_cube.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

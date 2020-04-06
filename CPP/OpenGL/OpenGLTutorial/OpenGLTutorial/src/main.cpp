@@ -11,16 +11,17 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "graphics/shader.h"
-#include "graphics/texture.h"
-
 #include "io/keyboard.h"
 #include "io/mouse.h"
 #include "io/joystick.h"
 #include "io/screen.h"
 #include "io/camera.h"
 
+#include "graphics/shader.h"
+
 #include "graphics/models/cube.hpp"
+#include "graphics/models/textured_cube.hpp"
+#include "graphics/models/lamp.hpp"
 
 void processInput(double deltaTime);
 
@@ -63,10 +64,24 @@ int main() {
 
 	screen.setParameters();
 
-	// SHADERS===============================
-	Shader shader("assets/vertex_core.glsl", "assets/fragment_core.glsl");
-	Cube c(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
+	// shader
+	Shader shader("assets/object.vs", "assets/object.fs");
+	Shader lightShader("assets/object.vs", "assets/lamp.fs");
+
+	// textures
+	Texture tex1 = Texture("assets/image1.jpg", "texture0");
+	tex1.load();
+	Texture tex2 = Texture("assets/image2.png", "texture1");
+	tex2.load();
+
+	// objects
+	TexturedCube c({ tex1, tex2 }, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
 	c.init();
+
+	glm::vec3 lampColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 lampPos = glm::vec3(-1.0f, 0.5f, 0.1f);
+	Lamp lamp(lampColor, lampPos, glm::vec3(0.25f));
+	lamp.init();
 
 	mainJ.update();
 	if (mainJ.isPresent()) {
@@ -86,8 +101,12 @@ int main() {
 		screen.update();
 
 		shader.activate();
+		
 		shader.setFloat("mixVal", mixVal);
-
+		shader.set3Float("lightColor", lampColor);
+		shader.set3Float("lightPos", lampPos);
+		
+		// camera view/projection
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
 		view = Camera::defaultCamera.getViewMatrix();
@@ -97,8 +116,13 @@ int main() {
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 
-		// bind texture
 		c.render(shader);
+
+		lightShader.activate();
+		lightShader.set3Float("lightColor", lampColor);
+		lightShader.setMat4("view", view);
+		lightShader.setMat4("projection", projection);
+		lamp.render(lightShader);
 
 		screen.newFrame();
 		glfwPollEvents();
