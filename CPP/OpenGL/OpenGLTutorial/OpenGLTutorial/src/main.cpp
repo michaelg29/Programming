@@ -65,7 +65,7 @@ int main() {
 
 	// SHADERS===============================
 	Shader shader("assets/vertex_core.glsl", "assets/fragment_core.glsl");
-	Cube c;
+	Cube c(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
 	c.init();
 
 	mainJ.update();
@@ -96,11 +96,6 @@ int main() {
 			(float)Screen::SCR_WIDTH / (float)Screen::SCR_HEIGHT, 0.1f, 100.0f);
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
-
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); 
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		shader.setMat4("model", model);
 
 		// bind texture
 		c.render(shader);
