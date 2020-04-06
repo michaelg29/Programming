@@ -18,7 +18,11 @@ public:
 	unsigned int id;
 
 	// contructor
+	Shader();
 	Shader(const char* vertexShaderPath, const char* fragShaderPath);
+
+	bool generateProgram(const char* vertexShaderPath, const char* fragShaderPath);
+
 	// activate shader
 	void activate();
 
