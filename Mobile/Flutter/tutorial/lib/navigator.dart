@@ -2,12 +2,39 @@ library tutorial.nav;
 
 import 'package:flutter/material.dart';
 
-import "counterFile.dart" as c;
+Map<String, Map<String, dynamic>> routes;
 
-Map<String, Function> routes;
+void setRoutes(List<List<dynamic>> newRoutes) {
+  newRoutes.forEach((item) {
+    routes[item[0]] = {
+      "name": item[1],
+      "func": item[2],
+    };
+  });
+}
 
-void setRoutes(Map<String, Function> newRoutes) {
-  routes = newRoutes;
+void getName(String route) {
+  return routes[route]["name"];
+}
+
+Widget buildList(BuildContext context,
+    [Map<String, Map<String, dynamic>> args]) {
+  return ListView.builder(
+    padding: const EdgeInsets.all(16.0),
+    itemBuilder: (context, i) {
+      String rt = routes.keys.elementAt(i);
+      return ListTile(
+        title: Text(routes[rt]["name"]),
+        onTap: () {
+          if (args.containsKey(rt)) {
+            sendTo(context, rt, args[rt]);
+          } else {
+            sendTo(context, rt);
+          }
+        },
+      );
+    },
+  );
 }
 
 void sendTo(BuildContext context, String route, [Map<String, dynamic> args]) {
@@ -16,9 +43,9 @@ void sendTo(BuildContext context, String route, [Map<String, dynamic> args]) {
   Widget result;
 
   if (args == null) {
-    result = routes[route](context);
+    result = routes[route]["func"](context);
   } else {
-    result = routes[route](context, args);
+    result = routes[route]["func"](context, args);
   }
 
   Navigator.of(context).push(PageRouteBuilder(
