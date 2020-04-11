@@ -18,6 +18,7 @@
 #include "io/camera.h"
 
 #include "graphics/shader.h"
+#include "graphics/material.h"
 
 #include "graphics/models/cube.hpp"
 #include "graphics/models/textured_cube.hpp"
@@ -75,12 +76,12 @@ int main() {
 	tex2.load();
 
 	// objects
-	TexturedCube c({ tex1, tex2 }, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
+	//TexturedCube c({ tex1, tex2 }, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
+	//c.init();
+	Cube c(Material::emerald, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
 	c.init();
 
-	glm::vec3 lampColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 lampPos = glm::vec3(-1.0f, 0.5f, 0.1f);
-	Lamp lamp(lampColor, lampPos, glm::vec3(0.25f));
+	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-1.0f, 0.5f, 0.1f), glm::vec3(0.25f));
 	lamp.init();
 
 	mainJ.update();
@@ -103,9 +104,12 @@ int main() {
 		shader.activate();
 		
 		shader.setFloat("mixVal", mixVal);
-		shader.set3Float("lightColor", lampColor);
-		shader.set3Float("lightPos", lampPos);
+		shader.set3Float("lightPos", lamp.pos);
 		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
+
+		shader.set3Float("light.ambient", lamp.ambient);
+		shader.set3Float("light.diffuse", lamp.diffuse);
+		shader.set3Float("light.specular", lamp.specular);
 		
 		// camera view/projection
 		glm::mat4 view = glm::mat4(1.0f);
@@ -120,7 +124,6 @@ int main() {
 		c.render(shader);
 
 		lightShader.activate();
-		lightShader.set3Float("lightColor", lampColor);
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
 		lamp.render(lightShader);

@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="lib\stb.cpp" />
     <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\graphics\material.cpp" />
     <ClCompile Include="src\graphics\mesh.cpp" />
     <ClCompile Include="src\graphics\model.cpp" />
     <ClCompile Include="src\graphics\texture.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="src\graphics\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\graphics\material.h" />
     <ClInclude Include="src\graphics\mesh.h" />
     <ClInclude Include="src\graphics\models\cube.hpp" />
     <ClInclude Include="src\graphics\model.h" />

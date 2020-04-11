@@ -1,5 +1,5 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MESH_H
+#define MESH_H
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

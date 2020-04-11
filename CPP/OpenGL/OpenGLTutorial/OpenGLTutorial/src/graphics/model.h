@@ -1,5 +1,5 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef MODEL_H
+#define MODEL_H
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -12,6 +12,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "mesh.h"
+#include "material.h"
 
 class Model {
 public:
