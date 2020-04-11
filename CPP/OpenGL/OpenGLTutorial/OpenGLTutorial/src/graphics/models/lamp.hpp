@@ -29,12 +29,12 @@ public:
 	void render(Shader shader) {
 		shader.set3Float("lightColor", lightColor);
 
-		lightColor.x = sin(glfwGetTime() * 2.0f);
-		lightColor.y = sin(glfwGetTime() * 0.7f);
-		lightColor.z = sin(glfwGetTime() * 1.3f);
+		//lightColor.x = sin(glfwGetTime() * 2.0f);
+		//lightColor.y = sin(glfwGetTime() * 0.7f);
+		//lightColor.z = sin(glfwGetTime() * 1.3f);
 
-		diffuse = lightColor * glm::vec3(0.5f);
-		ambient = diffuse * glm::vec3(0.2f);
+		//diffuse = lightColor * glm::vec3(0.5f);
+		//ambient = diffuse * glm::vec3(0.2f);
 
 		Cube::render(shader);
 	}

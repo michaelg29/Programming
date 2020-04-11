@@ -78,10 +78,10 @@ int main() {
 	// objects
 	//TexturedCube c({ tex1, tex2 }, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
 	//c.init();
-	Cube c(Material::emerald, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
+	Cube c(Material::gold, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
 	c.init();
 
-	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-1.0f, 0.5f, 0.1f), glm::vec3(0.25f));
+	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-1.0f, 15.0f, 1.5f), glm::vec3(5.0f));
 	lamp.init();
 
 	mainJ.update();
@@ -104,7 +104,7 @@ int main() {
 		shader.activate();
 		
 		shader.setFloat("mixVal", mixVal);
-		shader.set3Float("lightPos", lamp.pos);
+		shader.set3Float("light.position", lamp.pos);
 		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
 		shader.set3Float("light.ambient", lamp.ambient);
