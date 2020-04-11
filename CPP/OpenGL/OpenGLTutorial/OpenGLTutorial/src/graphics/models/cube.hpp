@@ -2,16 +2,18 @@
 #define CUBE_HPP
 
 #include "../model.h"
+#include "../material.h"
 
 class Cube : public Model {
 public:
 	Mesh mesh;
+	Material material;
 
 	glm::vec3 pos;
 	glm::vec3 size;
 
-	Cube(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f)) 
-		: pos(pos), size(size) {}
+	Cube(Material material, glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f)) 
+		: material(material), pos(pos), size(size) {}
 
 	void init() {
 		int noVertices = 36;
@@ -74,6 +76,11 @@ public:
 		model = glm::translate(model, pos);
 		model = glm::scale(model, size);
 		shader.setMat4("model", model);
+		
+		shader.set3Float("material.ambient", material.ambient);
+		shader.set3Float("material.diffuse", material.diffuse);
+		shader.set3Float("material.specular", material.specular);
+		shader.setFloat("material.shininess", material.shininess);
 
 		mesh.draw(shader);
 	}
