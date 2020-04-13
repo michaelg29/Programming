@@ -141,9 +141,6 @@ namespace jsoncpp {
 				case json_type::json_string:
 					s_val += val.s_val;
 					break;
-				case json_type::json_num:
-					s_val += std::to_string(val.n_val);
-					break;
 				default:
 					// TODO: throw error
 					break;
