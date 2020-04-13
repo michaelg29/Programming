@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 
 #include "json.hpp"
 
@@ -19,9 +20,7 @@ int main() {
 		}}
     };
 
-	std::cout << d.dump(4) << std::endl;
-	d["list"] += 5;
-	std::cout << d.dump(4) << std::endl;
+	d.dump("data.json", 4);
 
 	//std::cout << json::parse(d.dump()).dump(4) << std::endl;
 
