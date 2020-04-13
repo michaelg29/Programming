@@ -1,22 +1,29 @@
 #include <iostream>
 
-#include "json.h"
-#include "util.h"
-
-using namespace json;
+#include "json.hpp"
 
 int main() {
 	std::cout << "Hello, JSON!" << std::endl;
 
-	json_data d = json_util::read("data.json");
-	//std::cout << d.getType() << ' ' << d.stringify() << std::endl;
+    jsoncpp::json d = {
+		{"pi", 3.141},
+		{"happy", true},
+		{"name", "Niels"},
+		{"answer", {
+			{"everything", 42}
+		}},
+		{"list", {1, 0, 2}},
+		{"object", {
+			{"currency", "USD"},
+			{"value", 42.99}
+		}}
+    };
 
-	//json_util::write("data2.json", d);
+	std::cout << d.dump(4) << std::endl;
+	d["list"] += 5;
+	std::cout << d.dump(4) << std::endl;
 
-	//d["json"] = { {"hello", 5 } };
-	d["json"]["hello"]["he"] = 7;
-
-	std::cout << d.stringify() << std::endl;
+	//std::cout << json::parse(d.dump()).dump(4) << std::endl;
 
 	std::cout << "Goodbye, JSON!" << std::endl;
 }
