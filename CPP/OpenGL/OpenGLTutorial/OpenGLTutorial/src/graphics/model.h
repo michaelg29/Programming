@@ -22,7 +22,7 @@ public:
 
 	void init();
 
-	void render();
+	void render(Shader shader);
 	
 	void cleanup();
 };
