@@ -21,7 +21,6 @@
 #include "graphics/material.h"
 
 #include "graphics/models/cube.hpp"
-#include "graphics/models/textured_cube.hpp"
 #include "graphics/models/lamp.hpp"
 
 void processInput(double deltaTime);
@@ -69,19 +68,11 @@ int main() {
 	Shader shader("assets/object.vs", "assets/object.fs");
 	Shader lightShader("assets/object.vs", "assets/lamp.fs");
 
-	// textures
-	Texture tex1 = Texture("assets/image1.jpg", "texture0");
-	tex1.load();
-	Texture tex2 = Texture("assets/image2.png", "texture1");
-	tex2.load();
-
 	// objects
-	//TexturedCube c({ tex1, tex2 }, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
-	//c.init();
-	Cube c(Material::gold, glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
+	Cube c(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
 	c.init();
 
-	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-1.0f, 15.0f, 1.5f), glm::vec3(5.0f));
+	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-1.0f, 1.0f, 1.5f), glm::vec3(0.25f));
 	lamp.init();
 
 	mainJ.update();

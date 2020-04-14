@@ -24,7 +24,7 @@ public:
 		ambient(ambient),
 		diffuse(diffuse),
 		specular(specular),
-		Cube(Material::white_plastic, pos, size) {}
+		Cube(pos, size) {}
 
 	void render(Shader shader) {
 		shader.set3Float("lightColor", lightColor);
