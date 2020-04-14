@@ -66,7 +66,7 @@ int main() {
 
 	// shader
 	Shader shader("assets/object.vs", "assets/object.fs");
-	Shader lightShader("assets/object.vs", "assets/lamp.fs");
+	//Shader lightShader("assets/object.vs", "assets/lamp.fs");
 
 	// objects
 	//Cube c(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
@@ -91,10 +91,10 @@ int main() {
 		cubes[i].init();
 	}
 
-	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), 
+	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.1f), glm::vec3(0.8f), glm::vec3(1.0f), 
 		1.0f, 0.09f, 0.032f, 
 		glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.25f));
-	lamp.init();
+	//lamp.init();
 
 	mainJ.update();
 	if (mainJ.isPresent()) {
@@ -116,8 +116,10 @@ int main() {
 		shader.activate();
 		
 		shader.setFloat("mixVal", mixVal);
-		shader.set3Float("light.position", lamp.pos);
-		shader.set3Float("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+		shader.set3Float("light.position", /*lamp.pos*/ Camera::defaultCamera.cameraPos);
+		shader.set3Float("light.direction", /*glm::vec3(-0.2f, -1.0f, -0.3f)*/ Camera::defaultCamera.cameraFront);
+		shader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+		shader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
 		shader.set3Float("light.ambient", lamp.ambient);
@@ -141,10 +143,10 @@ int main() {
 			cubes[i].render(shader);
 		}
 
-		lightShader.activate();
+		/*lightShader.activate();
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
-		lamp.render(lightShader);
+		lamp.render(lightShader);*/
 
 		screen.newFrame();
 		glfwPollEvents();
