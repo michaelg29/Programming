@@ -91,7 +91,9 @@ int main() {
 		cubes[i].init();
 	}
 
-	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), glm::vec3(-1.0f, 1.0f, 1.5f), glm::vec3(0.25f));
+	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.2f), glm::vec3(0.5f), glm::vec3(1.0f), 
+		1.0f, 0.09f, 0.032f, 
+		glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.25f));
 	lamp.init();
 
 	mainJ.update();
@@ -114,13 +116,16 @@ int main() {
 		shader.activate();
 		
 		shader.setFloat("mixVal", mixVal);
-		//shader.set3Float("light.position", lamp.pos);
+		shader.set3Float("light.position", lamp.pos);
 		shader.set3Float("light.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
 		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
 		shader.set3Float("light.ambient", lamp.ambient);
 		shader.set3Float("light.diffuse", lamp.diffuse);
 		shader.set3Float("light.specular", lamp.specular);
+		shader.setFloat("light.k0", lamp.k0);
+		shader.setFloat("light.k1", lamp.k1);
+		shader.setFloat("light.k2", lamp.k2);
 		
 		// camera view/projection
 		glm::mat4 view = glm::mat4(1.0f);
