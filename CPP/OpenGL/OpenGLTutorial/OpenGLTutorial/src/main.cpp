@@ -19,13 +19,12 @@
 
 #include "graphics/shader.h"
 #include "graphics/material.h"
+#include "graphics/light.h"
 
 #include "graphics/models/cube.hpp"
 #include "graphics/models/lamp.hpp"
 
 void processInput(double deltaTime);
-
-float mixVal = 0.5f;
 
 Screen screen;
 
@@ -66,11 +65,9 @@ int main() {
 
 	// shader
 	Shader shader("assets/object.vs", "assets/object.fs");
-	//Shader lightShader("assets/object.vs", "assets/lamp.fs");
+	Shader lightShader("assets/object.vs", "assets/lamp.fs");
 
 	// objects
-	//Cube c(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.75f));
-	//c.init();
 
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
@@ -91,10 +88,29 @@ int main() {
 		cubes[i].init();
 	}
 
-	Lamp lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.1f), glm::vec3(0.8f), glm::vec3(1.0f), 
+	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.5f, 0.5f, 0.5f) };
+
+	glm::vec3 pointLightPositions[] = {
+		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3(0.0f,  0.0f, -3.0f)
+	};
+
+	Lamp lamps[4];
+	for (unsigned int i = 0; i < 4; i++) {
+		lamps[i] = Lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f),
+			1.0f, 0.09f, 0.032f,
+			pointLightPositions[i], glm::vec3(0.25f));
+		lamps[i].init();
+	}
+
+	SpotLight s = { 
+		Camera::defaultCamera.cameraPos, Camera::defaultCamera.cameraFront, 
+		glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)),
 		1.0f, 0.09f, 0.032f, 
-		glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.25f));
-	//lamp.init();
+		glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f) 
+	};
 
 	mainJ.update();
 	if (mainJ.isPresent()) {
@@ -115,20 +131,19 @@ int main() {
 
 		shader.activate();
 		
-		shader.setFloat("mixVal", mixVal);
-		shader.set3Float("light.position", /*lamp.pos*/ Camera::defaultCamera.cameraPos);
-		shader.set3Float("light.direction", /*glm::vec3(-0.2f, -1.0f, -0.3f)*/ Camera::defaultCamera.cameraFront);
-		shader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-		shader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
 		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
-		shader.set3Float("light.ambient", lamp.ambient);
-		shader.set3Float("light.diffuse", lamp.diffuse);
-		shader.set3Float("light.specular", lamp.specular);
-		shader.setFloat("light.k0", lamp.k0);
-		shader.setFloat("light.k1", lamp.k1);
-		shader.setFloat("light.k2", lamp.k2);
-		
+		dirLight.render(shader);
+		for (unsigned int i = 0; i < 4; i++) {
+			lamps[i].light.render(shader, i);
+		}
+		shader.setInt("noPointLights", 4);
+
+		s.position = Camera::defaultCamera.cameraPos;
+		s.direction = Camera::defaultCamera.cameraFront;
+		s.render(shader, 0);
+		shader.setInt("noSpotLights", 1);
+
 		// camera view/projection
 		glm::mat4 view = glm::mat4(1.0f);
 		glm::mat4 projection = glm::mat4(1.0f);
@@ -143,10 +158,13 @@ int main() {
 			cubes[i].render(shader);
 		}
 
-		/*lightShader.activate();
+		lightShader.activate();
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
-		lamp.render(lightShader);*/
+
+		for (unsigned int i = 0; i < 4; i++) {
+			lamps[i].render(lightShader);
+		}
 
 		screen.newFrame();
 		glfwPollEvents();
@@ -156,7 +174,9 @@ int main() {
 	for (unsigned int i = 0; i < 10; i++) {
 		cubes[i].cleanup();
 	}
-	lamp.cleanup();
+	for (unsigned int i = 0; i < 4; i++) {
+		lamps[i] .cleanup();
+	}
 
 	glfwTerminate();
 	return 0;
@@ -165,20 +185,6 @@ int main() {
 void processInput(double deltaTime) {
 	if (Keyboard::key(GLFW_KEY_ESCAPE)) {
 		screen.setShouldClose(true);
-	}
-
-	// change mix value
-	if (Keyboard::key(GLFW_KEY_UP)) {
-		mixVal += .01f;
-		if (mixVal > 1) {
-			mixVal = 1.0f;
-		}
-	}
-	if (Keyboard::key(GLFW_KEY_DOWN)) {
-		mixVal -= .01f;
-		if (mixVal < 0) {
-			mixVal = 0.0f;
-		}
 	}
 
 	// move camera

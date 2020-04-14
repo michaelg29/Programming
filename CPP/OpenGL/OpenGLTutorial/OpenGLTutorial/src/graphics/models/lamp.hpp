@@ -4,22 +4,15 @@
 #include "cube.hpp"
 #include "../material.h"
 #include "../shader.h"
+#include "../light.h"
 
 class Lamp : public Cube {
 public:
 	glm::vec3 lightColor;
 
-	// light strength values
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
+	PointLight light;
 
-	// attenuation constants
-	float k0;
-	float k1;
-	float k2;
-
-	Lamp(glm::vec3 lightColor,
+	Lamp(glm::vec3 lightColor = glm::vec3(1.0f),
 		glm::vec3 ambient = glm::vec3(1.0f),
 		glm::vec3 diffuse = glm::vec3(1.0f),
 		glm::vec3 specular = glm::vec3(1.0f),
@@ -29,10 +22,7 @@ public:
 		glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), 
 		glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f))
 		: lightColor(lightColor),
-		ambient(ambient),
-		diffuse(diffuse),
-		specular(specular),
-		k0(k0), k1(k1), k2(k2),
+		light({ pos, k0, k1, k2, ambient, diffuse, specular }),
 		Cube(pos, size) {}
 
 	void render(Shader shader) {
