@@ -35,8 +35,6 @@ class ChatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    fstream.writeApiKey("AIzaSyD76y9mfnTewCq6Qj52svrNdPMVMODa328");
-
     return MaterialApp(
       title: "YouTube Streaming Chat",
       theme: styles.main,
