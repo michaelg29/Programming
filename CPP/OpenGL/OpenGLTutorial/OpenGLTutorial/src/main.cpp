@@ -175,7 +175,7 @@ int main() {
 		cubes[i].cleanup();
 	}
 	for (unsigned int i = 0; i < 4; i++) {
-		lamps[i] .cleanup();
+		lamps[i].cleanup();
 	}
 
 	glfwTerminate();
