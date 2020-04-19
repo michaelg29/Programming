@@ -6,34 +6,28 @@
 
 #include <stb/stb_image.h>
 
+#include <assimp/scene.h>
+
+#include <string>
+
 class Texture {
 public:
 	Texture();
-	Texture(const char* path, const char* name, bool defaultParams = true);
+	Texture(std::string dir, std::string path, aiTextureType type);
 
 	void generate();
 	void load(bool flip = true);
 
-	void setFilters(GLint all);
-	void setFilters(GLint mag, GLint min);
-
-	void setWrap(GLint all);
-	void setWrap(GLint s, GLint t);
-
-	void setBorderColor(float borderColor[4]);
-
-	void activate();
+	void bind();
 
 	// texture object
-	int id;
-	unsigned int tex;
-	const char* name;
+	unsigned int id;
+	aiTextureType type;
+	std::string dir;
+	std::string path;
 
 protected:
-	static int currentId;
-
 	// img properties
-	const char* path;
 	int width;
 	int height;
 	int nChannels;

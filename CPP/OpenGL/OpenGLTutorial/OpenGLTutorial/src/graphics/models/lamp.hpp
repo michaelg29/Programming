@@ -2,7 +2,6 @@
 #define LAMP_HPP
 
 #include "cube.hpp"
-#include "../material.h"
 #include "../shader.h"
 #include "../light.h"
 
@@ -27,13 +26,6 @@ public:
 
 	void render(Shader shader) {
 		shader.set3Float("lightColor", lightColor);
-
-		//lightColor.x = sin(glfwGetTime() * 2.0f);
-		//lightColor.y = sin(glfwGetTime() * 0.7f);
-		//lightColor.z = sin(glfwGetTime() * 1.3f);
-
-		//diffuse = lightColor * glm::vec3(0.5f);
-		//ambient = diffuse * glm::vec3(0.2f);
 
 		Cube::render(shader);
 	}
