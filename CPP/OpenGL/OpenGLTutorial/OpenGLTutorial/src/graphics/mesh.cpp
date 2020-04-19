@@ -37,8 +37,8 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
 }
 
 void Mesh::render(Shader shader) {
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
+    unsigned int diffuseIdx = 0;
+    unsigned int specularIdx = 0;
 
     for (unsigned int i = 0; i < textures.size(); i++) {
         // active proper texture unit before binding
@@ -50,19 +50,18 @@ void Mesh::render(Shader shader) {
         switch (textures[i].type) {
         case aiTextureType_DIFFUSE:
             name = "diffuse";
-            number = std::to_string(diffuseNr++);
+            number = std::to_string(diffuseIdx++);
             break;
 
         case aiTextureType_SPECULAR:
             name = "specular";
-            number = std::to_string(specularNr++);
+            number = std::to_string(specularIdx++);
             break;
         };
 
         // now set the sampler to the correct texture unit
         shader.setInt(name + number, i);
         // and finally bind the texture
-        //glBindTexture(GL_TEXTURE_2D, textures[i].id);
         textures[i].bind();
     }
 
