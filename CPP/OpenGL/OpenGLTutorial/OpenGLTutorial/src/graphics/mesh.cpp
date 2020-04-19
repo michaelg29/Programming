@@ -36,15 +36,15 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
     setup();
 }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor3D diff, aiColor3D spec)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor4D diff, aiColor4D spec)
     : vertices(vertices), indices(indices), diff(diff), spec(spec), noTex(true) {
     setup();
 }
 
 void Mesh::render(Shader shader) {
     if (noTex) {
-        shader.set3Float("material.diffuse", diff.r, diff.g, diff.b);
-        shader.set3Float("material.specular", spec.r, spec.g, spec.b);
+        shader.set4Float("material.diffuse", diff);
+        shader.set4Float("material.specular", spec);
         shader.setInt("noTex", 1);
     }
     else {
