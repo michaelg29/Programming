@@ -3,8 +3,8 @@
 #include <iostream>
 #include <stb/stb_image.h>
 
-Model::Model(glm::vec3 pos, glm::vec3 size)
-	: pos(pos), size(size) {}
+Model::Model(glm::vec3 pos, glm::vec3 size, bool noTex)
+	: pos(pos), size(size), noTex(noTex) {}
 
 void Model::render(Shader shader) {
 	glm::mat4 model = glm::mat4(1.0f);
@@ -101,15 +101,28 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 	// process material
 	if (mesh->mMaterialIndex >= 0) {
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		// 1. diffuse maps
-		std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE);
-		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		// 2. specular maps
-		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR);
-		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-	}
 
-	return Mesh(vertices, indices, textures);
+		if (noTex) {
+			// 1. diffuse colors
+			aiColor4D diff(1.0f);
+			aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diff);
+			// 2. specular colors
+			aiColor4D spec(1.0f);
+			aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &spec);
+
+			return Mesh(vertices, indices, aiColor3D(diff.r, diff.g, diff.b), aiColor3D(spec.r, spec.g, spec.b));
+		}
+		else {
+			// 1. diffuse maps
+			std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE);
+			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+			// 2. specular maps
+			std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR);
+			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+
+			return Mesh(vertices, indices, textures);
+		}
+	}
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type) {
@@ -131,6 +144,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
 		if (!skip) {
 			// not loaded yet
+			std::cout << directory << "///" << str.C_Str() << std::endl;
 			Texture tex(directory, str.C_Str(), type);
 			tex.load();
 			textures.push_back(tex);

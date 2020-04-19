@@ -1,12 +1,14 @@
 #version 330 core
 struct Material {
-    sampler2D diffuse;
-    sampler2D specular;
+    vec3 diffuse;
+    vec3 specular;
     float shininess;
 };
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
+
+uniform int noTex;
 
 struct DirLight {
 	vec3 direction;
@@ -68,8 +70,17 @@ void main() {
 	// properties
 	vec3 norm = normalize(Normal);
 	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 texDiff = vec3(texture(texture_diffuse1, TexCoord));
-	vec3 texSpec = vec3(texture(texture_specular1, TexCoord));
+
+	vec3 texDiff;
+	vec3 texSpec;
+
+	if (noTex == 1) {
+		texDiff = clamp(material.diffuse * 4, 0, 1);
+		texSpec = clamp(material.specular * 4, 0, 1);
+	} else {
+		texDiff = vec3(texture(texture_diffuse1, TexCoord));
+		texSpec = vec3(texture(texture_specular1, TexCoord));
+	}
 
 	vec3 result;
 
