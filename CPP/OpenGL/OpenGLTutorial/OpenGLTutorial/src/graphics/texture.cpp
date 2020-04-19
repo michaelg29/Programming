@@ -3,11 +3,10 @@
 #include <iostream>
 
 Texture::Texture() 
-	: path(""), dir(""), width(0), height(0), nChannels(0) {}
+	: path(""), dir("") {}
 
 Texture::Texture(std::string dir, std::string path, aiTextureType type)
-	: dir(dir), path(path), type(type),
-		width(0), height(0), nChannels(0)
+	: dir(dir), path(path), type(type)
 {
 	generate();
 }
@@ -16,8 +15,8 @@ void Texture::generate() {
 	glGenTextures(1, &id);
 }
 
-void Texture::load(bool flip) {
-	stbi_set_flip_vertically_on_load(flip);
+void Texture::load() {
+	int width, height, nChannels;
 
 	unsigned char* data = stbi_load((dir + "/" + path).c_str(), &width, &height, &nChannels, 0);
 	

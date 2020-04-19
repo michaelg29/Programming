@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "shader.h"
-#include "texture.h"
+//#include "texture.h"
 #include "mesh.h"
 
 class Model {

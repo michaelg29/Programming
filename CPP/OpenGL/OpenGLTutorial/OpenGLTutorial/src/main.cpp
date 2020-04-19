@@ -71,7 +71,7 @@ int main() {
 	// objects
 
 	Model m(glm::vec3(0.0f, -1.75f, 0.0f), glm::vec3(0.2f));
-	m.loadModel("assets/models/nanosuit/nanosuit.obj");
+	m.loadModel("assets/models/crysis_nano_suit_2/scene.gltf");
 
 	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.25f, 0.25f, 0.25f) };
 

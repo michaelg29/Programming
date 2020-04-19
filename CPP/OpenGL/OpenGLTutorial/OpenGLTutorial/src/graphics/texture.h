@@ -16,7 +16,7 @@ public:
 	Texture(std::string dir, std::string path, aiTextureType type);
 
 	void generate();
-	void load(bool flip = true);
+	void load();
 
 	void bind();
 
@@ -25,12 +25,6 @@ public:
 	aiTextureType type;
 	std::string dir;
 	std::string path;
-
-protected:
-	// img properties
-	int width;
-	int height;
-	int nChannels;
 };
 
 #endif

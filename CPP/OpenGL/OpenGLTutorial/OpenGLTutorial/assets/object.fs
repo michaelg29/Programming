@@ -5,8 +5,8 @@ struct Material {
     float shininess;
 };
 
-uniform sampler2D diffuse1;
-uniform sampler2D specular1;
+uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_specular1;
 
 struct DirLight {
 	vec3 direction;
@@ -68,8 +68,8 @@ void main() {
 	// properties
 	vec3 norm = normalize(Normal);
 	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 texDiff = vec3(texture(diffuse1, TexCoord));
-	vec3 texSpec = vec3(texture(specular1, TexCoord));
+	vec3 texDiff = vec3(texture(texture_diffuse1, TexCoord));
+	vec3 texSpec = vec3(texture(texture_specular1, TexCoord));
 
 	vec3 result;
 
@@ -87,8 +87,6 @@ void main() {
 	}
 
 	FragColor = vec4(result, 1.0);
-
-	FragColor = texture(diffuse1, TexCoord);
 }
 
 vec3 calcDirLight(vec3 norm, vec3 viewDir, vec3 texDiff, vec3 texSpec) {
