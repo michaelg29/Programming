@@ -10,6 +10,12 @@
 #include "shader.h"
 #include "texture.h"
 
+//struct Texture {
+//	unsigned int id;
+//	std::string type;
+//	std::string path;
+//};
+
 struct Vertex {
 	glm::vec3 pos;
 	glm::vec3 normal;
@@ -22,9 +28,9 @@ class Mesh {
 public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
-	unsigned int VAO;
-
 	std::vector<Texture> textures;
+
+	unsigned int VAO;
 
 	Mesh();
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures = {});

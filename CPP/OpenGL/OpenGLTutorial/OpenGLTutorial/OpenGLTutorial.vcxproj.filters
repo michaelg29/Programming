@@ -19,6 +19,7 @@
     <None Include="assets\lamp.fs" />
     <None Include="assets\object.fs" />
     <None Include="assets\object.vs" />
+    <None Include="assimp-vc142-mtd.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -57,9 +58,6 @@
     <ClCompile Include="src\graphics\model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\graphics\material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\graphics\light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -96,9 +94,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\models\lamp.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphics\material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\light.h">

@@ -18,7 +18,6 @@
 #include "io/camera.h"
 
 #include "graphics/shader.h"
-#include "graphics/material.h"
 #include "graphics/light.h"
 
 #include "graphics/models/cube.hpp"
@@ -30,6 +29,8 @@ Screen screen;
 
 Joystick mainJ(0);
 Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+bool flashLightOn = false;
 
 double deltaTime = 0.0f; // tme btwn frames
 double lastFrame = 0.0f; // time of last frame
@@ -69,26 +70,10 @@ int main() {
 
 	// objects
 
-	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
+	Model m(glm::vec3(0.0f, -1.75f, 0.0f), glm::vec3(0.2f));
+	m.loadModel("assets/models/nanosuit/nanosuit.obj");
 
-	Cube cubes[10];
-	for (unsigned int i = 0; i < 10; i++) {
-		cubes[i] = Cube(cubePositions[i], glm::vec3(1.0f));
-		cubes[i].init();
-	}
-
-	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.4f, 0.4f, 0.4f), glm::vec3(0.5f, 0.5f, 0.5f) };
+	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.25f, 0.25f, 0.25f) };
 
 	glm::vec3 pointLightPositions[] = {
 		glm::vec3(0.7f,  0.2f,  2.0f),
@@ -139,10 +124,15 @@ int main() {
 		}
 		shader.setInt("noPointLights", 4);
 
-		s.position = Camera::defaultCamera.cameraPos;
-		s.direction = Camera::defaultCamera.cameraFront;
-		s.render(shader, 0);
-		shader.setInt("noSpotLights", 1);
+		if (flashLightOn) {
+			s.position = Camera::defaultCamera.cameraPos;
+			s.direction = Camera::defaultCamera.cameraFront;
+			s.render(shader, 0);
+			shader.setInt("noSpotLights", 1);
+		}
+		else {
+			shader.setInt("noSpotLights", 0);
+		}
 
 		// camera view/projection
 		glm::mat4 view = glm::mat4(1.0f);
@@ -154,9 +144,7 @@ int main() {
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 
-		for (unsigned int i = 0; i < 10; i++) {
-			cubes[i].render(shader);
-		}
+		m.render(shader);
 
 		lightShader.activate();
 		lightShader.setMat4("view", view);
@@ -170,10 +158,6 @@ int main() {
 		glfwPollEvents();
 	}
 
-	//c.cleanup();
-	for (unsigned int i = 0; i < 10; i++) {
-		cubes[i].cleanup();
-	}
 	for (unsigned int i = 0; i < 4; i++) {
 		lamps[i].cleanup();
 	}
@@ -185,6 +169,10 @@ int main() {
 void processInput(double deltaTime) {
 	if (Keyboard::key(GLFW_KEY_ESCAPE)) {
 		screen.setShouldClose(true);
+	}
+
+	if (Keyboard::keyWentDown(GLFW_KEY_L)) {
+		flashLightOn = !flashLightOn;
 	}
 
 	// move camera
