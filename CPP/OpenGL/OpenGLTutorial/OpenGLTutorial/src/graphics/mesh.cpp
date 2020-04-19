@@ -32,37 +32,49 @@ std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
 Mesh::Mesh() {}
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
-    : vertices(vertices), indices(indices), textures(textures) {
+    : vertices(vertices), indices(indices), textures(textures), noTex(false) {
+    setup();
+}
+
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor3D diff, aiColor3D spec)
+    : vertices(vertices), indices(indices), diff(diff), spec(spec), noTex(true) {
     setup();
 }
 
 void Mesh::render(Shader shader) {
-    unsigned int diffuseIdx = 0;
-    unsigned int specularIdx = 0;
+    if (noTex) {
+        shader.set3Float("material.diffuse", diff.r, diff.g, diff.b);
+        shader.set3Float("material.specular", spec.r, spec.g, spec.b);
+        shader.setInt("noTex", 1);
+    }
+    else {
+        unsigned int diffuseIdx = 0;
+        unsigned int specularIdx = 0;
 
-    for (unsigned int i = 0; i < textures.size(); i++) {
-        // active proper texture unit before binding
-        glActiveTexture(GL_TEXTURE0 + i);
-        
-        // retrieve texture number (the N in diffuse_textureN)
-        std::string number;
-        std::string name;
-        switch (textures[i].type) {
-        case aiTextureType_DIFFUSE:
-            name = "diffuse";
-            number = std::to_string(diffuseIdx++);
-            break;
+        for (unsigned int i = 0; i < textures.size(); i++) {
+            // active proper texture unit before binding
+            glActiveTexture(GL_TEXTURE0 + i);
 
-        case aiTextureType_SPECULAR:
-            name = "specular";
-            number = std::to_string(specularIdx++);
-            break;
-        };
+            // retrieve texture number (the N in diffuse_textureN)
+            std::string number;
+            std::string name;
+            switch (textures[i].type) {
+            case aiTextureType_DIFFUSE:
+                name = "diffuse";
+                number = std::to_string(diffuseIdx++);
+                break;
 
-        // now set the sampler to the correct texture unit
-        shader.setInt(name + number, i);
-        // and finally bind the texture
-        textures[i].bind();
+            case aiTextureType_SPECULAR:
+                name = "specular";
+                number = std::to_string(specularIdx++);
+                break;
+            };
+
+            // now set the sampler to the correct texture unit
+            shader.setInt(name + number, i);
+            // and finally bind the texture
+            textures[i].bind();
+        }
     }
 
     glBindVertexArray(VAO);

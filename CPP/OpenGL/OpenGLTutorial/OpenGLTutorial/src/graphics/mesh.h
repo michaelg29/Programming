@@ -7,14 +7,10 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include <assimp/scene.h>
+
 #include "shader.h"
 #include "texture.h"
-
-//struct Texture {
-//	unsigned int id;
-//	std::string type;
-//	std::string path;
-//};
 
 struct Vertex {
 	glm::vec3 pos;
@@ -30,16 +26,22 @@ public:
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
 
+	aiColor3D diff;
+	aiColor3D spec;
+
 	unsigned int VAO;
 
 	Mesh();
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures = {});
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor3D diff, aiColor3D spec);
 
 	void render(Shader shader);
 
 	void cleanup();
 
 private:
+	bool noTex;
+
 	unsigned int VBO, EBO;
 
 	void setup();
