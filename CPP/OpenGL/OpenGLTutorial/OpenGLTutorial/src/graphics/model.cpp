@@ -110,7 +110,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			aiColor4D spec(1.0f);
 			aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &spec);
 
-			return Mesh(vertices, indices, aiColor3D(diff.r, diff.g, diff.b), aiColor3D(spec.r, spec.g, spec.b));
+			return Mesh(vertices, indices, diff, spec);
 		}
 		else {
 			// 1. diffuse maps

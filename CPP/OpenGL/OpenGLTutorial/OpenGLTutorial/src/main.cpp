@@ -70,10 +70,10 @@ int main() {
 
 	// objects
 
-	Model m(glm::vec3(0.0f, -1.75f, 0.0f), glm::vec3(0.05f), true);
-	m.loadModel("assets/models/low-poly_m4a1/scene.gltf");
+	Model m(glm::vec3(0.0f, -1.75f, -5.0f), glm::vec3(0.05f), true);
+	m.loadModel("assets/models/m4a1/scene.gltf");
 
-	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.8f, 0.8f, 0.8f) };
+	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec4(0.8f, 0.8f, 0.8f, 1.0f) };
 
 	glm::vec3 pointLightPositions[] = {
 		glm::vec3(0.7f,  0.2f,  2.0f),
@@ -94,7 +94,7 @@ int main() {
 		Camera::defaultCamera.cameraPos, Camera::defaultCamera.cameraFront, 
 		glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)),
 		1.0f, 0.09f, 0.032f, 
-		glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f) 
+		glm::vec4(0.0f), glm::vec4(1.0f), glm::vec4(1.0f) 
 	};
 
 	mainJ.update();
