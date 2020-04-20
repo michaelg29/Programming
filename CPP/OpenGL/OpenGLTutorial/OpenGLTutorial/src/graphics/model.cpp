@@ -144,7 +144,6 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
 		if (!skip) {
 			// not loaded yet
-			std::cout << directory << "///" << str.C_Str() << std::endl;
 			Texture tex(directory, str.C_Str(), type);
 			tex.load();
 			textures.push_back(tex);

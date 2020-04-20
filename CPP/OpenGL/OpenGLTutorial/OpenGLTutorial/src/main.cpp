@@ -70,8 +70,8 @@ int main() {
 
 	// objects
 
-	Model m(glm::vec3(0.0f, -1.75f, -5.0f), glm::vec3(0.05f), true);
-	m.loadModel("assets/models/m4a1/scene.gltf");
+	Model m(glm::vec3(0.0f, -1.75f, -5.0f), glm::vec3(0.05f));
+	m.loadModel("assets/models/lotr_troll/scene.gltf");
 
 	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec4(0.8f, 0.8f, 0.8f, 1.0f) };
 
