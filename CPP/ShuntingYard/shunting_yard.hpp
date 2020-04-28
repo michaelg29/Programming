@@ -137,9 +137,7 @@ namespace ShuntingYard {
 		{ "*", Func([](double x, double y) -> double { return x * y; }, TokenTypes::OPERATOR, 3) },
 		{ "/", Func([](double x, double y) -> double { return x / y; }, TokenTypes::OPERATOR, 3) },
 		{ "%", Func(std::fmod, TokenTypes::OPERATOR, 3) },
-		{ "^", Func([](double x, double y) -> double { return std::pow(x, y); }, TokenTypes::OPERATOR, 4, false) },
-		{ "max", Func(std::fmax) },
-		{ "min", Func(std::fmin) }
+		{ "^", Func([](double x, double y) -> double { return std::pow(x, y); }, TokenTypes::OPERATOR, 4, false) }
 	};
 
 	// function names
@@ -232,12 +230,14 @@ namespace ShuntingYard {
 
 		std::string obj = "";
 		TokenTypes type = TokenTypes::ELSE;
+		TokenTypes prevType = TokenTypes::ELSE; // negative sign detection
 
 		for (int i = 0, eq_len = (int)strlen(eqn); i < eq_len; i++) {
 			char t = eqn[i];
 
 			// skip spaces/commas
 			if (t == ' ' || t == ',') {
+				prevType = TokenTypes::ELSE;
 				continue;
 			}
 
@@ -255,6 +255,11 @@ namespace ShuntingYard {
 					}
 				}
 				obj = std::string(eqn).substr(startI, i - startI + 1);
+
+				if (obj == "-" && prevType != TokenTypes::RPAREN && prevType != TokenTypes::OPERATOR) {
+					// interpret as subtraction sign
+					type = TokenTypes::OPERATOR;
+				}
 			}
 			else {
 				obj = findElement(i, eqn, functionNames);
@@ -290,7 +295,7 @@ namespace ShuntingYard {
 			}
 
 			// do something with token
-			const char* last_stack = (stack.size() > 0) ? stack.top().c_str() : "";
+ 			const char* last_stack = (stack.size() > 0) ? stack.top().c_str() : "";
 			switch (type) {
 			case TokenTypes::CONSTANT:
 				queue.push_back(obj);
@@ -331,6 +336,8 @@ namespace ShuntingYard {
 			default:
 				return queue;
 			}
+
+			prevType = type;
 		}
 
 		while (stack.size() > 0) {
@@ -430,7 +437,7 @@ namespace ShuntingYard {
 
 	// determine if character is number (either decimal point or has matching key value)
 	bool isNumber(char c) {
-		return c == '.' || (int(c) >= int('0') && int(c) <= int('9'));
+		return c == '.' || (int(c) >= int('0') && int(c) <= int('9')) || c == '-';
 	}
 
 	// determine if entire string is number (constant, decimal point, or contains only numbers
@@ -446,7 +453,7 @@ namespace ShuntingYard {
 				or wrong key value (outside of 0-9)
 		*/
 		for (char c : std::string(str)) {
-			if (c != '.' && (int(c) < int('0') || int(c) > ('9'))) {
+			if (!isNumber(c)) {
 				return false;
 			}
 		}
