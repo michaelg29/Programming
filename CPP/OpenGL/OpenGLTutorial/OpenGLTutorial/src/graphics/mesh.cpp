@@ -56,22 +56,19 @@ void Mesh::render(Shader shader) {
             glActiveTexture(GL_TEXTURE0 + i);
 
             // retrieve texture number (the N in diffuse_textureN)
-            std::string number;
             std::string name;
             switch (textures[i].type) {
             case aiTextureType_DIFFUSE:
-                name = "diffuse";
-                number = std::to_string(diffuseIdx++);
+                name = "diffuse" + std::to_string(diffuseIdx++);
                 break;
 
             case aiTextureType_SPECULAR:
-                name = "specular";
-                number = std::to_string(specularIdx++);
+                name = "specular" + std::to_string(specularIdx++);
                 break;
             };
 
             // now set the sampler to the correct texture unit
-            shader.setInt(name + number, i);
+            shader.setInt(name, i);
             // and finally bind the texture
             textures[i].bind();
         }

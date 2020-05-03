@@ -20,6 +20,9 @@
     <None Include="assets\object.fs" />
     <None Include="assets\object.vs" />
     <None Include="assimp-vc142-mtd.dll" />
+    <None Include="assets\coord_system\object.vs" />
+    <None Include="assets\coord_system\object.fs" />
+    <None Include="assets\coord_system\object.gs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -97,6 +100,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\models\gun.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\models\coord_system.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

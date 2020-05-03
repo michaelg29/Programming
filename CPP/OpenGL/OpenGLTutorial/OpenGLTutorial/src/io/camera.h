@@ -28,7 +28,7 @@ public:
 
 	glm::vec3 worldUp;
 
-	float yaw; // x-axis
+	float roll; // x-axis
 	float pitch; // y-axis
 	float speed;
 	float sensitivity;
