@@ -4,26 +4,26 @@ Camera::Camera(glm::vec3 position)
 	: cameraPos(position),
 	worldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
 	cameraUp(glm::vec3(0.0f, 1.0f, 0.0f)),
-	yaw(-90.0f),
+	roll(0.0f),
 	pitch(0.0f),
 	speed(2.5f),
 	sensitivity(1.0f),
 	zoom(45.0f),
-	cameraFront(glm::vec3(0.0f, 0.0f, -1.0f))
+	cameraFront(glm::vec3(0.0f, 0.0f, 0.0f))
 {
 	updateCameraVectors();
 }
 
 // mouse movement
 void Camera::updateCameraDirection(double dx, double dy) {
-	yaw += dx;
+	roll += dx;
 	pitch += dy;
 
 	if (pitch > 89.0f) {
 		pitch = 89.0f;
 	}
-	if (pitch < -89.0f) {
-		pitch = -89.0f;
+	if (pitch < -60.0f) {
+		pitch = -60.0f;
 	}
 
 	updateCameraVectors();
@@ -72,9 +72,9 @@ glm::mat4 Camera::getViewMatrix() {
 	
 void Camera::updateCameraVectors() {
 	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	direction.x = cos(glm::radians(roll)) * cos(glm::radians(pitch));
 	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	direction.z = sin(glm::radians(roll)) * cos(glm::radians(pitch));
 	cameraFront = glm::normalize(direction);
 
 	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));

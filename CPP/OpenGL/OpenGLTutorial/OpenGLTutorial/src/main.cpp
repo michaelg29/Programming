@@ -20,6 +20,7 @@
 #include "graphics/shader.h"
 #include "graphics/light.h"
 
+#include "graphics/models/gun.hpp"
 #include "graphics/models/cube.hpp"
 #include "graphics/models/lamp.hpp"
 
@@ -28,7 +29,7 @@ void processInput(double deltaTime);
 Screen screen;
 
 Joystick mainJ(0);
-Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 bool flashLightOn = false;
 
@@ -70,8 +71,10 @@ int main() {
 
 	// objects
 
-	Model m(glm::vec3(0.0f, -1.75f, -5.0f), glm::vec3(0.05f));
-	m.loadModel("assets/models/lotr_troll/scene.gltf");
+	/*Model m(glm::vec3(8.0f, -2.5f, 0.0f), glm::vec3(0.05f), true);
+	m.loadModel("assets/models/m4a1/scene.gltf");*/
+	Gun g;
+	g.init();
 
 	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec4(0.8f, 0.8f, 0.8f, 1.0f) };
 
@@ -144,7 +147,7 @@ int main() {
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 
-		m.render(shader);
+		g.render(shader);
 
 		lightShader.activate();
 		lightShader.setMat4("view", view);
@@ -157,6 +160,8 @@ int main() {
 		screen.newFrame();
 		glfwPollEvents();
 	}
+
+	g.cleanup();
 
 	for (unsigned int i = 0; i < 4; i++) {
 		lamps[i].cleanup();

@@ -5,8 +5,8 @@ struct Material {
     float shininess;
 };
 
-uniform sampler2D texture_diffuse1;
-uniform sampler2D texture_specular1;
+uniform sampler2D diffuse0;
+uniform sampler2D specular0;
 
 uniform int noTex;
 
@@ -78,8 +78,8 @@ void main() {
 		texDiff = clamp(material.diffuse * 4, 0, 1);
 		texSpec = clamp(material.specular * 4, 0, 1);
 	} else {
-		texDiff = vec4(texture(texture_diffuse1, TexCoord));
-		texSpec = vec4(texture(texture_specular1, TexCoord));
+		texDiff = vec4(texture(diffuse0, TexCoord));
+		texSpec = vec4(texture(specular0, TexCoord));
 	}
 
 	vec4 result;

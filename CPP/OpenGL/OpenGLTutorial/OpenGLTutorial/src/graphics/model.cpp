@@ -3,14 +3,20 @@
 #include <iostream>
 #include <stb/stb_image.h>
 
+float Model::PI = atanf(1.0f) * 4;
+
 Model::Model(glm::vec3 pos, glm::vec3 size, bool noTex)
 	: pos(pos), size(size), noTex(noTex) {}
 
-void Model::render(Shader shader) {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, pos);
-	model = glm::scale(model, size);
-	shader.setMat4("model", model);
+void Model::render(Shader shader, bool setModel) {
+	if (setModel) {
+		glm::mat4 model = glm::mat4(1.0f);
+
+		model = glm::translate(model, pos);
+		model = glm::scale(model, size);
+
+		shader.setMat4("model", model);
+	}
 
 	shader.setFloat("material.shininess", 0.5f);
 	
