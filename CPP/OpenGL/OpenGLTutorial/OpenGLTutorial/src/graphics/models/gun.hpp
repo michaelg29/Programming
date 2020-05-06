@@ -24,13 +24,12 @@ public:
 		// rotate around cameraRight with dot product of cameraFront and cameraRight
 		float theta = acos(glm::dot(Camera::defaultCamera.cameraUp, Camera::defaultCamera.cameraFront) /
 			glm::length(Camera::defaultCamera.cameraUp) / glm::length(Camera::defaultCamera.cameraFront));
-		glm::vec3 right = glm::cross(Camera::defaultCamera.cameraUp, Camera::defaultCamera.cameraFront);
-		model = glm::rotate(model, theta - Model::PI / 2, right);
+		model = glm::rotate(model, Model::PI / 2 - theta, Camera::defaultCamera.cameraRight); // subtract pi/2 because angle btwn camUp and gunFront
 
 		// rotate around worldUp with dot product of cameraFront and initial gun position
 		glm::vec2 front2d = glm::vec2(Camera::defaultCamera.cameraFront.x, Camera::defaultCamera.cameraFront.z);
 		theta = acos(glm::dot(glm::vec2(1.0f, 0.0f), front2d) / glm::length(front2d));
-		model = glm::rotate(model, front2d.y < 0 ? theta : -theta, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, front2d.y < 0 ? theta : -theta, Camera::defaultCamera.cameraUp);
 
 		// scale
 		model = glm::scale(model, size);
