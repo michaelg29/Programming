@@ -2,6 +2,7 @@
 #define SPHERE_HPP
 
 #include "../model.h"
+#include "modelArray.hpp"
 
 class Sphere : public Model {
 public:
@@ -23,14 +24,6 @@ public:
 	void init() {
 		model = Sphere(glm::vec3(0.0f), glm::vec3(0.25f));
 		model.init();
-	}
-
-	void render(Shader shader, float dt) {
- 		for (RigidBody &rb : instances) {
-			rb.update(dt);
-			model.rb.pos = rb.pos;
-			model.render(shader, dt);
-		}
 	}
 };
 
