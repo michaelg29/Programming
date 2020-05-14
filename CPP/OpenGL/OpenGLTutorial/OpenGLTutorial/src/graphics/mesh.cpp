@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "../io/camera.h"
 
 #include <iostream>
 
@@ -41,7 +42,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiCo
     setup();
 }
 
-void Mesh::render(Shader shader) {
+void Mesh::render(Shader shader, glm::vec3 pos) {
     if (noTex) {
         shader.set4Float("material.diffuse", diff);
         shader.set4Float("material.specular", spec);
@@ -72,9 +73,30 @@ void Mesh::render(Shader shader) {
             // and finally bind the texture
             textures[i].bind();
         }
+
+        shader.setInt("noTex", 0);
     }
 
     glBindVertexArray(VAO);
+
+    // draw faces individually
+    /*for (int i = 0; i < indices.size(); i += 3) {
+        float dist = glm::length(glm::cross(Camera::defaultCamera.cameraPos - (pos + vertices[indices[i]].pos), Camera::defaultCamera.cameraFront));
+
+        if (dist < 1.0f) {
+            shader.setInt("bullet", 1);
+            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)(i * sizeof(GLuint)));
+            shader.setInt("bullet", 0);
+        }
+        else {
+            glDrawElements(GL_LINES, 3, GL_UNSIGNED_INT, (void*)(i * sizeof(GLuint)));
+        }
+
+        if (dist < 1.0f) {
+           
+        }
+    }*/
+
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 

@@ -1,27 +1,31 @@
 #include "model.h"
+#include "../physics/environment.h"
 
 #include <iostream>
-#include <stb/stb_image.h>
 
-float Model::PI = atanf(1.0f) * 4;
+Model::Model(glm::vec3 pos, glm::vec3 size, bool noTex, bool dynamic)
+	: size(size), noTex(noTex), dynamic(dynamic) {
+	rb.pos = pos;
+}
 
-Model::Model(glm::vec3 pos, glm::vec3 size, bool noTex)
-	: pos(pos), size(size), noTex(noTex) {}
+void Model::render(Shader shader, float dt, bool setModel) {
+	if (dynamic) {
+		rb.update(dt);
+	}
 
-void Model::render(Shader shader, bool setModel) {
 	if (setModel) {
 		glm::mat4 model = glm::mat4(1.0f);
 
-		model = glm::translate(model, pos);
+		model = glm::translate(model, rb.pos);
 		model = glm::scale(model, size);
 
 		shader.setMat4("model", model);
 	}
 
 	shader.setFloat("material.shininess", 0.5f);
-	
+
 	for (unsigned int i = 0; i < meshes.size(); i++) {
-		meshes[i].render(shader);
+		meshes[i].render(shader, rb.pos);
 	}
 }
 
@@ -30,6 +34,8 @@ void Model::cleanup() {
 		meshes[i].cleanup();
 	}
 }
+
+void Model::init() {}
 
 void Model::loadModel(std::string path) {
 	Assimp::Importer import;
