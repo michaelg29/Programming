@@ -1,12 +1,9 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <stb/stb_image.h>
 
-#include <fstream>
-#include <sstream>
-#include <streambuf>
-#include <string>
+#include <vector>
+#include <stack>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -23,18 +20,27 @@
 #include "graphics/models/gun.hpp"
 #include "graphics/models/cube.hpp"
 #include "graphics/models/lamp.hpp"
+#include "graphics/models/sphere.hpp"
+
+#include "physics/environment.h"
+
+glm::vec3 Environment::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
 
 void processInput(double deltaTime);
 
 Screen screen;
 
-Joystick mainJ(0);
+//Joystick mainJ(0);
 Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 0.0f));
+
+Gun g;
 
 bool flashLightOn = false;
 
-double deltaTime = 0.0f; // tme btwn frames
+double deltaTime = 0.0f; // time btwn frames
 double lastFrame = 0.0f; // time of last frame
+
+SphereArray launchObjects;
 
 int main() {
 	std::cout << "Hello, OpenGL!" << std::endl;
@@ -70,12 +76,12 @@ int main() {
 	Shader lightShader("assets/object.vs", "assets/lamp.fs");
 
 	// objects
+	//g.init();
 
-	/*Model m(glm::vec3(8.0f, -2.5f, 0.0f), glm::vec3(0.05f), true);
-	m.loadModel("assets/models/m4a1/scene.gltf");*/
-	Gun g;
-	g.init();
+	launchObjects.init();
+	launchObjects.setSize(glm::vec3(0.25f));
 
+	// lighting
 	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec4(0.8f, 0.8f, 0.8f, 1.0f) };
 
 	glm::vec3 pointLightPositions[] = {
@@ -85,12 +91,24 @@ int main() {
 		glm::vec3(0.0f,  0.0f, -3.0f)
 	};
 
-	Lamp lamps[4];
+	glm::vec4 ambient = glm::vec4(glm::vec3(0.05f), 1.0f);
+	glm::vec4 diffuse = glm::vec4(glm::vec3(0.8f), 1.0f);
+	glm::vec4 specular = glm::vec4(glm::vec3(1.0f), 1.0f);
+	float k0 = 1.0f;
+	float k1 = 0.09f;
+	float k2 = 0.032f;
+
+	PointLight pointLights[] = {
+		{ glm::vec3(0.7f,  0.2f,  2.0f), k0, k1, k2, ambient, diffuse, specular },
+		{ glm::vec3(2.3f, -3.3f, -4.0f), k0, k1, k2, ambient, diffuse, specular },
+		{ glm::vec3(-4.0f,  2.0f, -12.0f), k0, k1, k2, ambient, diffuse, specular },
+		{ glm::vec3(0.0f,  0.0f, -3.0f), k0, k1, k2, ambient, diffuse, specular }
+	};
+
+	LampArray lamps;
+	lamps.init();
 	for (unsigned int i = 0; i < 4; i++) {
-		lamps[i] = Lamp(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f),
-			1.0f, 0.09f, 0.032f,
-			pointLightPositions[i], glm::vec3(0.25f));
-		lamps[i].init();
+		lamps.lightInstances.push_back(pointLights[i]);
 	}
 
 	SpotLight s = { 
@@ -100,10 +118,10 @@ int main() {
 		glm::vec4(0.0f), glm::vec4(1.0f), glm::vec4(1.0f) 
 	};
 
-	mainJ.update();
+	/*mainJ.update();
 	if (mainJ.isPresent()) {
 		std::cout << mainJ.getName() << " is present." << std::endl;
-	}
+	}*/
 
 	while (!screen.shouldClose()) {
 		// calculate dt
@@ -123,7 +141,7 @@ int main() {
 
 		dirLight.render(shader);
 		for (unsigned int i = 0; i < 4; i++) {
-			lamps[i].light.render(shader, i);
+			lamps.lightInstances[i].render(shader, i);
 		}
 		shader.setInt("noPointLights", 4);
 
@@ -147,28 +165,48 @@ int main() {
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 
-		g.render(shader);
+		//g.render(shader);
+
+		std::stack<int> removeObjects;
+		for (int i = 0; i < launchObjects.instances.size(); i++) {
+			if (glm::length(Camera::defaultCamera.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
+				removeObjects.push(i);
+				continue;
+			}
+		}
+		for (int i = 0; i < removeObjects.size(); i++) {
+			launchObjects.instances.erase(launchObjects.instances.begin() + removeObjects.top());
+			removeObjects.pop();
+		}
+
+		if (launchObjects.instances.size() > 0) {
+			launchObjects.render(shader, deltaTime);
+		}
 
 		lightShader.activate();
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
 
-		for (unsigned int i = 0; i < 4; i++) {
-			lamps[i].render(lightShader);
-		}
+		lamps.render(lightShader, deltaTime);
 
 		screen.newFrame();
 		glfwPollEvents();
 	}
 
-	g.cleanup();
+	//g.cleanup();
+	launchObjects.cleanup();
 
-	for (unsigned int i = 0; i < 4; i++) {
-		lamps[i].cleanup();
-	}
+	lamps.cleanup();
 
 	glfwTerminate();
 	return 0;
+}
+
+void launchItem(float dt) {
+	RigidBody rb(1.0f, Camera::defaultCamera.cameraPos);
+	rb.applyImpulse(Camera::defaultCamera.cameraFront, 10000.0f, dt);
+	rb.applyAcceleration(Environment::gravity);
+	launchObjects.instances.push_back(rb);
 }
 
 void processInput(double deltaTime) {
@@ -178,6 +216,14 @@ void processInput(double deltaTime) {
 
 	if (Keyboard::keyWentDown(GLFW_KEY_L)) {
 		flashLightOn = !flashLightOn;
+	}
+
+	if (Keyboard::keyWentDown(GLFW_KEY_C)) {
+		Camera::defaultCamera.zoom = 15.0f;
+	}
+
+	if (Keyboard::keyWentUp(GLFW_KEY_C)) {
+		Camera::defaultCamera.zoom = 45.0f;
 	}
 
 	// move camera
@@ -198,5 +244,10 @@ void processInput(double deltaTime) {
 	}
 	if (Keyboard::key(GLFW_KEY_LEFT_SHIFT)) {
 		Camera::defaultCamera.updateCameraPos(CameraDirection::DOWN, deltaTime);
+	}
+
+	// launch item
+	if (Keyboard::keyWentDown(GLFW_KEY_F)) {
+		launchItem(deltaTime);
 	}
 }

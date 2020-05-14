@@ -54,6 +54,8 @@ uniform int noSpotLights;
 
 out vec4 FragColor;
 
+uniform int bullet;
+
 in vec2 TexCoord;
 in vec3 FragPos;
 in vec3 Normal;
@@ -71,6 +73,8 @@ void main() {
 	vec3 norm = normalize(Normal);
 	vec3 viewDir = normalize(viewPos - FragPos);
 
+	vec4 result;
+
 	vec4 texDiff;
 	vec4 texSpec;
 
@@ -81,8 +85,6 @@ void main() {
 		texDiff = vec4(texture(diffuse0, TexCoord));
 		texSpec = vec4(texture(specular0, TexCoord));
 	}
-
-	vec4 result;
 
 	// directional
 	result = calcDirLight(norm, viewDir, texDiff, texSpec);

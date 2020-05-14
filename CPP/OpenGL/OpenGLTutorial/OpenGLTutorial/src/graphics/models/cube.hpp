@@ -6,7 +6,9 @@
 class Cube : public Model {
 public:
 	Cube(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f)) 
-		: Model(pos, size) {}
+		: Model(pos, size) {
+		rb.mass = 5;
+	}
 
 	void init() {
 		int noVertices = 36;
@@ -55,7 +57,7 @@ public:
 			-0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,	0.0f, 0.0f,
 			-0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,	0.0f, 1.0f
 		};
-		
+
 		std::vector<unsigned int> indices(noVertices);
 		for (unsigned int i = 0; i < noVertices; i++) {
 			indices[i] = i;
@@ -64,8 +66,8 @@ public:
 		meshes.push_back(Mesh(Vertex::genList(vertices, noVertices), indices));
 	}
 
-	void render(Shader shader) {
-		Model::render(shader);
+	void render(Shader shader, double dt, bool setModel) {
+		Model::render(shader, dt, setModel);
 	}
 };
 
