@@ -2,6 +2,7 @@
 #define LAMP_HPP
 
 #include "cube.hpp"
+#include "modelArray.hpp"
 #include "../shader.h"
 #include "../light.h"
 

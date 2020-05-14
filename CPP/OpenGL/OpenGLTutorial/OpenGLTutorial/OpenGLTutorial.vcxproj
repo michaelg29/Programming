@@ -167,6 +167,7 @@
     <ClInclude Include="src\graphics\model.h" />
     <ClInclude Include="src\graphics\models\gun.hpp" />
     <ClInclude Include="src\graphics\models\lamp.hpp" />
+    <ClInclude Include="src\graphics\models\modelArray.hpp" />
     <ClInclude Include="src\graphics\models\sphere.hpp" />
     <ClInclude Include="src\graphics\texture.h" />
     <ClInclude Include="src\io\camera.h" />
