@@ -137,15 +137,14 @@
     <None Include="assets\coord_system\object.fs" />
     <None Include="assets\coord_system\object.gs" />
     <None Include="assets\coord_system\object.vs" />
+    <None Include="assets\instanced\object.fs" />
+    <None Include="assets\instanced\object.vs" />
     <None Include="assets\object.fs" />
     <None Include="assets\lamp.fs" />
     <None Include="assets\object.vs" />
     <None Include="assets\octree\octree.fs" />
     <None Include="assets\octree\octree.vs" />
     <None Include="assets\octree\octree.gs" />
-    <None Include="assets\shapes\shapes.fs" />
-    <None Include="assets\shapes\shapes.gs" />
-    <None Include="assets\shapes\shapes.vs" />
     <None Include="assimp-vc142-mtd.dll" />
     <None Include="glfw3.dll" />
   </ItemGroup>
@@ -170,13 +169,13 @@
   <ItemGroup>
     <ClInclude Include="src\graphics\light.h" />
     <ClInclude Include="src\graphics\mesh.h" />
+    <ClInclude Include="src\graphics\models\bounds.hpp" />
     <ClInclude Include="src\graphics\models\coord_system.hpp" />
     <ClInclude Include="src\graphics\models\cube.hpp" />
     <ClInclude Include="src\graphics\model.h" />
     <ClInclude Include="src\graphics\models\gun.hpp" />
     <ClInclude Include="src\graphics\models\lamp.hpp" />
     <ClInclude Include="src\graphics\models\modelArray.hpp" />
-    <ClInclude Include="src\graphics\models\shapes.hpp" />
     <ClInclude Include="src\graphics\models\sphere.hpp" />
     <ClInclude Include="src\graphics\octree.h" />
     <ClInclude Include="src\graphics\octreerender.h" />

@@ -26,9 +26,8 @@
     <None Include="assets\octree\octree.gs" />
     <None Include="assets\octree\octree.fs" />
     <None Include="assets\octree\octree.vs" />
-    <None Include="assets\shapes\shapes.fs" />
-    <None Include="assets\shapes\shapes.vs" />
-    <None Include="assets\shapes\shapes.gs" />
+    <None Include="assets\instanced\object.vs" />
+    <None Include="assets\instanced\object.fs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -141,7 +140,7 @@
     <ClInclude Include="src\graphics\octree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\models\shapes.hpp">
+    <ClInclude Include="src\graphics\models\bounds.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

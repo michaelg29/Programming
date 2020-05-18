@@ -22,7 +22,7 @@
 #include "graphics/models/cube.hpp"
 #include "graphics/models/lamp.hpp"
 #include "graphics/models/sphere.hpp"
-#include "graphics/models/shapes.hpp"
+#include "graphics/models/bounds.hpp"
 
 #include "physics/environment.h"
 
@@ -76,11 +76,12 @@ int main() {
 	// shader
 	Shader shader("assets/object.vs", "assets/object.fs");
 	Shader lightShader("assets/object.vs", "assets/lamp.fs");
-	Shader shapesShader("assets/shapes/shapes.vs", "assets/shapes/shapes.fs", "assets/shapes/shapes.gs");
+	Shader boundsShader("assets/instanced/object.vs", "assets/instanced/object.fs");
 
 	// objects
-	Shapes shapes;
-	shapes.setup(shapesShader);
+
+	Bounds b;
+	b.init();
 
 	//g.init();
 
@@ -195,10 +196,10 @@ int main() {
 
 		//lamps.render(lightShader, deltaTime);
 
-		shapesShader.activate();
-		shapesShader.setMat4("view", view);
-		shapesShader.setMat4("projection", projection);
-		shapes.render(shapesShader);
+		boundsShader.activate();
+		boundsShader.setMat4("view", view);
+		boundsShader.setMat4("projection", projection);
+		b.render(boundsShader);
 
 		screen.newFrame();
 		glfwPollEvents();
@@ -206,7 +207,7 @@ int main() {
 
 	//g.cleanup();
 	launchObjects.cleanup();
-	shapes.cleanup();
+	b.cleanup();
 
 	lamps.cleanup();
 
