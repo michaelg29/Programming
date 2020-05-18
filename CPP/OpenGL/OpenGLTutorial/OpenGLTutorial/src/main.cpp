@@ -16,11 +16,13 @@
 
 #include "graphics/shader.h"
 #include "graphics/light.h"
+#include "graphics/octreerender.h"
 
 #include "graphics/models/gun.hpp"
 #include "graphics/models/cube.hpp"
 #include "graphics/models/lamp.hpp"
 #include "graphics/models/sphere.hpp"
+#include "graphics/models/shapes.hpp"
 
 #include "physics/environment.h"
 
@@ -74,8 +76,12 @@ int main() {
 	// shader
 	Shader shader("assets/object.vs", "assets/object.fs");
 	Shader lightShader("assets/object.vs", "assets/lamp.fs");
+	Shader shapesShader("assets/shapes/shapes.vs", "assets/shapes/shapes.fs", "assets/shapes/shapes.gs");
 
 	// objects
+	Shapes shapes;
+	shapes.setup(shapesShader);
+
 	//g.init();
 
 	launchObjects.init();
@@ -135,25 +141,25 @@ int main() {
 		// render
 		screen.update();
 
-		shader.activate();
-		
-		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
+		//shader.activate();
+		//
+		//shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
-		dirLight.render(shader);
-		for (unsigned int i = 0; i < 4; i++) {
-			lamps.lightInstances[i].render(shader, i);
-		}
-		shader.setInt("noPointLights", 4);
+		//dirLight.render(shader);
+		//for (unsigned int i = 0; i < 4; i++) {
+		//	lamps.lightInstances[i].render(shader, i);
+		//}
+		//shader.setInt("noPointLights", 4);
 
-		if (flashLightOn) {
-			s.position = Camera::defaultCamera.cameraPos;
-			s.direction = Camera::defaultCamera.cameraFront;
-			s.render(shader, 0);
-			shader.setInt("noSpotLights", 1);
-		}
-		else {
-			shader.setInt("noSpotLights", 0);
-		}
+		//if (flashLightOn) {
+		//	s.position = Camera::defaultCamera.cameraPos;
+		//	s.direction = Camera::defaultCamera.cameraFront;
+		//	s.render(shader, 0);
+		//	shader.setInt("noSpotLights", 1);
+		//}
+		//else {
+		//	shader.setInt("noSpotLights", 0);
+		//}
 
 		// camera view/projection
 		glm::mat4 view = glm::mat4(1.0f);
@@ -162,32 +168,37 @@ int main() {
 		projection = glm::perspective(
 			glm::radians(Camera::defaultCamera.zoom),
 			(float)Screen::SCR_WIDTH / (float)Screen::SCR_HEIGHT, 0.1f, 100.0f);
-		shader.setMat4("view", view);
-		shader.setMat4("projection", projection);
+		//shader.setMat4("view", view);
+		//shader.setMat4("projection", projection);
 
-		//g.render(shader);
+		////g.render(shader);
 
-		std::stack<int> removeObjects;
-		for (int i = 0; i < launchObjects.instances.size(); i++) {
-			if (glm::length(Camera::defaultCamera.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
-				removeObjects.push(i);
-				continue;
-			}
-		}
-		for (int i = 0; i < removeObjects.size(); i++) {
-			launchObjects.instances.erase(launchObjects.instances.begin() + removeObjects.top());
-			removeObjects.pop();
-		}
+		//std::stack<int> removeObjects;
+		//for (int i = 0; i < launchObjects.instances.size(); i++) {
+		//	if (glm::length(Camera::defaultCamera.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
+		//		removeObjects.push(i);
+		//		continue;
+		//	}
+		//}
+		//for (int i = 0; i < removeObjects.size(); i++) {
+		//	launchObjects.instances.erase(launchObjects.instances.begin() + removeObjects.top());
+		//	removeObjects.pop();
+		//}
 
-		if (launchObjects.instances.size() > 0) {
-			launchObjects.render(shader, deltaTime);
-		}
+		//if (launchObjects.instances.size() > 0) {
+		//	launchObjects.render(shader, deltaTime);
+		//}
 
-		lightShader.activate();
-		lightShader.setMat4("view", view);
-		lightShader.setMat4("projection", projection);
+		//lightShader.activate();
+		//lightShader.setMat4("view", view);
+		//lightShader.setMat4("projection", projection);
 
-		lamps.render(lightShader, deltaTime);
+		//lamps.render(lightShader, deltaTime);
+
+		shapesShader.activate();
+		shapesShader.setMat4("view", view);
+		shapesShader.setMat4("projection", projection);
+		shapes.render(shapesShader);
 
 		screen.newFrame();
 		glfwPollEvents();
@@ -195,6 +206,7 @@ int main() {
 
 	//g.cleanup();
 	launchObjects.cleanup();
+	shapes.cleanup();
 
 	lamps.cleanup();
 

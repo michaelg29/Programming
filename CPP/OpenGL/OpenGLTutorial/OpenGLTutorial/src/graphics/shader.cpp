@@ -3,22 +3,29 @@
 // contructor
 Shader::Shader() {}
 
-Shader::Shader(const char* vertexShaderPath, const char* fragShaderPath) {
-	generateProgram(vertexShaderPath, fragShaderPath);
+Shader::Shader(const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath) {
+	generateProgram(vertexShaderPath, fragShaderPath, geoShaderPath);
 }
 
-bool Shader::generateProgram(const char* vertexShaderPath, const char* fragShaderPath) {
+bool Shader::generateProgram(const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath) {
 	int success;
 	char infoLog[512];
 
 	// compile shaders
 	GLuint vertexShader = compileShader(vertexShaderPath, GL_VERTEX_SHADER);
 	GLuint fragShader = compileShader(fragShaderPath, GL_FRAGMENT_SHADER);
+	GLuint geoShader;
+	if (geoShaderPath != nullptr) {
+		geoShader = compileShader(geoShaderPath, GL_GEOMETRY_SHADER);
+	}
 
 	// create program
 	id = glCreateProgram();
 	glAttachShader(id, vertexShader);
 	glAttachShader(id, fragShader);
+	if (geoShaderPath != nullptr) {
+		glAttachShader(id, geoShader);
+	}
 	glLinkProgram(id);
 
 	// linking errors

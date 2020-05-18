@@ -23,6 +23,12 @@
     <None Include="assets\coord_system\object.vs" />
     <None Include="assets\coord_system\object.fs" />
     <None Include="assets\coord_system\object.gs" />
+    <None Include="assets\octree\octree.gs" />
+    <None Include="assets\octree\octree.fs" />
+    <None Include="assets\octree\octree.vs" />
+    <None Include="assets\shapes\shapes.fs" />
+    <None Include="assets\shapes\shapes.vs" />
+    <None Include="assets\shapes\shapes.gs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -65,6 +71,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\physics\rigidbody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\octreerender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\octree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -121,6 +133,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\models\modelArray.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\octreerender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\octree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\models\shapes.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
