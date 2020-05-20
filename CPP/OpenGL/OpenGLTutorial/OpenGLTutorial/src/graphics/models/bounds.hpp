@@ -49,6 +49,9 @@ public:
 			2, 6
 		};
 
+		// generate VAO
+		glGenVertexArrays(1, &VAO);
+
 		// generate vertices VBO
 		glGenBuffers(1, &verticesVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
@@ -71,16 +74,13 @@ public:
 		glBufferData(GL_ARRAY_BUFFER, 100 * 3 * sizeof(float), NULL, GL_DYNAMIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		// bind VAO
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-
 		// EBO
 		glGenBuffers(1, &EBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
 		// set the vertex attribute pointers
+		glBindVertexArray(VAO);
 		// vertex Positions
 		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);

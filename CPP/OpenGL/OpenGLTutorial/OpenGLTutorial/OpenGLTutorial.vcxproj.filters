@@ -26,8 +26,8 @@
     <None Include="assets\octree\octree.gs" />
     <None Include="assets\octree\octree.fs" />
     <None Include="assets\octree\octree.vs" />
-    <None Include="assets\instanced\object.vs" />
-    <None Include="assets\instanced\object.fs" />
+    <None Include="assets\instanced\instanced.fs" />
+    <None Include="assets\instanced\instanced.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

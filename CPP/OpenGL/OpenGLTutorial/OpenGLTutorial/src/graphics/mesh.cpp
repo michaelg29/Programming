@@ -30,8 +30,6 @@ std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
     return ret;
 }
 
-Mesh::Mesh() {}
-
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
     : vertices(vertices), indices(indices), textures(textures), noTex(false) {
     setup();
@@ -42,7 +40,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiCo
     setup();
 }
 
-void Mesh::render(Shader shader, glm::vec3 pos) {
+void Mesh::render(Shader shader, glm::vec3 pos, bool doRender) {
     if (noTex) {
         shader.set4Float("material.diffuse", diff);
         shader.set4Float("material.specular", spec);
@@ -77,12 +75,14 @@ void Mesh::render(Shader shader, glm::vec3 pos) {
         shader.setInt("noTex", 0);
     }
 
-    glBindVertexArray(VAO);
+    if (doRender) {
+        glBindVertexArray(VAO);
 
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
-    glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE0);
+    }
 }
 
 void Mesh::setup() {
@@ -91,7 +91,9 @@ void Mesh::setup() {
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
+    // bind VAO
     glBindVertexArray(VAO);
+
     // load data into vertex buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // A great thing about structs is that their memory layout is sequential for all its items.
