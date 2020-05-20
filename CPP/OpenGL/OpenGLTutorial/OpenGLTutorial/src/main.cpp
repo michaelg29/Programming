@@ -36,6 +36,7 @@ Screen screen;
 Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 0.0f));
 
 Gun g;
+Bounds b;
 
 bool flashLightOn = false;
 
@@ -80,7 +81,7 @@ int main() {
 
 	// objects
 
-	Bounds b;
+	
 	b.init();
 
 	g.init();
@@ -262,5 +263,11 @@ void processInput(double dt) {
 	// launch item
 	if (Keyboard::keyWentDown(GLFW_KEY_F)) {
 		launchItem(dt);
+	}
+
+	// add bounds rectangle
+	if (Keyboard::keyWentDown(GLFW_KEY_I)) {
+		b.offsets.push_back(glm::vec3(b.offsets.size() * 1.0f));
+		b.sizes.push_back(glm::vec3(b.sizes.size() * 0.5f));
 	}
 }
