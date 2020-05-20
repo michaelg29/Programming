@@ -12,7 +12,7 @@ uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
-	//vec3 pos = vec3(aPos.x * aSize.x, aPos.y * aSize.y, aPos.z * aSize.z);
-	gl_Position = projection * view * model * vec4(aPos, 1.0);
+	vec3 pos = vec3(aPos.x * aSize.x, aPos.y * aSize.y, aPos.z * aSize.z);
+	gl_Position = projection * view * model * vec4(pos + aOffset, 1.0);
 	//fColor = aColor;
 }
