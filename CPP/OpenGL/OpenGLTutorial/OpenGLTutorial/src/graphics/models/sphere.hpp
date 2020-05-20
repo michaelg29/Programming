@@ -13,17 +13,13 @@ public:
 	void init() {
 		loadModel("assets/models/sphere/scene.gltf");
 	}
-
-	void render(Shader shader, float dt, bool setModel = true) {
-		Model::render(shader, dt, setModel);
-	}
 };
 
 class SphereArray : public ModelArray<Sphere> {
 public:
 	void init() {
 		model = Sphere(glm::vec3(0.0f), glm::vec3(0.25f));
-		model.init();
+		ModelArray::init();
 	}
 };
 

@@ -63,11 +63,7 @@ public:
 			indices[i] = i;
 		}
 		
-		meshes.push_back(Mesh(Vertex::genList(vertices, noVertices), indices));
-	}
-
-	void render(Shader shader, double dt, bool setModel) {
-		Model::render(shader, dt, setModel);
+		meshes.push_back(Mesh(Vertex::genList(vertices, noVertices), indices, {}));
 	}
 };
 

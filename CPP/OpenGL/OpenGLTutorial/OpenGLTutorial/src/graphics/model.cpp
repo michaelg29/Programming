@@ -6,9 +6,9 @@
 Model::Model(glm::vec3 pos, glm::vec3 size, bool noTex, bool dynamic)
 	: size(size), noTex(noTex), dynamic(dynamic) {
 	rb.pos = pos;
-}
+ }
 
-void Model::render(Shader shader, float dt, bool setModel) {
+void Model::render(Shader shader, float dt, bool setModel, bool doRender) {
 	if (dynamic) {
 		rb.update(dt);
 	}
@@ -25,7 +25,7 @@ void Model::render(Shader shader, float dt, bool setModel) {
 	shader.setFloat("material.shininess", 0.5f);
 
 	for (unsigned int i = 0; i < meshes.size(); i++) {
-		meshes[i].render(shader, rb.pos);
+		meshes[i].render(shader, rb.pos, doRender);
 	}
 }
 

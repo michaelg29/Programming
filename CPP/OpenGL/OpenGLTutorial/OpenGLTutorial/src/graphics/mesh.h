@@ -31,11 +31,10 @@ public:
 
 	unsigned int VAO;
 
-	Mesh();
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures = {});
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor4D diff, aiColor4D spec);
 
-	void render(Shader shader, glm::vec3 pos);
+	void render(Shader shader, glm::vec3 pos, bool doRender = true);
 
 	void cleanup();
 

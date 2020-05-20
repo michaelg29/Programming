@@ -22,6 +22,7 @@
 class Model {
 public:
 	glm::vec3 size;
+	std::vector<Mesh> meshes;
 
 	RigidBody rb;
 
@@ -31,7 +32,7 @@ public:
 
 	void loadModel(std::string path);
 
-	void render(Shader shader, float dt, bool setModel = true);
+	void render(Shader shader, float dt, bool setModel = true, bool doRender = true);
 	
 	void cleanup();
 
@@ -40,7 +41,7 @@ protected:
 	bool dynamic;
 
 	// model data
-	std::vector<Mesh> meshes;
+	
 	std::string directory;
 
 	std::vector<Texture> textures_loaded;

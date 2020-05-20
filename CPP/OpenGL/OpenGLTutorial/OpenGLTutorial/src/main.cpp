@@ -76,15 +76,16 @@ int main() {
 
 	// shader
 	Shader shader("assets/object.vs", "assets/object.fs");
-	Shader lightShader("assets/object.vs", "assets/lamp.fs");
-	Shader boundsShader("assets/instanced/object.vs", "assets/instanced/object.fs");
+	Shader lightShader("assets/instanced/instanced.vs", "assets/lamp.fs");
+	Shader boundsShader("assets/instanced/instanced.vs", "assets/instanced/instanced.fs");
+	Shader instancedShader("assets/instanced/instanced.vs", "assets/object.fs");
 
 	// objects
 
 	
-	b.init();
+	//b.init();
 
-	g.init();
+	//g.init();
 
 	launchObjects.init();
 	launchObjects.setSize(glm::vec3(0.25f));
@@ -173,42 +174,44 @@ int main() {
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 
-		g.render(shader, dt);
+		//g.render(shader, dt);
 
-		//std::stack<int> removeObjects;
-		//for (int i = 0; i < launchObjects.instances.size(); i++) {
-		//	if (glm::length(Camera::defaultCamera.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
-		//		removeObjects.push(i);
-		//		continue;
-		//	}
-		//}
-		//for (int i = 0; i < removeObjects.size(); i++) {
-		//	launchObjects.instances.erase(launchObjects.instances.begin() + removeObjects.top());
-		//	removeObjects.pop();
-		//}
+		std::stack<int> removeObjects;
+		for (int i = 0; i < launchObjects.instances.size(); i++) {
+			if (glm::length(Camera::defaultCamera.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
+				removeObjects.push(i);
+				continue;
+			}
+		}
+		for (int i = 0; i < removeObjects.size(); i++) {
+			launchObjects.instances.erase(launchObjects.instances.begin() + removeObjects.top());
+			removeObjects.pop();
+		}
 
-		//if (launchObjects.instances.size() > 0) {
-		//	launchObjects.render(shader, dt);
-		//}
+		if (launchObjects.instances.size() > 0) {
+			instancedShader.activate();
+			instancedShader.setMat4("view", view);
+			instancedShader.setMat4("projection", projection);
+			launchObjects.render(instancedShader, dt);
+		}
 
 		lightShader.activate();
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
-
 		lamps.render(lightShader, dt);
 
 		boundsShader.activate();
 		boundsShader.setMat4("view", view);
 		boundsShader.setMat4("projection", projection);
-		b.render(boundsShader);
+		//b.render(boundsShader);
 
 		screen.newFrame();
 		glfwPollEvents();
 	}
 
-	g.cleanup();
+	//g.cleanup();
 	launchObjects.cleanup();
-	b.cleanup();
+	//b.cleanup();
 
 	lamps.cleanup();
 
