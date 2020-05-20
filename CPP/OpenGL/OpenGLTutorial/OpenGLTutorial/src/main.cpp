@@ -83,7 +83,7 @@ int main() {
 	Bounds b;
 	b.init();
 
-	//g.init();
+	g.init();
 
 	launchObjects.init();
 	launchObjects.setSize(glm::vec3(0.25f));
@@ -142,25 +142,25 @@ int main() {
 		// render
 		screen.update();
 
-		//shader.activate();
-		//
-		//shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
+		shader.activate();
+		
+		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
-		//dirLight.render(shader);
-		//for (unsigned int i = 0; i < 4; i++) {
-		//	lamps.lightInstances[i].render(shader, i);
-		//}
-		//shader.setInt("noPointLights", 4);
+		dirLight.render(shader);
+		for (unsigned int i = 0; i < 4; i++) {
+			lamps.lightInstances[i].render(shader, i);
+		}
+		shader.setInt("noPointLights", 4);
 
-		//if (flashLightOn) {
-		//	s.position = Camera::defaultCamera.cameraPos;
-		//	s.direction = Camera::defaultCamera.cameraFront;
-		//	s.render(shader, 0);
-		//	shader.setInt("noSpotLights", 1);
-		//}
-		//else {
-		//	shader.setInt("noSpotLights", 0);
-		//}
+		if (flashLightOn) {
+			s.position = Camera::defaultCamera.cameraPos;
+			s.direction = Camera::defaultCamera.cameraFront;
+			s.render(shader, 0);
+			shader.setInt("noSpotLights", 1);
+		}
+		else {
+			shader.setInt("noSpotLights", 0);
+		}
 
 		// camera view/projection
 		glm::mat4 view = glm::mat4(1.0f);
@@ -169,10 +169,10 @@ int main() {
 		projection = glm::perspective(
 			glm::radians(Camera::defaultCamera.zoom),
 			(float)Screen::SCR_WIDTH / (float)Screen::SCR_HEIGHT, 0.1f, 100.0f);
-		//shader.setMat4("view", view);
-		//shader.setMat4("projection", projection);
+		shader.setMat4("view", view);
+		shader.setMat4("projection", projection);
 
-		////g.render(shader);
+		g.render(shader, dt);
 
 		//std::stack<int> removeObjects;
 		//for (int i = 0; i < launchObjects.instances.size(); i++) {
@@ -205,7 +205,7 @@ int main() {
 		glfwPollEvents();
 	}
 
-	//g.cleanup();
+	g.cleanup();
 	launchObjects.cleanup();
 	b.cleanup();
 
