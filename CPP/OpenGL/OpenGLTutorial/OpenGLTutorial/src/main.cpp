@@ -28,7 +28,7 @@
 
 glm::vec3 Environment::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
 
-void processInput(double deltaTime);
+void processInput(double dt);
 
 Screen screen;
 
@@ -39,7 +39,7 @@ Gun g;
 
 bool flashLightOn = false;
 
-double deltaTime = 0.0f; // time btwn frames
+double dt = 0.0f; // time btwn frames
 double lastFrame = 0.0f; // time of last frame
 
 SphereArray launchObjects;
@@ -133,11 +133,11 @@ int main() {
 	while (!screen.shouldClose()) {
 		// calculate dt
 		double currentTime = glfwGetTime();
-		deltaTime = currentTime - lastFrame;
+		dt = currentTime - lastFrame;
 		lastFrame = currentTime;
 
 		// process input
-		processInput(deltaTime);
+		processInput(dt);
 
 		// render
 		screen.update();
@@ -187,14 +187,14 @@ int main() {
 		//}
 
 		//if (launchObjects.instances.size() > 0) {
-		//	launchObjects.render(shader, deltaTime);
+		//	launchObjects.render(shader, dt);
 		//}
 
-		//lightShader.activate();
-		//lightShader.setMat4("view", view);
-		//lightShader.setMat4("projection", projection);
+		lightShader.activate();
+		lightShader.setMat4("view", view);
+		lightShader.setMat4("projection", projection);
 
-		//lamps.render(lightShader, deltaTime);
+		lamps.render(lightShader, dt);
 
 		boundsShader.activate();
 		boundsShader.setMat4("view", view);
@@ -222,7 +222,7 @@ void launchItem(float dt) {
 	launchObjects.instances.push_back(rb);
 }
 
-void processInput(double deltaTime) {
+void processInput(double dt) {
 	if (Keyboard::key(GLFW_KEY_ESCAPE)) {
 		screen.setShouldClose(true);
 	}
@@ -241,26 +241,26 @@ void processInput(double deltaTime) {
 
 	// move camera
 	if (Keyboard::key(GLFW_KEY_W)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::FORWARD, deltaTime);
+		Camera::defaultCamera.updateCameraPos(CameraDirection::FORWARD, dt);
 	}
 	if (Keyboard::key(GLFW_KEY_S)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::BACKWARD, deltaTime);
+		Camera::defaultCamera.updateCameraPos(CameraDirection::BACKWARD, dt);
 	}
 	if (Keyboard::key(GLFW_KEY_D)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::RIGHT, deltaTime);
+		Camera::defaultCamera.updateCameraPos(CameraDirection::RIGHT, dt);
 	}
 	if (Keyboard::key(GLFW_KEY_A)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::LEFT, deltaTime);
+		Camera::defaultCamera.updateCameraPos(CameraDirection::LEFT, dt);
 	}
 	if (Keyboard::key(GLFW_KEY_SPACE)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::UP, deltaTime);
+		Camera::defaultCamera.updateCameraPos(CameraDirection::UP, dt);
 	}
 	if (Keyboard::key(GLFW_KEY_LEFT_SHIFT)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::DOWN, deltaTime);
+		Camera::defaultCamera.updateCameraPos(CameraDirection::DOWN, dt);
 	}
 
 	// launch item
 	if (Keyboard::keyWentDown(GLFW_KEY_F)) {
-		launchItem(deltaTime);
+		launchItem(dt);
 	}
 }
