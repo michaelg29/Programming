@@ -78,11 +78,9 @@ int main() {
 	Shader shader("assets/object.vs", "assets/object.fs");
 	Shader lightShader("assets/instanced/instanced.vs", "assets/lamp.fs");
 	Shader boundsShader("assets/instanced/instanced.vs", "assets/instanced/instanced.fs");
-	Shader instancedShader("assets/instanced/instanced.vs", "assets/object.fs");
+	Shader launchShader("assets/instanced/instanced.vs", "assets/object.fs");
 
 	// objects
-
-	
 	//b.init();
 
 	//g.init();
@@ -144,23 +142,32 @@ int main() {
 		screen.update();
 
 		shader.activate();
+		launchShader.activate();
 		
 		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
+		launchShader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
 		dirLight.render(shader);
+		dirLight.render(launchShader);
+
 		for (unsigned int i = 0; i < 4; i++) {
 			lamps.lightInstances[i].render(shader, i);
+			lamps.lightInstances[i].render(launchShader, i);
 		}
 		shader.setInt("noPointLights", 4);
+		launchShader.setInt("noPointLights", 4);
 
 		if (flashLightOn) {
 			s.position = Camera::defaultCamera.cameraPos;
 			s.direction = Camera::defaultCamera.cameraFront;
 			s.render(shader, 0);
+			s.render(launchShader, 0);
 			shader.setInt("noSpotLights", 1);
+			launchShader.setInt("noSpotLights", 1);
 		}
 		else {
 			shader.setInt("noSpotLights", 0);
+			launchShader.setInt("noSpotLights", 0);
 		}
 
 		// camera view/projection
@@ -188,10 +195,9 @@ int main() {
 		}
 
 		if (launchObjects.instances.size() > 0) {
-			instancedShader.activate();
-			instancedShader.setMat4("view", view);
-			instancedShader.setMat4("projection", projection);
-			launchObjects.render(instancedShader, dt);
+			launchShader.setMat4("view", view);
+			launchShader.setMat4("projection", projection);
+			launchObjects.render(launchShader, dt);
 		}
 
 		lightShader.activate();
@@ -199,10 +205,10 @@ int main() {
 		lightShader.setMat4("projection", projection);
 		lamps.render(lightShader, dt);
 
-		boundsShader.activate();
+		/*boundsShader.activate();
 		boundsShader.setMat4("view", view);
 		boundsShader.setMat4("projection", projection);
-		//b.render(boundsShader);
+		b.render(boundsShader);*/
 
 		screen.newFrame();
 		glfwPollEvents();
