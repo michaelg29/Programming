@@ -88,7 +88,6 @@ int main() {
 	//g.init();
 
 	launchObjects.init();
-	launchObjects.setSize(glm::vec3(0.25f));
 
 	// lighting
 	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec4(0.8f, 0.8f, 0.8f, 1.0f) };

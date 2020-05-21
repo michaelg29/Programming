@@ -54,8 +54,6 @@ uniform int noSpotLights;
 
 out vec4 FragColor;
 
-uniform int bullet;
-
 in vec2 TexCoord;
 in vec3 FragPos;
 in vec3 Normal;
