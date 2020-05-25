@@ -3,7 +3,8 @@
 bool Octree::Triangle::operator==(Triangle t2) {
 	return p1 == t2.p1 &&
 		p2 == t2.p2 &&
-		p3 == t2.p3;
+		p3 == t2.p3 &&
+		modelId == t2.modelId;
 }
 
 glm::vec3 Octree::BoundingBox::calculateCenter() {
@@ -15,9 +16,9 @@ glm::vec3 Octree::BoundingBox::calculateDimensions() {
 }
 
 bool Octree::BoundingBox::containsTriangle(Triangle t) {
-	return inBoundingBox(t.p1, min, max) &&
-		inBoundingBox(t.p2, min, max) &&
-		inBoundingBox(t.p3, min, max);
+	return inBoundingBox(t.p1 + t.offset, min, max) &&
+		inBoundingBox(t.p2 + t.offset, min, max) &&
+		inBoundingBox(t.p3 + t.offset, min, max);
 }
 
 // check if point is in rectangle formed by min and max points
@@ -32,8 +33,16 @@ std::vector<Octree::Triangle>::iterator Octree::getIndexOf(std::vector<Triangle>
 	return std::find(v.begin(), v.end(), x);
 }
 
+std::vector<unsigned int>::iterator Octree::getIndexOf(std::vector<unsigned int> v, unsigned int x) {
+	return std::find(v.begin(), v.end(), x);
+}
+
 // check if object in vector list
 bool Octree::contains(std::vector<Triangle> v, Triangle x) {
+	return getIndexOf(v, x) != v.end();
+}
+
+bool Octree::contains(std::vector<unsigned int> v, int x) {
 	return getIndexOf(v, x) != v.end();
 }
 
@@ -164,8 +173,14 @@ void Octree::node::update() {
 			}
 		}
 
-		std::vector<Triangle> movedObjects(objects.size());
 		// get moved objects that were in this leaf in the previous frame
+		std::vector<Triangle> movedObjects(objects.size());
+		std::vector<unsigned int> movedModels; // get from somewhere
+		for (Triangle t : objects) {
+			if (contains(movedModels, t.modelId)) {
+				movedObjects.push_back(t);
+			}
+		}
 
 		// remove objects that don't exist anymore
 		for (int i = 0, listSize = objects.size(); i < listSize; i++) {
@@ -236,6 +251,7 @@ void Octree::node::update() {
 				}
 			}
 
+			// remove first object, second now becomes first
 			movedObjects.erase(movedObjects.begin());
 			objects.erase(getIndexOf(objects, movedObj));
 			current->insert(movedObj);
