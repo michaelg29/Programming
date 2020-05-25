@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-class Bounds {
+class Box {
 public:
 	std::vector<glm::vec3> offsets;
 	std::vector<glm::vec3> sizes;
@@ -50,6 +50,7 @@ public:
 
 		// generate VAO
 		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
 
 		// generate vertices VBO
 		glGenBuffers(1, &verticesVBO);
@@ -79,7 +80,7 @@ public:
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
 		// set the vertex attribute pointers
-		glBindVertexArray(VAO);
+		
 		// vertex Positions
 		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -119,18 +120,18 @@ public:
 
 		// glBufferSubData
 		if (offsets.size() != 0) {
-			glBindBuffer(GL_ARRAY_BUFFER, offsetVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, std::min(100, (int)offsets.size()) * 3 * sizeof(float), &offsets[0]);
+			int size = std::min(100, (int)offsets.size());
+
+ 			glBindBuffer(GL_ARRAY_BUFFER, offsetVBO);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &offsets[0]);
 
 			glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, std::min(100, (int)sizes.size()) * 3 * sizeof(float), &sizes[0]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &sizes[0]);
 		}
 
 		shader.setMat4("model", glm::mat4(1.0f));
 
 		glBindVertexArray(VAO);
-		//glDrawArraysInstanced(GL_LINES, 0, 36, 1);
-		//glDrawElements(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0);
 		glDrawElementsInstanced(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0, offsets.size());
 		glBindVertexArray(0);
 	}

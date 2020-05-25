@@ -2,6 +2,7 @@
 #define MODELARRAY_HPP
 
 #include "../model.h"
+#include <cmath>
 
 template <class T>
 class ModelArray {
@@ -75,11 +76,13 @@ public:
 		}*/
 
 		if (positions.size() != 0) {
+			int size = std::min(100, (int)positions.size());
+
 			glBindBuffer(GL_ARRAY_BUFFER, posVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * 3 * sizeof(float), &positions[0]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &positions[0]);
 
 			glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizes.size() * 3 * sizeof(float), &sizes[0]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &sizes[0]);
 		}
 
 		for (unsigned int i = 0, size = model.meshes.size(); i < size; i++) {

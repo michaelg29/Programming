@@ -26,8 +26,9 @@
     <None Include="assets\octree\octree.gs" />
     <None Include="assets\octree\octree.fs" />
     <None Include="assets\octree\octree.vs" />
-    <None Include="assets\instanced\instanced.fs" />
     <None Include="assets\instanced\instanced.vs" />
+    <None Include="assets\instanced\box.vs" />
+    <None Include="assets\instanced\box.fs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -72,10 +73,7 @@
     <ClCompile Include="src\physics\rigidbody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\graphics\octreerender.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphics\octree.cpp">
+    <ClCompile Include="src\algorithms\octree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,13 +132,10 @@
     <ClInclude Include="src\graphics\models\modelArray.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\octreerender.h">
+    <ClInclude Include="src\algorithms\octree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\octree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphics\models\bounds.hpp">
+    <ClInclude Include="src\graphics\models\box.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

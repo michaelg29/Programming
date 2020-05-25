@@ -137,8 +137,9 @@
     <None Include="assets\coord_system\object.fs" />
     <None Include="assets\coord_system\object.gs" />
     <None Include="assets\coord_system\object.vs" />
-    <None Include="assets\instanced\instanced.fs" />
+    <None Include="assets\instanced\box.fs" />
     <None Include="assets\instanced\instanced.vs" />
+    <None Include="assets\instanced\box.vs" />
     <None Include="assets\object.fs" />
     <None Include="assets\lamp.fs" />
     <None Include="assets\object.vs" />
@@ -150,12 +151,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="lib\stb.cpp" />
+    <ClCompile Include="src\algorithms\octree.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\graphics\light.cpp" />
     <ClCompile Include="src\graphics\mesh.cpp" />
     <ClCompile Include="src\graphics\model.cpp" />
-    <ClCompile Include="src\graphics\octree.cpp" />
-    <ClCompile Include="src\graphics\octreerender.cpp" />
     <ClCompile Include="src\graphics\texture.cpp" />
     <ClCompile Include="src\io\camera.cpp" />
     <ClCompile Include="src\io\joystick.cpp" />
@@ -167,9 +167,10 @@
     <ClCompile Include="src\physics\rigidbody.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\algorithms\octree.h" />
     <ClInclude Include="src\graphics\light.h" />
     <ClInclude Include="src\graphics\mesh.h" />
-    <ClInclude Include="src\graphics\models\bounds.hpp" />
+    <ClInclude Include="src\graphics\models\box.hpp" />
     <ClInclude Include="src\graphics\models\coord_system.hpp" />
     <ClInclude Include="src\graphics\models\cube.hpp" />
     <ClInclude Include="src\graphics\model.h" />
@@ -177,8 +178,6 @@
     <ClInclude Include="src\graphics\models\lamp.hpp" />
     <ClInclude Include="src\graphics\models\modelArray.hpp" />
     <ClInclude Include="src\graphics\models\sphere.hpp" />
-    <ClInclude Include="src\graphics\octree.h" />
-    <ClInclude Include="src\graphics\octreerender.h" />
     <ClInclude Include="src\graphics\texture.h" />
     <ClInclude Include="src\io\camera.h" />
     <ClInclude Include="src\io\joystick.h" />

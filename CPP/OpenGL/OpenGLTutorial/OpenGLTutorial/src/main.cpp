@@ -16,13 +16,12 @@
 
 #include "graphics/shader.h"
 #include "graphics/light.h"
-#include "graphics/octreerender.h"
 
 #include "graphics/models/gun.hpp"
 #include "graphics/models/cube.hpp"
 #include "graphics/models/lamp.hpp"
 #include "graphics/models/sphere.hpp"
-#include "graphics/models/bounds.hpp"
+#include "graphics/models/box.hpp"
 
 #include "physics/environment.h"
 
@@ -35,8 +34,7 @@ Screen screen;
 //Joystick mainJ(0);
 Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 0.0f));
 
-Gun g;
-Bounds b;
+Box b;
 
 bool flashLightOn = false;
 
@@ -77,13 +75,11 @@ int main() {
 	// shader
 	Shader shader("assets/object.vs", "assets/object.fs");
 	Shader lightShader("assets/instanced/instanced.vs", "assets/lamp.fs");
-	Shader boundsShader("assets/instanced/instanced.vs", "assets/instanced/instanced.fs");
+	Shader boxShader("assets/instanced/box.vs", "assets/instanced/box.fs");
 	Shader launchShader("assets/instanced/instanced.vs", "assets/object.fs");
 
 	// objects
-	//b.init();
-
-	//g.init();
+	b.init();
 
 	launchObjects.init();
 
@@ -141,12 +137,15 @@ int main() {
 		// render
 		screen.update();
 
+		// activate shaders
 		shader.activate();
 		launchShader.activate();
 		
+		// set camera vals
 		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 		launchShader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
+		// render lights in shader programs
 		dirLight.render(shader);
 		dirLight.render(launchShader);
 
@@ -180,10 +179,9 @@ int main() {
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 
-		//g.render(shader, dt);
-
 		std::stack<int> removeObjects;
 		for (int i = 0; i < launchObjects.instances.size(); i++) {
+			// remove if too far away
 			if (glm::length(Camera::defaultCamera.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
 				removeObjects.push(i);
 				continue;
@@ -194,30 +192,33 @@ int main() {
 			removeObjects.pop();
 		}
 
+		// render launch objects
 		if (launchObjects.instances.size() > 0) {
 			launchShader.setMat4("view", view);
 			launchShader.setMat4("projection", projection);
 			launchObjects.render(launchShader, dt);
 		}
 
+		// render lamps
 		lightShader.activate();
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
 		lamps.render(lightShader, dt);
 
-		/*boundsShader.activate();
-		boundsShader.setMat4("view", view);
-		boundsShader.setMat4("projection", projection);
-		b.render(boundsShader);*/
+		// render boxes
+		if (b.offsets.size() > 0) {
+			boxShader.activate();
+			boxShader.setMat4("view", view);
+			boxShader.setMat4("projection", projection);
+			b.render(boxShader);
+		}
 
 		screen.newFrame();
 		glfwPollEvents();
 	}
 
-	//g.cleanup();
+	b.cleanup();
 	launchObjects.cleanup();
-	//b.cleanup();
-
 	lamps.cleanup();
 
 	glfwTerminate();
@@ -226,7 +227,7 @@ int main() {
 
 void launchItem(float dt) {
 	RigidBody rb(1.0f, Camera::defaultCamera.cameraPos);
-	rb.applyImpulse(Camera::defaultCamera.cameraFront, 10000.0f, dt);
+	rb.transferEnergy(100, Camera::defaultCamera.cameraFront);
 	rb.applyAcceleration(Environment::gravity);
 	launchObjects.instances.push_back(rb);
 }
@@ -276,6 +277,6 @@ void processInput(double dt) {
 	// add bounds rectangle
 	if (Keyboard::keyWentDown(GLFW_KEY_I)) {
 		b.offsets.push_back(glm::vec3(b.offsets.size() * 1.0f));
-		b.sizes.push_back(glm::vec3(b.sizes.size() * 0.5f));
+		b.sizes.push_back(glm::vec3((b.sizes.size() + 1) * 0.5f));
 	}
 }
