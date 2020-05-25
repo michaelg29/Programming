@@ -25,7 +25,7 @@ public:
 	void removeForce(glm::vec3 force);
 	void removeAcceleration(glm::vec3 acceleration);
 
-	void transferEnergy(float joules);
+	void transferEnergy(float joules, glm::vec3 direction);
 };
 
 #endif
