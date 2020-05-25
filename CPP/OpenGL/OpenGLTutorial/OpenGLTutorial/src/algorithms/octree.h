@@ -2,7 +2,7 @@
 #define OCTREE_H
 
 #define NO_CHILDREN 8
-#define MIN_BOUNDS 0.1
+#define MIN_BOUNDS 0.5
 
 #include <vector>
 #include <queue>
@@ -14,7 +14,11 @@ namespace Octree {
 		Triangle structure
 	*/
 	struct Triangle {
+		unsigned int modelId;
 		glm::vec3 p1, p2, p3;
+
+		// have offset so can identify locally within model
+		glm::vec3 offset;
 
 		bool operator==(Triangle t2);
 	};
@@ -57,9 +61,13 @@ namespace Octree {
 
 	// find index of item in vector list
 	std::vector<Triangle>::iterator getIndexOf(std::vector<Triangle> v, Triangle x);
+	// find index of mdoel id in vector list
+	std::vector<unsigned int>::iterator getIndexOf(std::vector<unsigned int> v, unsigned int x);
 
 	// check if object in vector list
 	bool contains(std::vector<Triangle> v, Triangle x);
+	// check if model id in list
+	bool contains(std::vector<unsigned int> v, int x);
 
 	// calculate bounds of specified quadrant in bounded region and output
 	void calculateBounds(BoundingBox* out, unsigned char quadrant, BoundingBox region);
