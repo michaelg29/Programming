@@ -22,8 +22,8 @@ void Camera::updateCameraDirection(double dx, double dy) {
 	if (pitch > 89.0f) {
 		pitch = 89.0f;
 	}
-	if (pitch < -60.0f) {
-		pitch = -60.0f;
+	if (pitch < -89.0f) {
+		pitch = -89.0f;
 	}
 
 	updateCameraVectors();
