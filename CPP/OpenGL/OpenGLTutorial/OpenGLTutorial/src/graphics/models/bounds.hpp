@@ -4,6 +4,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <cmath>
+
 #include "../shader.h"
 
 #include <glm/glm.hpp>
@@ -11,9 +13,6 @@
 
 class Bounds {
 public:
-	std::vector<float> vertices;
-	std::vector<unsigned int> indices;
-
 	std::vector<glm::vec3> offsets;
 	std::vector<glm::vec3> sizes;
 
@@ -121,10 +120,10 @@ public:
 		// glBufferSubData
 		if (offsets.size() != 0) {
 			glBindBuffer(GL_ARRAY_BUFFER, offsetVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, offsets.size() * 3 * sizeof(float), &offsets[0]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, std::min(100, (int)offsets.size()) * 3 * sizeof(float), &offsets[0]);
 
 			glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizes.size() * 3 * sizeof(float), &sizes[0]);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, std::min(100, (int)sizes.size()) * 3 * sizeof(float), &sizes[0]);
 		}
 
 		shader.setMat4("model", glm::mat4(1.0f));
@@ -147,6 +146,9 @@ private:
 	unsigned int VAO;
 	unsigned int verticesVBO, offsetVBO, sizeVBO;
 	unsigned int EBO;
+
+	std::vector<float> vertices;
+	std::vector<unsigned int> indices;
 };
 
 #endif
