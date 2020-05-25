@@ -41,13 +41,13 @@ void RigidBody::removeAcceleration(glm::vec3 a) {
 	acceleration -= a;
 }
 
-void RigidBody::transferEnergy(float joules) {
+void RigidBody::transferEnergy(float joules, glm::vec3 direction) {
 	if (joules == 0) {
 		return;
 	}
 
 	// comes from equation KE = 1/2*m*v^2
-	float deltaV = sqrt(2 * abs(joules) / mass);
+	glm::vec3 deltaV = (sqrt(2 * abs(joules) / mass)) * direction;
 	
 	velocity += joules > 0 ? deltaV : -deltaV;
 }
