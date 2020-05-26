@@ -28,24 +28,6 @@ bool Octree::inBoundingBox(glm::vec3 pt, glm::vec3 min, glm::vec3 max) {
 		(pt.z > min.z) && (pt.z < min.z);
 }
 
-// find index of item in vector list
-std::vector<Octree::Triangle>::iterator Octree::getIndexOf(std::vector<Triangle> v, Triangle x) {
-	return std::find(v.begin(), v.end(), x);
-}
-
-std::vector<unsigned int>::iterator Octree::getIndexOf(std::vector<unsigned int> v, unsigned int x) {
-	return std::find(v.begin(), v.end(), x);
-}
-
-// check if object in vector list
-bool Octree::contains(std::vector<Triangle> v, Triangle x) {
-	return getIndexOf(v, x) != v.end();
-}
-
-bool Octree::contains(std::vector<unsigned int> v, int x) {
-	return getIndexOf(v, x) != v.end();
-}
-
 void Octree::calculateBounds(BoundingBox* out, unsigned char quadrant, BoundingBox region) {
 	glm::vec3 center = region.calculateCenter();
 
@@ -177,7 +159,7 @@ void Octree::node::update() {
 		std::vector<Triangle> movedObjects(objects.size());
 		std::vector<unsigned int> movedModels; // get from somewhere
 		for (Triangle t : objects) {
-			if (contains(movedModels, t.modelId)) {
+			if (List::contains<unsigned int>(movedModels, t.modelId)) {
 				movedObjects.push_back(t);
 			}
 		}
@@ -253,7 +235,7 @@ void Octree::node::update() {
 
 			// remove first object, second now becomes first
 			movedObjects.erase(movedObjects.begin());
-			objects.erase(getIndexOf(objects, movedObj));
+			objects.erase(objects.begin() + List::getIndexOf<Triangle>(objects, movedObj));
 			current->insert(movedObj);
 		}
 
