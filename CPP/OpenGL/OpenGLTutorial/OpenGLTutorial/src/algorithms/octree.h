@@ -9,6 +9,8 @@
 #include <stack>
 #include <glm/glm.hpp>
 
+#include "list.hpp"
+
 namespace Octree {
 	/*
 		Triangle structure
@@ -23,7 +25,7 @@ namespace Octree {
 		bool operator==(Triangle t2);
 	};
 	typedef struct Triangle Triangle;
-
+	
 	/*
 		Bounding box structure (defined by min and max points)
 	*/
@@ -36,6 +38,7 @@ namespace Octree {
 		glm::vec3 calculateDimensions();
 
 		bool containsTriangle(Triangle t);
+		bool containsBox(BoundingBox box);
 	};
 	typedef struct BoundingBox BoundingBox;
 
@@ -58,16 +61,6 @@ namespace Octree {
 	*/
 	// check if point is in rectangle formed by min and max points
 	bool inBoundingBox(glm::vec3 pt, glm::vec3 min, glm::vec3 max);
-
-	// find index of item in vector list
-	std::vector<Triangle>::iterator getIndexOf(std::vector<Triangle> v, Triangle x);
-	// find index of mdoel id in vector list
-	std::vector<unsigned int>::iterator getIndexOf(std::vector<unsigned int> v, unsigned int x);
-
-	// check if object in vector list
-	bool contains(std::vector<Triangle> v, Triangle x);
-	// check if model id in list
-	bool contains(std::vector<unsigned int> v, int x);
 
 	// calculate bounds of specified quadrant in bounded region and output
 	void calculateBounds(BoundingBox* out, unsigned char quadrant, BoundingBox region);
