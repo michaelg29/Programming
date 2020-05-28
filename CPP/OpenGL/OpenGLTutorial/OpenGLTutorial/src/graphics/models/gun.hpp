@@ -5,7 +5,7 @@
 class Gun : public Model {
 public:
 	Gun()
-		: Model(glm::vec3(0.0f), glm::vec3(1 / 300.0f), true) {
+		: Model(BoundTypes::AABB, glm::vec3(0.0f), glm::vec3(1 / 300.0f), true) {
 		rb.mass = 1000;
 	}
 
@@ -13,7 +13,7 @@ public:
 		loadModel("assets/models/m4a1/scene.gltf");
 	}
 
-	void render(Shader shader, double dt) {
+	void render(Shader shader, double dt, Box *b) {
 		glm::mat4 model = glm::mat4(1.0f);
 
 		// translate forward and down
@@ -36,7 +36,7 @@ public:
 
 		shader.setMat4("model", model);
 
-		Model::render(shader, dt, false);
+		Model::render(shader, dt, b, false);
 	}
 
 	void launch() {

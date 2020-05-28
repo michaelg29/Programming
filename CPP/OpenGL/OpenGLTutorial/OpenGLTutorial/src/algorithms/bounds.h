@@ -20,6 +20,9 @@ public:
 	glm::vec3 min;
 	glm::vec3 max;
 
+	// initialize with type
+	BoundingRegion(BoundTypes type);
+
 	// initialize as sphere
 	BoundingRegion(glm::vec3 center, float radius);
 

@@ -17,22 +17,28 @@
 #include "texture.h"
 #include "mesh.h"
 
+#include "models/box.hpp"
+
 #include "../physics/rigidbody.h"
+
+#include "../algorithms/bounds.h"
 
 class Model {
 public:
 	glm::vec3 size;
 	std::vector<Mesh> meshes;
 
+	BoundTypes boundType;
+
 	RigidBody rb;
 
-	Model(glm::vec3 pos = glm::vec3(0.0f), glm::vec3 size = glm::vec3(1.0f), bool noTex = false, bool dynamic = false);
+	Model(BoundTypes boundType = BoundTypes::AABB, glm::vec3 pos = glm::vec3(0.0f), glm::vec3 size = glm::vec3(1.0f), bool noTex = false, bool dynamic = false);
 
 	void init();
 
 	void loadModel(std::string path);
 
-	void render(Shader shader, float dt, bool setModel = true, bool doRender = true);
+	void render(Shader shader, float dt, Box *b, bool setModel = true, bool doRender = true);
 	
 	void cleanup();
 

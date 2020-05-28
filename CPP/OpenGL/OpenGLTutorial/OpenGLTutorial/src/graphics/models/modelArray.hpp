@@ -25,7 +25,9 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		for (unsigned int i = 0, size = model.meshes.size(); i < size; i++) {
-			glBindVertexArray(model.meshes[i].VAO);
+			unsigned int VAO = model.meshes[i].VAO;
+			
+			glBindVertexArray(VAO);
 			// set the vertex attribute pointers
 			// positions
 			glBindBuffer(GL_ARRAY_BUFFER, posVBO);
@@ -36,8 +38,6 @@ public:
 			glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(4);
 
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 			glVertexAttribDivisor(3, 1); // reset _3rd_ attribute every _1_ instance
 			glVertexAttribDivisor(4, 1); // reset _4th_ attribute every _1_ instance
 
@@ -45,13 +45,7 @@ public:
 		}
 	}
 
-	void render(Shader shader, float dt, bool setLists = true) {
-		/*for (RigidBody& rb : instances) {
-			rb.update(dt);
-			model.rb.pos = rb.pos;
-			model.render(shader, dt);
-		}*/
-
+	void render(Shader shader, float dt, Box *b, bool setLists = true) {
 		if (setLists) {
 			positions.clear();
 			sizes.clear();
@@ -64,20 +58,12 @@ public:
 
 		shader.setMat4("model", glm::mat4(1.0f));
 		
-		model.render(shader, dt, false, false);
+		model.render(shader, dt, b, false, false);
 
-		// reset VBO data
-		/*if (positions.size() != 0) {
-			glBindBuffer(GL_ARRAY_BUFFER, posVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * 3 * sizeof(float), &positions[0]);
+		int size = std::min(100, (int)positions.size());
 
-			glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, sizes.size() * 3 * sizeof(float), &sizes[0]);
-		}*/
-
-		if (positions.size() != 0) {
-			int size = std::min(100, (int)positions.size());
-
+		if (size != 0) {
+			// reset VBO data
 			glBindBuffer(GL_ARRAY_BUFFER, posVBO);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &positions[0]);
 
@@ -85,9 +71,14 @@ public:
 			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &sizes[0]);
 		}
 
-		for (unsigned int i = 0, size = model.meshes.size(); i < size; i++) {
+		for (unsigned int i = 0, noMeshes = model.meshes.size(); i < noMeshes; i++) {
+			for (int j = 0, noInstances = positions.size(); j < noInstances; j++) {
+				b->offsets.push_back(model.meshes[i].br.calculateCenter() + positions[j]);
+				b->sizes.push_back(model.meshes[i].br.calculateDimensions() * sizes[j]);
+			}
+
 			glBindVertexArray(model.meshes[i].VAO);
-			glDrawElementsInstanced(GL_TRIANGLES, model.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, positions.size());
+			glDrawElementsInstanced(GL_TRIANGLES, model.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, size);
 			glBindVertexArray(0);
 		}
 	}
@@ -98,6 +89,9 @@ public:
 
 	void cleanup() {
 		model.cleanup();
+
+		glDeleteBuffers(1, &posVBO);
+		glDeleteBuffers(1, &sizeVBO);
 	}
 
 protected:

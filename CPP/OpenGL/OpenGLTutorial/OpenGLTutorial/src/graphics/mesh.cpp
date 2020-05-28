@@ -30,17 +30,17 @@ std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
     return ret;
 }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
-    : vertices(vertices), indices(indices), textures(textures), noTex(false) {
+Mesh::Mesh(BoundingRegion br, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+    : br(br), vertices(vertices), indices(indices), textures(textures), noTex(false) {
     setup();
 }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor4D diff, aiColor4D spec)
-    : vertices(vertices), indices(indices), diff(diff), spec(spec), noTex(true) {
+Mesh::Mesh(BoundingRegion br, std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor4D diff, aiColor4D spec)
+    : br(br), vertices(vertices), indices(indices), diff(diff), spec(spec), noTex(true) {
     setup();
 }
 
-void Mesh::render(Shader shader, glm::vec3 pos, bool doRender) {
+void Mesh::render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *b, bool doRender) {
     if (noTex) {
         shader.set4Float("material.diffuse", diff);
         shader.set4Float("material.specular", spec);
@@ -76,8 +76,10 @@ void Mesh::render(Shader shader, glm::vec3 pos, bool doRender) {
     }
 
     if (doRender) {
-        glBindVertexArray(VAO);
+        b->offsets.push_back(pos + br.calculateCenter());
+        b->sizes.push_back(size * br.calculateDimensions());
 
+        glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
@@ -86,40 +88,44 @@ void Mesh::render(Shader shader, glm::vec3 pos, bool doRender) {
 }
 
 void Mesh::setup() {
-    // create buffers/arrays
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
     // bind VAO
+    glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
     // load data into vertex buffers
+    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // A great thing about structs is that their memory layout is sequential for all its items.
     // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
     // again translates to 3/2 floats which translates to a byte array.
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
     // set the vertex attribute pointers
     // vertex Positions
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(0);
     // normal ray
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal)));
     glEnableVertexAttribArray(1);
     // vertex texture coords
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoord)));
     glEnableVertexAttribArray(2);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindVertexArray(0);
 }
 
 void Mesh::cleanup() {
     glDeleteVertexArrays(1, &VAO);
-    glDeleteVertexArrays(1, &VBO);
+    glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
 }
