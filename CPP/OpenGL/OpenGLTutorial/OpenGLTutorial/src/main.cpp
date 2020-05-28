@@ -22,6 +22,7 @@
 #include "graphics/models/lamp.hpp"
 #include "graphics/models/sphere.hpp"
 #include "graphics/models/box.hpp"
+#include "graphics/models/troll.hpp"
 
 #include "physics/environment.h"
 
@@ -126,6 +127,9 @@ int main() {
 	}*/
 
 	while (!screen.shouldClose()) {
+		b.offsets.clear();
+		b.sizes.clear();
+
 		// calculate dt
 		double currentTime = glfwGetTime();
 		dt = currentTime - lastFrame;
@@ -176,6 +180,7 @@ int main() {
 		projection = glm::perspective(
 			glm::radians(Camera::defaultCamera.zoom),
 			(float)Screen::SCR_WIDTH / (float)Screen::SCR_HEIGHT, 0.1f, 100.0f);
+
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 
@@ -187,7 +192,7 @@ int main() {
 				continue;
 			}
 		}
-		for (int i = 0; i < removeObjects.size(); i++) {
+ 		for (int i = 0; i < removeObjects.size(); i++) {
 			launchObjects.instances.erase(launchObjects.instances.begin() + removeObjects.top());
 			removeObjects.pop();
 		}
@@ -196,14 +201,14 @@ int main() {
 		if (launchObjects.instances.size() > 0) {
 			launchShader.setMat4("view", view);
 			launchShader.setMat4("projection", projection);
-			launchObjects.render(launchShader, dt);
+			launchObjects.render(launchShader, dt, &b);
 		}
 
 		// render lamps
 		lightShader.activate();
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
-		lamps.render(lightShader, dt);
+		lamps.render(lightShader, dt, &b);
 
 		// render boxes
 		if (b.offsets.size() > 0) {
@@ -272,11 +277,5 @@ void processInput(double dt) {
 	// launch item
 	if (Keyboard::keyWentDown(GLFW_KEY_F)) {
 		launchItem(dt);
-	}
-
-	// add bounds rectangle
-	if (Keyboard::keyWentDown(GLFW_KEY_I)) {
-		b.offsets.push_back(glm::vec3(b.offsets.size() * 1.0f));
-		b.sizes.push_back(glm::vec3((b.sizes.size() + 1) * 0.5f));
 	}
 }

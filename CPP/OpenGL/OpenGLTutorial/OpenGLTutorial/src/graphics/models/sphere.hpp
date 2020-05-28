@@ -6,9 +6,8 @@
 
 class Sphere : public Model {
 public:
-	Sphere(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 size = glm::vec3(1.0f, 1.0f, 1.0f), bool dynamic = false)
-		: Model(pos, size, true, dynamic) {
-	}
+	Sphere(glm::vec3 pos = glm::vec3(0.0f), glm::vec3 size = glm::vec3(1.0f), bool dynamic = false)
+		: Model(BoundTypes::SPHERE, pos, size, true, dynamic) {}
 
 	void init() {
 		loadModel("assets/models/sphere/scene.gltf");

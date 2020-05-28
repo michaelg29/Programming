@@ -3,18 +3,18 @@
 
 #include <iostream>
 
-Model::Model(glm::vec3 pos, glm::vec3 size, bool noTex, bool dynamic)
-	: size(size), noTex(noTex), dynamic(dynamic) {
+Model::Model(BoundTypes boundType, glm::vec3 pos, glm::vec3 size, bool noTex, bool dynamic)
+	: boundType(boundType), size(size), noTex(noTex), dynamic(dynamic) {
 	rb.pos = pos;
  }
 
-void Model::render(Shader shader, float dt, bool setModel, bool doRender) {
+void Model::render(Shader shader, float dt, Box *b, bool setModel, bool doRender) {
 	if (dynamic) {
 		rb.update(dt);
 	}
 
 	if (setModel) {
-		glm::mat4 model = glm::mat4(1.0f);
+ 		glm::mat4 model = glm::mat4(1.0f);
 
 		model = glm::translate(model, rb.pos);
 		model = glm::scale(model, size);
@@ -24,8 +24,8 @@ void Model::render(Shader shader, float dt, bool setModel, bool doRender) {
 
 	shader.setFloat("material.shininess", 0.5f);
 
-	for (unsigned int i = 0; i < meshes.size(); i++) {
-		meshes[i].render(shader, rb.pos, doRender);
+	for (unsigned int i = 0, noMeshes = meshes.size(); i < noMeshes; i++) {
+		meshes[i].render(shader, rb.pos, size, b, doRender);
 	}
 }
 
@@ -68,6 +68,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
 
+	BoundingRegion br(boundType);
+
+	// vars for AABB
+	glm::vec3 min((float)(~0));		// initial set to largest integer
+	glm::vec3 max(-(float)(~0));	// initial set to smallest integer
+
+	// vars for sphere
+	float radius = 0.0f;
+
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		Vertex vertex;
 
@@ -79,6 +88,25 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			mesh->mVertices[i].y,
 			mesh->mVertices[i].z
 		);
+
+		if (boundType == BoundTypes::AABB) {
+			for (int i = 0; i < 3; i++) {
+				// if smaller than min
+				if (vertex.pos[i] < min[i]) min[i] = vertex.pos[i];
+				// if larger than max
+				if (vertex.pos[i] > max[i]) max[i] = vertex.pos[i];
+			}
+		}
+		else {
+			float dist = 0.0f;
+			for (int i = 0; i < 3; i++) {
+				dist += vertex.pos[i] * vertex.pos[i];
+			}
+			if (dist > radius) {
+				// found new outer radius (squared)
+				radius = dist;
+			}
+		}
 
 		// normal
 		vertex.normal = glm::vec3(
@@ -102,6 +130,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 		vertices.push_back(vertex);
 	}
 
+	if (boundType == BoundTypes::AABB) {
+		br.min = min;
+		br.max = max;
+	}
+	else {
+		br.radius = sqrt(radius); // take square root at end
+		br.center = glm::vec3(0.0f);
+	}
+
 	// process indices
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
 		aiFace face = mesh->mFaces[i];
@@ -122,7 +159,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			aiColor4D spec(1.0f);
 			aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &spec);
 
-			return Mesh(vertices, indices, diff, spec);
+			return Mesh(br, vertices, indices, diff, spec);
 		}
 		else {
 			// 1. diffuse maps
@@ -132,7 +169,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR);
 			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-			return Mesh(vertices, indices, textures);
+			return Mesh(br, vertices, indices, textures);
 		}
 	}
 }

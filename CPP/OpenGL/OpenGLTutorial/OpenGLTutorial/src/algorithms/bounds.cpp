@@ -1,5 +1,9 @@
 #include "bounds.h"
 
+// initialize with type
+BoundingRegion::BoundingRegion(BoundTypes type)
+	: type(type) {}
+
 // initialize as sphere
 BoundingRegion::BoundingRegion(glm::vec3 center, float radius)
 	: center(center), radius(radius), type(BoundTypes::SPHERE) {}
@@ -10,12 +14,12 @@ BoundingRegion::BoundingRegion(glm::vec3 min, glm::vec3 max)
 
 // method to calculate center of region
 glm::vec3 BoundingRegion::calculateCenter() {
-	return (min + max) / 2.0f;
+	return (type == BoundTypes::AABB) ? (min + max) / 2.0f : center;
 }
 
 // method to calculate dimensions of region
 glm::vec3 BoundingRegion::calculateDimensions() {
-	return abs(max - min);
+	return (type == BoundTypes::AABB) ? abs(max - min) : glm::vec3(2 * radius);
 }
 
 // method to determine if point is inside region

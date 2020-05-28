@@ -95,7 +95,7 @@ public:
 		glEnableVertexAttribArray(2);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
+
 		glVertexAttribDivisor(1, 1); // reset _1st_ attribute every _1_ instance
 		glVertexAttribDivisor(2, 1); // reset _2nd_ attribute every _1_ instance
 	
@@ -103,25 +103,10 @@ public:
 	}
 
 	void render(Shader shader) {
-		/*for (int i = 0; i < vertices.size(); i += 3) {
-			vertices[i] += 0.01f;
-		}*/
-		/*
-		// glMapBuffer
-
-		glBindBuffer(GL_ARRAY_BUFFER, verticesVBO);
-		// get pointer to memory
-		void* ptr = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-		// copy new data into memory
-		memcpy(ptr, &vertices[0], sizeof(vertices));
-		// tell OpenGL we are done
-		glUnmapBuffer(GL_ARRAY_BUFFER);
-		*/
+		int size = std::min(100, (int)offsets.size());
 
 		// glBufferSubData
-		if (offsets.size() != 0) {
-			int size = std::min(100, (int)offsets.size());
-
+		if (size != 0) {
  			glBindBuffer(GL_ARRAY_BUFFER, offsetVBO);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &offsets[0]);
 
@@ -132,15 +117,17 @@ public:
 		shader.setMat4("model", glm::mat4(1.0f));
 
 		glBindVertexArray(VAO);
-		glDrawElementsInstanced(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0, offsets.size());
+		glDrawElementsInstanced(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0, size);
 		glBindVertexArray(0);
 	}
 
 	void cleanup() {
 		glDeleteVertexArrays(1, &VAO);
-		glDeleteVertexArrays(1, &verticesVBO);
-		glDeleteVertexArrays(1, &offsetVBO);
-		glDeleteVertexArrays(1, &sizeVBO);
+
+		glDeleteBuffers(1, &verticesVBO);
+		glDeleteBuffers(1, &offsetVBO);
+		glDeleteBuffers(1, &sizeVBO);
+		glDeleteBuffers(1, &EBO);
 	}
 
 private:
