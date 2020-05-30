@@ -80,6 +80,9 @@ int main() {
 	Shader launchShader("assets/instanced/instanced.vs", "assets/object.fs");
 
 	// objects
+	Sphere t;
+	t.init();
+
 	b.init();
 
 	launchObjects.init();
@@ -183,6 +186,7 @@ int main() {
 
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
+		t.render(shader, dt, &b);
 
 		std::stack<int> removeObjects;
 		for (int i = 0; i < launchObjects.instances.size(); i++) {
@@ -225,6 +229,7 @@ int main() {
 	b.cleanup();
 	launchObjects.cleanup();
 	lamps.cleanup();
+	t.cleanup();
 
 	glfwTerminate();
 	return 0;

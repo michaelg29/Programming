@@ -66,8 +66,8 @@ bool BoundingRegion::contains(BoundingRegion br) {
 
 		for (int i = 0; i < 3; i++) {
 			// don't have to worry about negative signs because we know the center is in the box
-			float distMax = max[i] - br.center[i];
-			float distMin = br.center[i] - min[i];
+			float distMax = glm::length(max[i] - br.center[i]);
+			float distMin = glm::length(br.center[i] - min[i]);
 			if (distMax < br.radius || distMin < br.radius) {
 				return false;
 			}
@@ -92,11 +92,13 @@ bool BoundingRegion::intersectsWith(BoundingRegion br) {
 		glm::vec3 dist = abs(c - c_br);
 
 		for (int i = 0; i < 3; i++) {
-			if (dist[i] > (rad[i] + rad_br[i])) {
+			if (glm::length(dist[i]) > glm::length(rad[i] + rad_br[i])) {
 				// no overlap on this axis
 				return false;
 			}
 		}
+
+		return true;
 	}
 	else if (type == BoundTypes::SPHERE && br.type == BoundTypes::SPHERE) {
 		// both spheres
@@ -129,8 +131,6 @@ bool BoundingRegion::intersectsWith(BoundingRegion br) {
 		// call algorithm for br (defined in preceding else if block)
 		return br.intersectsWith(*this);
 	}
-
-	return true;
 }
 
 // method to determine if ray intersects region
