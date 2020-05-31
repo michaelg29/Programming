@@ -11,6 +11,7 @@
 
 #include "shader.h"
 #include "texture.h"
+#include "glmemory.hpp"
 
 #include "models/box.hpp"
 
@@ -35,7 +36,8 @@ public:
 	aiColor4D diff;
 	aiColor4D spec;
 
-	unsigned int VAO;
+	//unsigned int VAO;
+	ArrayObject VAO;
 
 	Mesh(BoundingRegion br, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures = {});
 	Mesh(BoundingRegion br, std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor4D diff, aiColor4D spec);
@@ -46,8 +48,6 @@ public:
 
 private:
 	bool noTex;
-
-	unsigned int VBO, EBO;
 
 	void setup();
 };

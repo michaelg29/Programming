@@ -35,7 +35,7 @@ Screen screen;
 //Joystick mainJ(0);
 Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 0.0f));
 
-Box b;
+Box box;
 
 bool flashLightOn = false;
 
@@ -80,10 +80,10 @@ int main() {
 	Shader launchShader("assets/instanced/instanced.vs", "assets/object.fs");
 
 	// objects
-	Sphere t;
-	t.init();
+	Sphere sphere(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.5f));
+	sphere.init();
 
-	b.init();
+	box.init();
 
 	launchObjects.init();
 
@@ -117,7 +117,7 @@ int main() {
 		lamps.lightInstances.push_back(pointLights[i]);
 	}
 
-	SpotLight s = { 
+	SpotLight spotLight = { 
 		Camera::defaultCamera.cameraPos, Camera::defaultCamera.cameraFront, 
 		glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)),
 		1.0f, 0.09f, 0.032f, 
@@ -130,8 +130,8 @@ int main() {
 	}*/
 
 	while (!screen.shouldClose()) {
-		b.offsets.clear();
-		b.sizes.clear();
+		box.positions.clear();
+		box.sizes.clear();
 
 		// calculate dt
 		double currentTime = glfwGetTime();
@@ -141,38 +141,52 @@ int main() {
 		// process input
 		processInput(dt);
 
-		// render
+		// update screen
 		screen.update();
 
-		// activate shaders
-		shader.activate();
-		launchShader.activate();
+		// LIGHTING============================================================================
 		
 		// set camera vals
+		shader.activate();
 		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
+		launchShader.activate();
 		launchShader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
 
-		// render lights in shader programs
+		// direction lights
+		shader.activate();
 		dirLight.render(shader);
+		launchShader.activate();
 		dirLight.render(launchShader);
 
+		// point lights
 		for (unsigned int i = 0; i < 4; i++) {
+			shader.activate();
 			lamps.lightInstances[i].render(shader, i);
+			launchShader.activate();
 			lamps.lightInstances[i].render(launchShader, i);
 		}
+		shader.activate();
 		shader.setInt("noPointLights", 4);
+		launchShader.activate();
 		launchShader.setInt("noPointLights", 4);
 
+		// flash light
 		if (flashLightOn) {
-			s.position = Camera::defaultCamera.cameraPos;
-			s.direction = Camera::defaultCamera.cameraFront;
-			s.render(shader, 0);
-			s.render(launchShader, 0);
+			spotLight.position = Camera::defaultCamera.cameraPos;
+			spotLight.direction = Camera::defaultCamera.cameraFront;
+
+			shader.activate();
+			spotLight.render(shader, 0);
 			shader.setInt("noSpotLights", 1);
+
+			launchShader.activate();
 			launchShader.setInt("noSpotLights", 1);
+			spotLight.render(launchShader, 0);
 		}
 		else {
+			shader.activate();
 			shader.setInt("noSpotLights", 0);
+			launchShader.activate();
 			launchShader.setInt("noSpotLights", 0);
 		}
 
@@ -184,9 +198,10 @@ int main() {
 			glm::radians(Camera::defaultCamera.zoom),
 			(float)Screen::SCR_WIDTH / (float)Screen::SCR_HEIGHT, 0.1f, 100.0f);
 
+		shader.activate();
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
-		t.render(shader, dt, &b);
+		sphere.render(shader, dt, &box);
 
 		std::stack<int> removeObjects;
 		for (int i = 0; i < launchObjects.instances.size(); i++) {
@@ -203,33 +218,34 @@ int main() {
 
 		// render launch objects
 		if (launchObjects.instances.size() > 0) {
+			launchShader.activate();
 			launchShader.setMat4("view", view);
 			launchShader.setMat4("projection", projection);
-			launchObjects.render(launchShader, dt, &b);
+			launchObjects.render(launchShader, dt, &box);
 		}
 
 		// render lamps
 		lightShader.activate();
 		lightShader.setMat4("view", view);
 		lightShader.setMat4("projection", projection);
-		lamps.render(lightShader, dt, &b);
+		lamps.render(lightShader, dt, &box);
 
 		// render boxes
-		if (b.offsets.size() > 0) {
+		if (box.positions.size() > 0) {
 			boxShader.activate();
 			boxShader.setMat4("view", view);
 			boxShader.setMat4("projection", projection);
-			b.render(boxShader);
+			box.render(boxShader);
 		}
 
 		screen.newFrame();
 		glfwPollEvents();
 	}
 
-	b.cleanup();
+	box.cleanup();
 	launchObjects.cleanup();
 	lamps.cleanup();
-	t.cleanup();
+	sphere.cleanup();
 
 	glfwTerminate();
 	return 0;
