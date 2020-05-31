@@ -76,12 +76,12 @@ void Mesh::render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *b, bool doR
     }
 
     if (doRender) {
-        b->offsets.push_back(pos + br.calculateCenter());
+        b->positions.push_back(pos + br.calculateCenter());
         b->sizes.push_back(size * br.calculateDimensions());
 
-        glBindVertexArray(VAO);
+        VAO.bind();
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        ArrayObject::clear();
 
         glActiveTexture(GL_TEXTURE0);
     }
@@ -89,43 +89,38 @@ void Mesh::render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *b, bool doR
 
 void Mesh::setup() {
     // bind VAO
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    VAO.generate();
+    VAO.bind();
+
+    // generate/set EBO
+    VAO["EBO"] = BufferObject(GL_ELEMENT_ARRAY_BUFFER);
+    VAO["EBO"].generate();
+    VAO["EBO"].bind();
+    VAO["EBO"].setData<GLuint>(indices.size(), &indices[0], GL_STATIC_DRAW);
 
     // load data into vertex buffers
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    VAO["VBO"] = BufferObject(GL_ARRAY_BUFFER);
+    VAO["VBO"].generate();
+    VAO["VBO"].bind();
+    VAO["VBO"].setData<Vertex>(vertices.size(), &vertices[0], GL_STATIC_DRAW);
     // A great thing about structs is that their memory layout is sequential for all its items.
     // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
     // again translates to 3/2 floats which translates to a byte array.
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
     // set the vertex attribute pointers
+    VAO["VBO"].bind();
     // vertex Positions
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    glEnableVertexAttribArray(0);
+    VAO["VBO"].setAttPointer<GLfloat>(0, 3, GL_FLOAT, 8, 0);
     // normal ray
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal)));
-    glEnableVertexAttribArray(1);
+    VAO["VBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 8, 3);
     // vertex texture coords
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoord)));
-    glEnableVertexAttribArray(2);
+    VAO["VBO"].setAttPointer<GLfloat>(2, 3, GL_FLOAT, 8, 6);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    VAO["VBO"].clear();
 
-    glBindVertexArray(0);
+    ArrayObject::clear();
 }
 
 void Mesh::cleanup() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    VAO.cleanup();
 }

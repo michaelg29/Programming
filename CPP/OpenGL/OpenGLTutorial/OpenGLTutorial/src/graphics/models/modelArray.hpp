@@ -2,7 +2,10 @@
 #define MODELARRAY_HPP
 
 #include "../model.h"
+#include "box.hpp"
 #include <cmath>
+
+#define UPPER_BOUND 100
 
 template <class T>
 class ModelArray {
@@ -13,39 +16,33 @@ public:
 		model.init();
 
 		// generate positions VBO
-		glGenBuffers(1, &posVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, posVBO);
-		glBufferData(GL_ARRAY_BUFFER, 100 * 3 * sizeof(float), NULL, GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		posVBO = BufferObject(GL_ARRAY_BUFFER);
+		posVBO.generate();
+		posVBO.bind();
+		posVBO.setData<glm::vec3>(UPPER_BOUND, NULL, GL_DYNAMIC_DRAW);
 
 		// generate size VBO - dynamic
-		glGenBuffers(1, &sizeVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
-		glBufferData(GL_ARRAY_BUFFER, 100 * 3 * sizeof(float), NULL, GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		sizeVBO = BufferObject(GL_ARRAY_BUFFER);
+		sizeVBO.generate();
+		sizeVBO.bind();
+		sizeVBO.setData<glm::vec3>(UPPER_BOUND, NULL, GL_DYNAMIC_DRAW);
 
 		for (unsigned int i = 0, size = model.meshes.size(); i < size; i++) {
-			unsigned int VAO = model.meshes[i].VAO;
-			
-			glBindVertexArray(VAO);
+			model.meshes[i].VAO.bind();
+
 			// set the vertex attribute pointers
 			// positions
-			glBindBuffer(GL_ARRAY_BUFFER, posVBO);
-			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(3);
+			posVBO.bind();
+			posVBO.setAttPointer<glm::vec3>(3, 3, GL_FLOAT, 1, 0, 1);
 			// size
-			glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
-			glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(4);
+			sizeVBO.bind();
+			sizeVBO.setAttPointer<glm::vec3>(4, 3, GL_FLOAT, 1, 0, 1);
 
-			glVertexAttribDivisor(3, 1); // reset _3rd_ attribute every _1_ instance
-			glVertexAttribDivisor(4, 1); // reset _4th_ attribute every _1_ instance
-
-			glBindVertexArray(0);
+			ArrayObject::clear();
 		}
 	}
 
-	void render(Shader shader, float dt, Box *b, bool setLists = true) {
+	void render(Shader shader, float dt, Box *box, bool setLists = true) {
 		if (setLists) {
 			positions.clear();
 			sizes.clear();
@@ -58,28 +55,36 @@ public:
 
 		shader.setMat4("model", glm::mat4(1.0f));
 		
-		model.render(shader, dt, b, false, false);
+		model.render(shader, dt, box, false, false);
 
-		int size = std::min(100, (int)positions.size());
+		int instances = std::min(100, (int)positions.size());
 
-		if (size != 0) {
+		if (instances != 0) {
 			// reset VBO data
-			glBindBuffer(GL_ARRAY_BUFFER, posVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &positions[0]);
+			posVBO.bind();
+			posVBO.updateData<glm::vec3>(0, instances, &positions[0]);
 
-			glBindBuffer(GL_ARRAY_BUFFER, sizeVBO);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, size * 3 * sizeof(float), &sizes[0]);
+			sizeVBO.bind();
+			sizeVBO.updateData<glm::vec3>(0, instances, &sizes[0]);
+
+			ArrayObject::clear();
 		}
 
 		for (unsigned int i = 0, noMeshes = model.meshes.size(); i < noMeshes; i++) {
 			for (int j = 0, noInstances = positions.size(); j < noInstances; j++) {
-				b->offsets.push_back(model.meshes[i].br.calculateCenter() + positions[j]);
-				b->sizes.push_back(model.meshes[i].br.calculateDimensions() * sizes[j]);
+				box->positions.push_back(model.meshes[i].br.calculateCenter() + positions[j]);
+				
+				glm::vec3 size = model.meshes[i].br.calculateDimensions();
+				size.x *= sizes[j].x;
+				size.y *= sizes[j].y;
+				size.z *= sizes[j].z;
+				
+				box->sizes.push_back(size);
 			}
 
-			glBindVertexArray(model.meshes[i].VAO);
-			glDrawElementsInstanced(GL_TRIANGLES, model.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, size);
-			glBindVertexArray(0);
+			model.meshes[i].VAO.bind();
+			glDrawElementsInstanced(GL_TRIANGLES, model.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, instances);
+			ArrayObject::clear();
 		}
 	}
 
@@ -89,16 +94,13 @@ public:
 
 	void cleanup() {
 		model.cleanup();
-
-		glDeleteBuffers(1, &posVBO);
-		glDeleteBuffers(1, &sizeVBO);
 	}
 
 protected:
 	T model;
 
-	unsigned int posVBO;
-	unsigned int sizeVBO;
+	BufferObject posVBO;
+	BufferObject sizeVBO;
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> sizes;
 };
