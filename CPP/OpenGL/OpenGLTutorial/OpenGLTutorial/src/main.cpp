@@ -80,8 +80,11 @@ int main() {
 	Shader launchShader("assets/instanced/instanced.vs", "assets/object.fs");
 
 	// objects
-	Sphere sphere(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.5f));
-	sphere.init();
+	//Sphere sphere(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.5f));
+	//sphere.init();
+
+	Model sphere(BoundTypes::AABB, glm::vec3(0.0f), glm::vec3(0.05f), true);
+	sphere.loadModel("assets/models/dodge_challenger_demon/scene.gltf");
 
 	box.init();
 

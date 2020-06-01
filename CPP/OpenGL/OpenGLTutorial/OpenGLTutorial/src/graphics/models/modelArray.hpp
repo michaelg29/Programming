@@ -53,8 +53,6 @@ public:
 			}
 		}
 
-		shader.setMat4("model", glm::mat4(1.0f));
-		
 		model.render(shader, dt, box, false, false);
 
 		int instances = std::min(100, (int)positions.size());
@@ -72,14 +70,9 @@ public:
 
 		for (unsigned int i = 0, noMeshes = model.meshes.size(); i < noMeshes; i++) {
 			for (int j = 0, noInstances = positions.size(); j < noInstances; j++) {
-				box->positions.push_back(model.meshes[i].br.calculateCenter() + positions[j]);
+				box->positions.push_back(model.meshes[i].br.calculateCenter() * sizes[j] + positions[j]);
 				
-				glm::vec3 size = model.meshes[i].br.calculateDimensions();
-				size.x *= sizes[j].x;
-				size.y *= sizes[j].y;
-				size.z *= sizes[j].z;
-				
-				box->sizes.push_back(size);
+				box->sizes.push_back(model.meshes[i].br.calculateDimensions() * sizes[j]);
 			}
 
 			model.meshes[i].VAO.bind();
