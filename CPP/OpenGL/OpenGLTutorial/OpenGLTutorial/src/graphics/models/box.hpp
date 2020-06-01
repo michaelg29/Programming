@@ -110,8 +110,6 @@ public:
 			VAO["sizeVBO"].updateData<glm::vec3>(0, instances, &sizes[0]);
 		}
 
-		shader.setMat4("model", glm::mat4(1.0f));
-
 		VAO.bind();
 		glDrawElementsInstanced(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0, instances);
 		ArrayObject::clear();

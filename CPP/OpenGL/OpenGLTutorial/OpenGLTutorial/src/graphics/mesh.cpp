@@ -76,14 +76,9 @@ void Mesh::render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *b, bool doR
     }
 
     if (doRender) {
-        b->positions.push_back(pos + br.calculateCenter());
+        b->positions.push_back(br.calculateCenter() * size + pos);
 
-        glm::vec3 newSize = br.calculateDimensions();
-        newSize.x *= size.x;
-        newSize.y *= size.y;
-        newSize.z *= size.z;
-
-        b->sizes.push_back(newSize);
+        b->sizes.push_back(br.calculateDimensions() * size);
 
         VAO.bind();
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
