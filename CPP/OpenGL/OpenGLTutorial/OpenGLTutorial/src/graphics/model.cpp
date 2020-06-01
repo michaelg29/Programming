@@ -74,9 +74,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 	glm::vec3 min((float)(~0));		// initial set to largest integer
 	glm::vec3 max(-(float)(~0));	// initial set to smallest integer
 
-	// vars for sphere
-	float radius = 0.0f;
-
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
 		Vertex vertex;
 
@@ -89,23 +86,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			mesh->mVertices[i].z
 		);
 
-		if (boundType == BoundTypes::AABB) {
-			for (int i = 0; i < 3; i++) {
-				// if smaller than min
-				if (vertex.pos[i] < min[i]) min[i] = vertex.pos[i];
-				// if larger than max
-				if (vertex.pos[i] > max[i]) max[i] = vertex.pos[i];
-			}
-		}
-		else {
-			float dist = 0.0f;
-			for (int i = 0; i < 3; i++) {
-				dist += vertex.pos[i] * vertex.pos[i];
-			}
-			if (dist > radius) {
-				// found new outer radius (squared)
-				radius = dist;
-			}
+		for (int i = 0; i < 3; i++) {
+			// if smaller than min
+			if (vertex.pos[i] < min[i]) min[i] = vertex.pos[i];
+			// if larger than max
+			if (vertex.pos[i] > max[i]) max[i] = vertex.pos[i];
 		}
 
 		// normal
@@ -131,12 +116,26 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 	}
 
 	if (boundType == BoundTypes::AABB) {
+		// assign max and min
 		br.min = min;
 		br.max = max;
 	}
 	else {
-		br.radius = sqrt(radius); // take square root at end
-		br.center = glm::vec3(0.0f);
+		// calculate max distance from center
+		br.center = BoundingRegion(min, max).calculateCenter();
+		float maxRadiusSquared = 0.0f;
+
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+			float radiusSquared = 0.0f;
+			for (int j = 0; j < 3; j++) {
+				radiusSquared += (vertices[i].pos[j] - br.center[j]) * (vertices[i].pos[j] - br.center[j]);
+			}
+			if (radiusSquared > maxRadiusSquared) {
+				maxRadiusSquared = radiusSquared;
+			}
+		}
+
+		br.radius = sqrt(maxRadiusSquared);
 	}
 
 	// process indices
