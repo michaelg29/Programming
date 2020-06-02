@@ -9,6 +9,8 @@
 #include "../glmemory.hpp"
 #include "../shader.h"
 
+#include "../../algorithms/bounds.h"
+
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -113,6 +115,12 @@ public:
 		VAO.bind();
 		glDrawElementsInstanced(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0, instances);
 		ArrayObject::clear();
+	}
+
+	void pushInstance(BoundingRegion br, glm::vec3 pos, glm::vec3 size) {
+		positions.push_back(br.calculateCenter() * size + pos);
+
+		sizes.push_back(br.calculateDimensions() * size);
 	}
 
 	void cleanup() {

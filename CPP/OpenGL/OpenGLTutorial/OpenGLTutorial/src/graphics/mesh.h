@@ -42,7 +42,7 @@ public:
 	Mesh(BoundingRegion br, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures = {});
 	Mesh(BoundingRegion br, std::vector<Vertex> vertices, std::vector<unsigned int> indices, aiColor4D diff, aiColor4D spec);
 
-	void render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *b, bool doRender = true);
+	void render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *box, bool doRender = true);
 
 	void cleanup();
 

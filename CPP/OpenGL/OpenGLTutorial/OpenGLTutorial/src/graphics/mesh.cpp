@@ -40,7 +40,7 @@ Mesh::Mesh(BoundingRegion br, std::vector<Vertex> vertices, std::vector<unsigned
     setup();
 }
 
-void Mesh::render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *b, bool doRender) {
+void Mesh::render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *box, bool doRender) {
     if (noTex) {
         shader.set4Float("material.diffuse", diff);
         shader.set4Float("material.specular", spec);
@@ -76,9 +76,7 @@ void Mesh::render(Shader shader, glm::vec3 pos, glm::vec3 size, Box *b, bool doR
     }
 
     if (doRender) {
-        b->positions.push_back(br.calculateCenter() * size + pos);
-
-        b->sizes.push_back(br.calculateDimensions() * size);
+        box->pushInstance(br, pos, size);
 
         VAO.bind();
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

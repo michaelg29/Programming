@@ -70,9 +70,7 @@ public:
 
 		for (unsigned int i = 0, noMeshes = model.meshes.size(); i < noMeshes; i++) {
 			for (int j = 0, noInstances = positions.size(); j < noInstances; j++) {
-				box->positions.push_back(model.meshes[i].br.calculateCenter() * sizes[j] + positions[j]);
-				
-				box->sizes.push_back(model.meshes[i].br.calculateDimensions() * sizes[j]);
+				box->pushInstance(model.meshes[i].br, positions[j], sizes[j]);
 			}
 
 			model.meshes[i].VAO.bind();
