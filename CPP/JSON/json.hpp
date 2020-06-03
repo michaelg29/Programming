@@ -9,8 +9,9 @@
 #include <sstream>
 #include <type_traits>
 
-#define TRUE "true"
-#define FALSE "false"
+#define JSON_TRUE "true"
+#define JSON_FALSE "false"
+#define JSON_NULL "null"
 
 namespace jsoncpp {
 	/*
@@ -26,8 +27,11 @@ namespace jsoncpp {
 		json_num,
 		json_bool,
 		json_list,
-		json_object
+		json_object,
+		json_null
 	};
+
+	json_type null = json_type::json_null;
 
 	/*
 		utility function callbacks
@@ -46,9 +50,9 @@ namespace jsoncpp {
 		main class
 	*/
 	class json {
-	/*
-		constructors, operator overloading, and data retrieval methods
-	*/
+		/*
+			constructors, operator overloading, and data retrieval methods
+		*/
 	public:
 		json_type type; // stores type of data
 
@@ -63,17 +67,17 @@ namespace jsoncpp {
 			: type(json_type::json_num), n_val(val) {}
 		json(int val)																// number
 			: type(json_type::json_num), n_val(val) {}
-		json(float val)															// number
+		json(float val)																// number
 			: type(json_type::json_num), n_val(val) {}
 		json(bool val)																// boolean
 			: type(json_type::json_bool), b_val(val) {}
-		json(std::vector<json> val)											// list
+		json(std::vector<json> val)													// list
 			: type(json_type::json_list), l_val(val) {}
-		json(std::initializer_list<json> val)									// list or object
+		json(std::initializer_list<json> val)										// list or object
 			: type(json_type::json_list), l_val(val) {
 			operator=(val);
 		}
-		json(std::map<std::string, json> val)									// object
+		json(std::map<std::string, json> val)										// object
 			: type(json_type::json_object), o_val(val) {}
 
 		/*
@@ -81,14 +85,15 @@ namespace jsoncpp {
 		*/
 
 		// set methods
-		void operator=(std::string val) { type = json_type::json_string; s_val = val; }
-		void operator=(const char* val) { type = json_type::json_string; s_val = val; }
-		void operator=(double val) { type = json_type::json_num; n_val = val; }
-		void operator=(int val) { type = json_type::json_num; n_val = val; }
-		void operator=(float val) { type = json_type::json_num; n_val = val; }
-		void operator=(bool val) { type = json_type::json_bool; b_val = val; }
-		void operator=(std::vector<json> val) { type = json_type::json_list; l_val = val; }
-		void operator=(std::map<std::string, json> val) { type = json_type::json_object; o_val = val; }
+		void operator=(std::string val) { type = json_type::json_string; s_val = val; }						// string
+		void operator=(const char* val) { type = json_type::json_string; s_val = val; }						// string
+		void operator=(double val) { type = json_type::json_num; n_val = val; }								// number
+		void operator=(int val) { type = json_type::json_num; n_val = val; }								// number
+		void operator=(float val) { type = json_type::json_num; n_val = val; }								// number
+		void operator=(bool val) { type = json_type::json_bool; b_val = val; }								// boolean
+		void operator=(std::vector<json> val) { type = json_type::json_list; l_val = val; }					// list
+		void operator=(std::map<std::string, json> val) { type = json_type::json_object; o_val = val; }		// map
+		void operator=(json_type newType) { type = newType; }												// any type (method to set as null)
 
 		/*
 			set method using initializer list
@@ -162,7 +167,7 @@ namespace jsoncpp {
 				l_val.push_back(val);
 				break;
 			};
-			
+
 			return *this;
 		}
 		friend json operator+(json& val1, json& val2) {
@@ -226,12 +231,14 @@ namespace jsoncpp {
 				return "list";
 			case json_type::json_object:
 				return "json object";
+			case json_type::json_null:
+				return "null";
 			}
 		}
 
-	/*
-		data values
-	*/
+		/*
+			data values
+		*/
 	private:
 		std::string s_val;							// string
 		double n_val;								// number
@@ -335,9 +342,9 @@ namespace jsoncpp {
 			return ret;
 		}
 
-	/*
-		output methods
-	*/
+		/*
+			output methods
+		*/
 	private:
 		// stringify json object
 		std::string stringify(bool prettify, int tabSpace = 0, int initTabPos = 0, bool isDictVal = false) {
@@ -368,8 +375,8 @@ namespace jsoncpp {
 				ret << n_val;
 				break;
 			case json_type::json_bool:
-				// output boolean value (as true or false) with static variables
-				ret << (b_val ? TRUE : FALSE);
+				// output boolean value (as true or false) with macros
+				ret << (b_val ? JSON_TRUE : JSON_FALSE);
 				break;
 			case json_type::json_list:
 				// if prettify, add new line
@@ -439,6 +446,10 @@ namespace jsoncpp {
 				// closing bracket
 				ret << '}';
 				break;
+			case json_type::json_null:
+				// output null with macro
+				ret << JSON_NULL;
+				break;
 			}
 
 			return ret.str();
@@ -446,7 +457,7 @@ namespace jsoncpp {
 	public:
 		// public stringify method
 		std::string dump(int tabSpace = 0) {
-			if (tabSpace == 0) { 
+			if (tabSpace == 0) {
 				// don't prettify
 				return stringify(false);
 			}
@@ -454,7 +465,7 @@ namespace jsoncpp {
 				return stringify(true, tabSpace);
 			}
 		}
-		
+
 		// write to file
 		bool dump(const char* filename, int tabSpace = 0) {
 			return writeFile(filename, dump(tabSpace));
@@ -529,14 +540,20 @@ namespace jsoncpp {
 		}
 		else if (c == 't') {
 			// might be true
-			if (val == TRUE) {
+			if (val == JSON_TRUE) {
 				return json(true);
 			}
 		}
 		else if (c == 'f') {
 			// might be false
-			if (val == FALSE) {
+			if (val == JSON_FALSE) {
 				return json(false);
+			}
+		}
+		else if (c == 'n') {
+			// might be null
+			if (val == JSON_NULL) {
+				return json(json_type::json_null);
 			}
 		}
 		else if (firstAndLastMatch(val, '[', ']')) {
