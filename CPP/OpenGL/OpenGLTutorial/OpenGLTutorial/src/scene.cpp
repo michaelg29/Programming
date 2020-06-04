@@ -1,6 +1,8 @@
 #include "scene.h"
 #include <iostream>
 
+#include "algorithms/states.hpp"
+
 unsigned int Scene::scrWidth = 0;
 unsigned int Scene::scrHeight = 0;
 
@@ -129,14 +131,6 @@ void Scene::processInput(float dt) {
 
 		// set pos at end
 		cameraPos = cameras[activeCamera]->cameraPos;
-
-		// update spot lights
-		for (unsigned int i = 0, noLights = spotLights.size(); i < noLights; i++) {
-			if ((activeSpotLights & (1 << i)) == (1 << i)) {
-				spotLights[i]->position = cameras[activeCamera]->cameraPos;
-				spotLights[i]->direction = cameras[activeCamera]->cameraFront;
-			}
-		}
 	}
 }
 
@@ -201,6 +195,10 @@ void Scene::cleanup() {
 
 bool Scene::shouldClose() {
 	return glfwWindowShouldClose(window);
+}
+
+Camera* Scene::getActiveCamera() {
+	return activeCamera == -1 ? nullptr : cameras[activeCamera];
 }
 
 /*
