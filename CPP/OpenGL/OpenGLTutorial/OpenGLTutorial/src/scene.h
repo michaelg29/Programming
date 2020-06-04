@@ -48,7 +48,7 @@ public:
 	void newFrame();
 
 	// set uniform shader variables (lighting, etc)
-	void render(Shader shader);
+	void render(Shader shader, bool applyLighting);
 
 	/*
 		cleanup method
