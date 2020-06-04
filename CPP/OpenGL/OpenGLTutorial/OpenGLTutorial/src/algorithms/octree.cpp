@@ -31,28 +31,28 @@ bool Octree::inBoundingBox(glm::vec3 pt, glm::vec3 min, glm::vec3 max) {
 void Octree::calculateBounds(BoundingBox* out, unsigned char quadrant, BoundingBox region) {
 	glm::vec3 center = region.calculateCenter();
 
-	if (quadrant & ActiveBranches::Q1) {
+	if (quadrant & (unsigned char)ActiveBranches::Q1) {
 		out = new BoundingBox({ center, region.max });
 	}
-	else if (quadrant & ActiveBranches::Q2) {
+	else if (quadrant & (unsigned char)ActiveBranches::Q2) {
 		out = new BoundingBox({ glm::vec3(region.min.x, center.y, center.z), glm::vec3(center.x, region.max.y, region.max.z) });
 	}
-	else if (quadrant & ActiveBranches::Q3) {
+	else if (quadrant & (unsigned char)ActiveBranches::Q3) {
 		out = new BoundingBox({ glm::vec3(region.min.x, region.min.y, center.z), glm::vec3(center.x, center.y, region.max.z) });
 	}
-	else if (quadrant & ActiveBranches::Q4) {
+	else if (quadrant & (unsigned char)ActiveBranches::Q4) {
 		out = new BoundingBox({ glm::vec3(center.x, region.min.y, center.z), glm::vec3(region.max.x, center.y, region.max.z) });
 	}
-	else if (quadrant & ActiveBranches::Q5) {
+	else if (quadrant & (unsigned char)ActiveBranches::Q5) {
 		out = new BoundingBox({ glm::vec3(center.x, center.y, region.min.z), glm::vec3(region.max.x, region.max.y, center.z) });
 	}
-	else if (quadrant & ActiveBranches::Q6) {
+	else if (quadrant & (unsigned char)ActiveBranches::Q6) {
 		out = new BoundingBox({ glm::vec3(region.min.x, center.y, region.min.z), glm::vec3(center.x, region.max.y, center.z) });
 	}
-	else if (quadrant & ActiveBranches::Q7) {
+	else if (quadrant & (unsigned char)ActiveBranches::Q7) {
 		out = new BoundingBox({ region.min,	center });
 	}
-	else if (quadrant & ActiveBranches::Q8) {
+	else if (quadrant & (unsigned char)ActiveBranches::Q8) {
 		out = new BoundingBox({ glm::vec3(center.x, region.min.y, region.min.z), glm::vec3(region.max.x, center.y, center.z) });
 	}
 }

@@ -3,9 +3,9 @@
 
 #include <glm/glm.hpp>
 
-enum class BoundTypes {
-	AABB = 0,
-	SPHERE = 1
+enum class BoundTypes : unsigned char {
+	AABB = 0x01,
+	SPHERE = 0x02
 };
 
 class BoundingRegion {
