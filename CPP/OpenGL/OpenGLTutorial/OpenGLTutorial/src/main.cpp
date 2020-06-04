@@ -27,6 +27,8 @@
 
 #include "physics/environment.h"
 
+#include "algorithms/states.hpp"
+
 void processInput(double dt);
 
 //Joystick mainJ(0);
@@ -186,12 +188,18 @@ void launchItem(float dt) {
 void processInput(double dt) {
 	scene.processInput(dt);
 
+	// update flash light
+	if (States::isActive<unsigned int>(&scene.activeSpotLights, 0)) {
+		scene.spotLights[0]->position = scene.getActiveCamera()->cameraPos;
+		scene.spotLights[0]->direction = scene.getActiveCamera()->cameraFront;
+	}
+
 	if (Keyboard::key(GLFW_KEY_ESCAPE)) {
 		scene.setShouldClose(true);
 	}
 
 	if (Keyboard::keyWentDown(GLFW_KEY_L)) {
-		scene.activeSpotLights ^= 1; // toggle spot light
+		States::toggle(&scene.activeSpotLights, 0); // toggle spot light
 	}
 
 	// launch item
