@@ -16,8 +16,8 @@ Camera::Camera(glm::vec3 position)
 
 // mouse movement
 void Camera::updateCameraDirection(double dx, double dy) {
-	roll += dx;
-	pitch += dy;
+	roll += dx * .5;
+	pitch += dy * .5;
 
 	if (pitch > 89.0f) {
 		pitch = 89.0f;

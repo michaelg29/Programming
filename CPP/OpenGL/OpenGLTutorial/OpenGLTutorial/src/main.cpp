@@ -8,10 +8,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "scene.h"
+
 #include "io/keyboard.h"
 #include "io/mouse.h"
 #include "io/joystick.h"
-#include "io/screen.h"
 #include "io/camera.h"
 
 #include "graphics/shader.h"
@@ -26,52 +27,30 @@
 
 #include "physics/environment.h"
 
-glm::vec3 Environment::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
-
 void processInput(double dt);
 
-Screen screen;
-
 //Joystick mainJ(0);
-Camera Camera::defaultCamera(glm::vec3(0.0f, 0.0f, 0.0f));
+Camera cam(glm::vec3(0.0f));
+Scene scene;
 
 Box box;
-
-bool flashLightOn = false;
+SphereArray launchObjects;
 
 double dt = 0.0f; // time btwn frames
 double lastFrame = 0.0f; // time of last frame
 
-SphereArray launchObjects;
+glm::vec3 Environment::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
 
 int main() {
 	std::cout << "Hello, OpenGL!" << std::endl;
 
-	glfwInit();
+	scene = Scene(3, 3, "OpenGL Tutorial", 800, 600);
 
-	// openGL version 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-# ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COPMPAT, GL_TRUE);
-#endif
-
-	if (!screen.init()) {
-		std::cout << "Could not open window." << std::endl;
+	if (!scene.init()) {
+		std::cout << "Could not open window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-
-	screen.setParameters();
 
 	// shader
 	Shader shader("assets/object.vs", "assets/object.fs");
@@ -80,11 +59,11 @@ int main() {
 	Shader launchShader("assets/instanced/instanced.vs", "assets/object.fs");
 
 	// objects
-	//Sphere sphere(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.5f));
-	//sphere.init();
+	scene.cameras.push_back(&cam);
+	scene.activeCamera = 0;
 
-	Model sphere(BoundTypes::AABB, glm::vec3(0.0f), glm::vec3(0.05f), true);
-	sphere.loadModel("assets/models/dodge_challenger_demon/scene.gltf");
+	Model sphere(BoundTypes::AABB, glm::vec3(0.0f), glm::vec3(0.1f));
+	sphere.loadModel("assets/models/crysis_nano_suit_2/scene.gltf");
 
 	box.init();
 
@@ -92,6 +71,7 @@ int main() {
 
 	// lighting
 	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec4(0.8f, 0.8f, 0.8f, 1.0f) };
+	scene.dirLight = &dirLight;
 
 	glm::vec3 pointLightPositions[] = {
 		glm::vec3(0.7f,  0.2f,  2.0f),
@@ -118,21 +98,25 @@ int main() {
 	lamps.init();
 	for (unsigned int i = 0; i < 4; i++) {
 		lamps.lightInstances.push_back(pointLights[i]);
+		scene.pointLights.push_back(&pointLights[i]);
+		scene.activePointLights |= 1 << i;
 	}
 
 	SpotLight spotLight = { 
-		Camera::defaultCamera.cameraPos, Camera::defaultCamera.cameraFront, 
+		cam.cameraPos, cam.cameraFront,
 		glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f)),
 		1.0f, 0.09f, 0.032f, 
 		glm::vec4(0.0f), glm::vec4(1.0f), glm::vec4(1.0f) 
 	};
+	scene.spotLights.push_back(&spotLight);
+	scene.activeSpotLights = 1;
 
 	/*mainJ.update();
 	if (mainJ.isPresent()) {
 		std::cout << mainJ.getName() << " is present." << std::endl;
 	}*/
 
-	while (!screen.shouldClose()) {
+	while (!scene.shouldClose()) {
 		box.positions.clear();
 		box.sizes.clear();
 
@@ -140,76 +124,19 @@ int main() {
 		double currentTime = glfwGetTime();
 		dt = currentTime - lastFrame;
 		lastFrame = currentTime;
+		
+		scene.update();
 
 		// process input
 		processInput(dt);
-
-		// update screen
-		screen.update();
-
-		// LIGHTING============================================================================
 		
-		// set camera vals
-		shader.activate();
-		shader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
-		launchShader.activate();
-		launchShader.set3Float("viewPos", Camera::defaultCamera.cameraPos);
-
-		// direction lights
-		shader.activate();
-		dirLight.render(shader);
-		launchShader.activate();
-		dirLight.render(launchShader);
-
-		// point lights
-		for (unsigned int i = 0; i < 4; i++) {
-			shader.activate();
-			lamps.lightInstances[i].render(shader, i);
-			launchShader.activate();
-			lamps.lightInstances[i].render(launchShader, i);
-		}
-		shader.activate();
-		shader.setInt("noPointLights", 4);
-		launchShader.activate();
-		launchShader.setInt("noPointLights", 4);
-
-		// flash light
-		if (flashLightOn) {
-			spotLight.position = Camera::defaultCamera.cameraPos;
-			spotLight.direction = Camera::defaultCamera.cameraFront;
-
-			shader.activate();
-			spotLight.render(shader, 0);
-			shader.setInt("noSpotLights", 1);
-
-			launchShader.activate();
-			launchShader.setInt("noSpotLights", 1);
-			spotLight.render(launchShader, 0);
-		}
-		else {
-			shader.activate();
-			shader.setInt("noSpotLights", 0);
-			launchShader.activate();
-			launchShader.setInt("noSpotLights", 0);
-		}
-
-		// camera view/projection
-		glm::mat4 view = glm::mat4(1.0f);
-		glm::mat4 projection = glm::mat4(1.0f);
-		view = Camera::defaultCamera.getViewMatrix();
-		projection = glm::perspective(
-			glm::radians(Camera::defaultCamera.zoom),
-			(float)Screen::SCR_WIDTH / (float)Screen::SCR_HEIGHT, 0.1f, 100.0f);
-
-		shader.activate();
-		shader.setMat4("view", view);
-		shader.setMat4("projection", projection);
+		scene.render(shader);
 		sphere.render(shader, dt, &box);
 
 		std::stack<int> removeObjects;
 		for (int i = 0; i < launchObjects.instances.size(); i++) {
 			// remove if too far away
-			if (glm::length(Camera::defaultCamera.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
+			if (glm::length(cam.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
 				removeObjects.push(i);
 				continue;
 			}
@@ -221,28 +148,23 @@ int main() {
 
 		// render launch objects
 		if (launchObjects.instances.size() > 0) {
-			launchShader.activate();
-			launchShader.setMat4("view", view);
-			launchShader.setMat4("projection", projection);
+			scene.render(launchShader);
 			launchObjects.render(launchShader, dt, &box);
 		}
 
 		// render lamps
-		lightShader.activate();
-		lightShader.setMat4("view", view);
-		lightShader.setMat4("projection", projection);
+		scene.render(lightShader);
 		lamps.render(lightShader, dt, &box);
 
 		// render boxes
 		if (box.positions.size() > 0) {
 			boxShader.activate();
-			boxShader.setMat4("view", view);
-			boxShader.setMat4("projection", projection);
+			boxShader.setMat4("view", scene.view);
+			boxShader.setMat4("projection", scene.projection);
 			box.render(boxShader);
 		}
 
-		screen.newFrame();
-		glfwPollEvents();
+		scene.newFrame();
 	}
 
 	box.cleanup();
@@ -250,52 +172,26 @@ int main() {
 	lamps.cleanup();
 	sphere.cleanup();
 
-	glfwTerminate();
+	scene.cleanup();
 	return 0;
 }
 
 void launchItem(float dt) {
-	RigidBody rb(1.0f, Camera::defaultCamera.cameraPos);
-	rb.transferEnergy(100, Camera::defaultCamera.cameraFront);
+	RigidBody rb(1.0f, cam.cameraPos);
+	rb.transferEnergy(100, cam.cameraFront);
 	rb.applyAcceleration(Environment::gravity);
 	launchObjects.instances.push_back(rb);
 }
 
 void processInput(double dt) {
+	scene.processInput(dt);
+
 	if (Keyboard::key(GLFW_KEY_ESCAPE)) {
-		screen.setShouldClose(true);
+		scene.setShouldClose(true);
 	}
 
 	if (Keyboard::keyWentDown(GLFW_KEY_L)) {
-		flashLightOn = !flashLightOn;
-	}
-
-	if (Keyboard::keyWentDown(GLFW_KEY_C)) {
-		Camera::defaultCamera.zoom = 15.0f;
-	}
-
-	if (Keyboard::keyWentUp(GLFW_KEY_C)) {
-		Camera::defaultCamera.zoom = 45.0f;
-	}
-
-	// move camera
-	if (Keyboard::key(GLFW_KEY_W)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::FORWARD, dt);
-	}
-	if (Keyboard::key(GLFW_KEY_S)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::BACKWARD, dt);
-	}
-	if (Keyboard::key(GLFW_KEY_D)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::RIGHT, dt);
-	}
-	if (Keyboard::key(GLFW_KEY_A)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::LEFT, dt);
-	}
-	if (Keyboard::key(GLFW_KEY_SPACE)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::UP, dt);
-	}
-	if (Keyboard::key(GLFW_KEY_LEFT_SHIFT)) {
-		Camera::defaultCamera.updateCameraPos(CameraDirection::DOWN, dt);
+		scene.activeSpotLights ^= 1; // toggle spot light
 	}
 
 	// launch item

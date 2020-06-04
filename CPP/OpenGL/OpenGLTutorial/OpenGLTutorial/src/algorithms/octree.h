@@ -45,7 +45,7 @@ namespace Octree {
 	/*
 		Active branch flags
 	*/
-	enum ActiveBranches {
+	enum class ActiveBranches : unsigned char {
 		Q1 = 0x01,
 		Q2 = 0x02,
 		Q3 = 0x04,

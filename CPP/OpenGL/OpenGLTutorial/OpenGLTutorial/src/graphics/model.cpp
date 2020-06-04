@@ -86,11 +86,11 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			mesh->mVertices[i].z
 		);
 
-		for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
 			// if smaller than min
-			if (vertex.pos[i] < min[i]) min[i] = vertex.pos[i];
+			if (vertex.pos[j] < min[j]) min[j] = vertex.pos[j];
 			// if larger than max
-			if (vertex.pos[i] > max[i]) max[i] = vertex.pos[i];
+			if (vertex.pos[j] > max[j]) max[j] = vertex.pos[j];
 		}
 
 		// normal
