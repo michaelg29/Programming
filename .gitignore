@@ -260,6 +260,9 @@ paket-files/
 __pycache__/
 *.pyc
 
+/Mobile/ReactNative/SpaceXLaunches/android/*
+/Mobile/ReactNative.SpaceXLaunches/ios/*
+
 *.obj
 *.tlog
 *.idb
