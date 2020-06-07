@@ -10,88 +10,57 @@
 #include <glm/glm.hpp>
 
 #include "list.hpp"
+#include "states.hpp"
+#include "bounds.h"
 
 namespace Octree {
 	/*
-		Triangle structure
-	*/
-	struct Triangle {
-		unsigned int modelId;
-		glm::vec3 p1, p2, p3;
-
-		// have offset so can identify locally within model
-		glm::vec3 offset;
-
-		bool operator==(Triangle t2);
-	};
-	typedef struct Triangle Triangle;
-	
-	/*
-		Bounding box structure (defined by min and max points)
-	*/
-	struct BoundingBox {
-		glm::vec3 min;
-		glm::vec3 max;
-
-		glm::vec3 calculateCenter();
-
-		glm::vec3 calculateDimensions();
-
-		bool containsTriangle(Triangle t);
-		bool containsBox(BoundingBox box);
-	};
-	typedef struct BoundingBox BoundingBox;
-
-	/*
 		Active branch flags
 	*/
-	enum class ActiveBranches : unsigned char {
-		Q1 = 0x01,
-		Q2 = 0x02,
-		Q3 = 0x04,
-		Q4 = 0x08,
-		Q5 = 0x10,
-		Q6 = 0x20,
-		Q7 = 0x40,
-		Q8 = 0x80
+	enum class Quadrants : unsigned char {
+		Q1 = 0x01,	// = 0b00000001
+		Q2 = 0x02,	// = 0b00000010
+		Q3 = 0x04,	// = 0b00000100
+		Q4 = 0x08,	// = 0b00001000
+		Q5 = 0x10,	// = 0b00010000
+		Q6 = 0x20,	// = 0b00100000
+		Q7 = 0x40,	// = 0b01000000
+		Q8 = 0x80	// = 0b10000000
 	};
 
 	/*
 		Utility methods callbacks
 	*/
-	// check if point is in rectangle formed by min and max points
-	bool inBoundingBox(glm::vec3 pt, glm::vec3 min, glm::vec3 max);
-
 	// calculate bounds of specified quadrant in bounded region and output
-	void calculateBounds(BoundingBox* out, unsigned char quadrant, BoundingBox region);
+	void calculateBounds(BoundingRegion* out, Quadrants quadrant, BoundingRegion region);
 
 	class node {
 	public:
 		node* parent;
 
-		std::vector<Triangle> objects;
+		std::vector<BoundingRegion> objects;
 
 		node* children[NO_CHILDREN];
 
 		short maxLifespan = 8;
 		short currentLifespan = -1;
 
-		unsigned char activeBranches;
+		unsigned char Quadrants;
 
 		bool hasChildren = false;
 
 		bool treeReady = false;
 		bool treeBuilt = false;
 
-		std::queue<Triangle> pendingQueue;
+		std::queue<BoundingRegion> pendingQueue;
 
-		BoundingBox region;
+		BoundingRegion region;
 
 		node();
 
-		node(BoundingBox bounds);
+		node(BoundingRegion bounds);
 
-		node(BoundingBox bounds, std::vector<Triangle> objectList);
+		node(BoundingRegion bounds, std::vector<BoundingRegion> objectList);
 
 		void build();
 
@@ -99,7 +68,7 @@ namespace Octree {
 
 		void processPending();
 
-		bool insert(Triangle t);
+		bool insert(BoundingRegion t);
 	};
 }
 
