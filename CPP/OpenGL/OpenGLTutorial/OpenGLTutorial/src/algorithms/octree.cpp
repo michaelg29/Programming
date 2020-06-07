@@ -1,72 +1,43 @@
 #include "octree.h"
 
-bool Octree::Triangle::operator==(Triangle t2) {
-	return p1 == t2.p1 &&
-		p2 == t2.p2 &&
-		p3 == t2.p3 &&
-		modelId == t2.modelId;
-}
-
-glm::vec3 Octree::BoundingBox::calculateCenter() {
-	return (min + max) / 2.0f;
-}
-
-glm::vec3 Octree::BoundingBox::calculateDimensions() {
-	return abs(max - min);
-}
-
-bool Octree::BoundingBox::containsTriangle(Triangle t) {
-	return inBoundingBox(t.p1 + t.offset, min, max) &&
-		inBoundingBox(t.p2 + t.offset, min, max) &&
-		inBoundingBox(t.p3 + t.offset, min, max);
-}
-
-// check if point is in rectangle formed by min and max points
-bool Octree::inBoundingBox(glm::vec3 pt, glm::vec3 min, glm::vec3 max) {
-	return (pt.x > min.x) && (pt.x < min.x) &&
-		(pt.y > min.y) && (pt.y < min.y) &&
-		(pt.z > min.z) && (pt.z < min.z);
-}
-
-void Octree::calculateBounds(BoundingBox* out, unsigned char quadrant, BoundingBox region) {
+void Octree::calculateBounds(BoundingRegion* out, Quadrants activeQuad, BoundingRegion region) {
 	glm::vec3 center = region.calculateCenter();
+	unsigned char quadrant = (unsigned char)activeQuad;
 
-	if (quadrant & (unsigned char)ActiveBranches::Q1) {
-		out = new BoundingBox({ center, region.max });
+	if (quadrant == (unsigned char)Quadrants::Q1) {
+		out = new BoundingRegion(center, region.max);
 	}
-	else if (quadrant & (unsigned char)ActiveBranches::Q2) {
-		out = new BoundingBox({ glm::vec3(region.min.x, center.y, center.z), glm::vec3(center.x, region.max.y, region.max.z) });
+	else if (quadrant == (unsigned char)Quadrants::Q2) {
+		out = new BoundingRegion(glm::vec3(region.min.x, center.y, center.z), glm::vec3(center.x, region.max.y, region.max.z));
 	}
-	else if (quadrant & (unsigned char)ActiveBranches::Q3) {
-		out = new BoundingBox({ glm::vec3(region.min.x, region.min.y, center.z), glm::vec3(center.x, center.y, region.max.z) });
+	else if (quadrant == (unsigned char)Quadrants::Q3) {
+		out = new BoundingRegion(glm::vec3(region.min.x, region.min.y, center.z), glm::vec3(center.x, center.y, region.max.z));
 	}
-	else if (quadrant & (unsigned char)ActiveBranches::Q4) {
-		out = new BoundingBox({ glm::vec3(center.x, region.min.y, center.z), glm::vec3(region.max.x, center.y, region.max.z) });
+	else if (quadrant == (unsigned char)Quadrants::Q4) {
+		out = new BoundingRegion(glm::vec3(center.x, region.min.y, center.z), glm::vec3(region.max.x, center.y, region.max.z));
 	}
-	else if (quadrant & (unsigned char)ActiveBranches::Q5) {
-		out = new BoundingBox({ glm::vec3(center.x, center.y, region.min.z), glm::vec3(region.max.x, region.max.y, center.z) });
+	else if (quadrant == (unsigned char)Quadrants::Q5) {
+		out = new BoundingRegion(glm::vec3(center.x, center.y, region.min.z), glm::vec3(region.max.x, region.max.y, center.z));
 	}
-	else if (quadrant & (unsigned char)ActiveBranches::Q6) {
-		out = new BoundingBox({ glm::vec3(region.min.x, center.y, region.min.z), glm::vec3(center.x, region.max.y, center.z) });
+	else if (quadrant == (unsigned char)Quadrants::Q6) {
+		out = new BoundingRegion(glm::vec3(region.min.x, center.y, region.min.z), glm::vec3(center.x, region.max.y, center.z));
 	}
-	else if (quadrant & (unsigned char)ActiveBranches::Q7) {
-		out = new BoundingBox({ region.min,	center });
+	else if (quadrant == (unsigned char)Quadrants::Q7) {
+		out = new BoundingRegion(region.min, center);
 	}
-	else if (quadrant & (unsigned char)ActiveBranches::Q8) {
-		out = new BoundingBox({ glm::vec3(center.x, region.min.y, region.min.z), glm::vec3(region.max.x, center.y, center.z) });
+	else if (quadrant == (unsigned char)Quadrants::Q8) {
+		out = new BoundingRegion(glm::vec3(center.x, region.min.y, region.min.z), glm::vec3(region.max.x, center.y, center.z));
 	}
 }
 
-Octree::node::node() {
-	region = { glm::vec3(0.0f), glm::vec3(0.0f) };
-}
+Octree::node::node() 
+	: region(BoundTypes::AABB) {}
 
-Octree::node::node(BoundingBox bounds) {
-	region = bounds;
-}
+Octree::node::node(BoundingRegion bounds)
+	: region(bounds) {}
 
-Octree::node::node(BoundingBox bounds, std::vector<Triangle> objectList) {
-	region = bounds;
+Octree::node::node(BoundingRegion bounds, std::vector<BoundingRegion> objectList)
+	: region(bounds) {
 	objects.insert(objects.end(), objectList.begin(), objectList.end());
 }
 
@@ -76,10 +47,13 @@ void Octree::node::build() {
 		- no objects (ie an empty leaf node)
 		- dimensions are less than MIN_BOUNDS
 	*/
+
+	// no objects
 	if (objects.size() == 0) {
 		return;
 	}
 
+	// too small
 	glm::vec3 dimensions = region.calculateDimensions();
 	if (dimensions.x < MIN_BOUNDS && dimensions.y < MIN_BOUNDS && dimensions.z < MIN_BOUNDS) {
 		return;
@@ -88,18 +62,18 @@ void Octree::node::build() {
 	glm::vec3 center = region.calculateCenter();
 
 	// create regions
-	BoundingBox octants[NO_CHILDREN];
+	BoundingRegion octants[NO_CHILDREN];
 	for (int i = 0; i < NO_CHILDREN; i++) {
-		calculateBounds(&octants[i], 1 << i, region);
+		calculateBounds(&octants[i], (Quadrants)(1 << i), region);
 	}
 
-	std::vector<Triangle> octLists[NO_CHILDREN]; // array of lists of objects in each octant
+	std::vector<BoundingRegion> octLists[NO_CHILDREN]; // array of lists of objects in each octant
 	std::stack<int> delList; // list of objects that have been placed
 
-	for (Triangle t : objects) {
+	for (BoundingRegion br : objects) {
 		for (int i = 0; i < NO_CHILDREN; i++) {
-			if (octants[i].containsTriangle(t)) {
-				octLists[i].push_back(t);
+			if (octants[i].contains(br)) {
+				octLists[i].push_back(br);
 				delList.push(i);
 				break;
 			}
@@ -115,12 +89,8 @@ void Octree::node::build() {
 	for (int i = 0; i < NO_CHILDREN; i++) {
 		if (octLists[i].size() != 0) {
 			children[i] = new node(octants[i], octLists[i]);
-			activeBranches |= (1 << i);
-			/*
-				1 = 00000001
-				Shift 1 over i times (eg i = 3 --> 00001000)
-				bitwise OR to combine
-			*/
+			States::activate(&Quadrants, i);
+			//Quadrants |= 1 << i;
 			children[i]->build();
 			hasChildren = true;
 		}
@@ -156,13 +126,13 @@ void Octree::node::update() {
 		}
 
 		// get moved objects that were in this leaf in the previous frame
-		std::vector<Triangle> movedObjects(objects.size());
-		std::vector<unsigned int> movedModels; // get from somewhere
-		for (Triangle t : objects) {
-			if (List::contains<unsigned int>(movedModels, t.modelId)) {
-				movedObjects.push_back(t);
-			}
-		}
+		std::vector<BoundingRegion> movedObjects(objects.size());
+		//std::vector<unsigned int> movedModels; // get from somewhere
+		//for (BoundingRegion t : objects) {
+		//	if (List::contains<unsigned int>(movedModels, t.modelId)) {
+		//		movedObjects.push_back(t);
+		//	}
+		//}
 
 		// remove objects that don't exist anymore
 		for (int i = 0, listSize = objects.size(); i < listSize; i++) {
@@ -180,11 +150,10 @@ void Octree::node::update() {
 		}
 
 		// remove dead branches
-		unsigned char flags = activeBranches;
-		for (int i = 0;
+		for (int i = 0, unsigned char flags = Quadrants;
 			flags > 0;
 			flags >>= 1, i++) {
-			if ((flags & 1) == 1 && children[i]->currentLifespan == 0) {
+			if (States::isActive(&flags, 0) && children[i]->currentLifespan == 0) {
 				// active and run out of time
 				if (children[i]->objects.size() > 0) {
 					// branch is dead but has children, reset timer
@@ -194,16 +163,17 @@ void Octree::node::update() {
 					// branch is dead
 					children[i] = nullptr;
 					// turn off switch in active branches list
-					activeBranches ^= 1 << i;
+					States::deactivate(&Quadrants, i);
+					//Quadrants ^= 1 << i;
 				}
 			}
 		}
 
 		// update child nodes
-		for (int flags = activeBranches, i = 0;
+		for (int flags = Quadrants, i = 0;
 			flags > 0;
 			flags >>= 1, i++) {
-			if ((flags & 1) == 1) {
+			if (States::isActive(&flags, 0)) {
 				// active
 				if (children != nullptr && children[i] != nullptr) {
 					// branch/leaf not null
@@ -213,7 +183,7 @@ void Octree::node::update() {
 		}
 
 		// move moved objects into new nodes
-		Triangle movedObj;
+		BoundingRegion movedObj;
 		while (movedObjects.size() != 0) {
 			/*
 			for each moved object
@@ -224,7 +194,7 @@ void Octree::node::update() {
 			movedObj = movedObjects[0]; // get first item
 			node* current = this;
 
-			while (!current->region.containsTriangle(movedObj)) {
+			while (!current->region.contains(movedObj)) {
 				if (current->parent != nullptr) {
 					current = current->parent;
 				}
@@ -235,7 +205,7 @@ void Octree::node::update() {
 
 			// remove first object, second now becomes first
 			movedObjects.erase(movedObjects.begin());
-			objects.erase(objects.begin() + List::getIndexOf<Triangle>(objects, movedObj));
+			objects.erase(objects.begin() + List::getIndexOf<BoundingRegion>(objects, movedObj));
 			current->insert(movedObj);
 		}
 
@@ -268,7 +238,7 @@ void Octree::node::processPending() {
 	}
 }
 
-bool Octree::node::insert(Triangle t) {
+bool Octree::node::insert(BoundingRegion br) {
 	/*
 		termination conditions
 		- no objects (ie an empty leaf node)
@@ -276,45 +246,45 @@ bool Octree::node::insert(Triangle t) {
 	*/
 	// if empty, only object, so no need to divide, just push back
 	if (objects.size() == 0) {
-		objects.push_back(t);
+		objects.push_back(br);
 		return true;
 	}
 
-	// if smallest size, just add because cannot divide
+	// if smallest size, just add because cannot divide further
 	glm::vec3 dimensions = region.calculateDimensions();
 	if (dimensions.x <= MIN_BOUNDS && dimensions.y <= MIN_BOUNDS && dimensions.z <= MIN_BOUNDS) {
-		objects.push_back(t);
+		objects.push_back(br);
 		return true;
 	}
 
 	// if cannot fit into current, push up
 	// should not happen, but a safeguard just incase
-	if (!region.containsTriangle(t)) {
-		return parent == nullptr ? false : parent->insert(t);
+	if (!region.contains(br)) {
+		return parent == nullptr ? false : parent->insert(br);
 	}
 
 	// now create region if not already defined
-	BoundingBox octants[NO_CHILDREN];
+	BoundingRegion octants[NO_CHILDREN];
 	for (int i = 0; i < NO_CHILDREN; i++) {
 		if (children[i] != nullptr) {
-			calculateBounds(&octants[i], 1 << i, region);
+			calculateBounds(&octants[i], (Quadrants)(1 << i), region);
 		}
 		else {
-			octants[i] = { children[i]->region.min, children[i]->region.max };
+			octants[i] = BoundingRegion(children[i]->region.min, children[i]->region.max);
 		}
 	}
 
 	// find regions that fit the item entirely
-	if (region.containsTriangle(t)) {
+	if (region.contains(br)) {
 		bool found = false;
 		for (int i = 0; i < 8; i++) {
-			if (children[i]->region.containsTriangle(t)) {
+			if (children[i]->region.contains(br)) {
 				if (children[i] != nullptr) {
-					return children[i]->insert(t);
+					return children[i]->insert(br);
 				}
 				else {
-					children[i] = new node(octants[i], { t });
-					activeBranches |= 1 << i;
+					children[i] = new node(octants[i], { br });
+					Quadrants |= 1 << i;
 					return true;
 				}
 			}
