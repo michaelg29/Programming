@@ -1,8 +1,6 @@
-import React, { Component } from "react";
-import { View, Text } from "react-native";
+import React from "react";
 
 // navigation
-//import { NavigationContainer } from "@react-navigation/native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -10,9 +8,18 @@ import { createStackNavigator } from "@react-navigation/stack";
 import * as HomePage from "./pages/home";
 import * as AboutPage from "./pages/about";
 import * as LaunchPage from "./pages/launch";
+import * as LaunchListPage from "./pages/launchlist";
 
 const Stack = createStackNavigator();
 export default function App() {
+    // initialize data variables
+    global.dataLoaded = false;
+    global.upcomingLaunches = [];
+    global.pastLaunches = [];
+    global.launchNames = [];
+    global.nameData = {};
+    global.dateLength = "YYYY-MM-DDTHH:MM:SS".length;
+
     return (
         <NavigationContainer>
             <Stack.Navigator
@@ -20,6 +27,7 @@ export default function App() {
                 screenOptions={{
                     headerStyle: {
                         backgroundColor: "#f4511e",
+                        height: 56
                     },
                     headerTintColor: "#fff",
                     headerTitleStyle: {
@@ -30,7 +38,11 @@ export default function App() {
                     name="home"
                     component={HomePage.HomeScreen}
                     options={{
-                        headerShown: false
+                        //headerShown: false
+                        headerStyle: {
+                            backgroundColor: "#000846"
+                        },
+                        title: "SpaceX Launches"
                     }}
                 />
                 <Stack.Screen
@@ -43,7 +55,12 @@ export default function App() {
                     component={LaunchPage.LaunchScreen}
                     options={({ route }) => ({ title: route.params.name })}
                 />
+                <Stack.Screen
+                    name="list"
+                    component={LaunchListPage.LaunchListScreen}
+                    options={({ route }) => ({ title: route.params.name })}
+                />
             </Stack.Navigator>
-        </NavigationContainer >
+        </NavigationContainer>
     );
 }
