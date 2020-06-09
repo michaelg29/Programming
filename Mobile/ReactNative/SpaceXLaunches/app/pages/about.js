@@ -1,16 +1,30 @@
 import React, { Component } from "react";
 import { View, Text, Button } from "react-native";
+import { HeaderButton } from "./components";
 
-import * as styles from "./../style/style";
+// data
+import * as Data from "../data/data";
 
-export function AboutScreen({ navigation }) {
-    return (
-        <View style={[styles.mainStyles]}>
-            <Text>About Page</Text>
-            <Button
-                title="Go back home"
-                onPress={() => navigation.navigate("home")}
-            />
-        </View>
-    );
+// style
+import * as styles from "../assets/style/style";
+
+export class AboutScreen extends Component {
+    render() {
+        const { navigation } = this.props;
+
+        return (
+            <View style={[styles.mainStyles.container]}>
+                <Button
+                    title="Refresh Data"
+                    onPress={() => {
+                        Data.fetchData().then(() => {
+                            alert("Data refreshed");
+                        });
+                    }}
+                />
+
+                <HeaderButton navigation={navigation} name="home" />
+            </View>
+        );
+    }
 }

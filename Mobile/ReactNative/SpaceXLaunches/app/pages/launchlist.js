@@ -5,15 +5,17 @@ import { HeaderButton } from "./components";
 // style
 import * as styles from "../assets/style/style";
 
-export class LaunchScreen extends Component {
+export class LaunchListScreen extends Component {
     render() {
         const { navigation, route } = this.props;
-        const { listIdx } = route.params;
+
+        const { lowerRange, upperRange } = route.params;
 
         return (
-            <View styles={[styles.mainStyles.container]}>
-                <Text>listId: {JSON.stringify(listIdx)}</Text>
-
+            <View style={[styles.mainStyles.container]}>
+                <Text>Launch List</Text>
+                <Text>lower: {JSON.stringify(lowerRange)}</Text>
+                <Text>upper: {JSON.stringify(upperRange)}</Text>
                 <HeaderButton navigation={navigation} name="about" />
             </View>
         );
