@@ -1,11 +1,11 @@
 function processData(json, upcoming) {
-
-
     json.forEach(element => {
         global.launchNames.push(element["mission_name"]);
         var data = {
             "upcoming": upcoming,
-            "listIdx": parseInt(element["flight_number"]) - 1
+            "listIdx": parseInt(element["flight_number"]) - 1,
+            "iconUri": element["links"]["mission_patch_small"],
+            "date": new Date(element["launch_date_local"])
         }
         global.nameData[element["mission_name"]] = data;
     });
