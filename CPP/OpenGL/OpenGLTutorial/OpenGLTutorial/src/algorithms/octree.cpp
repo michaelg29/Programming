@@ -1,9 +1,7 @@
 #include "octree.h"
 
-void Octree::calculateBounds(BoundingRegion* out, Quadrants activeQuad, BoundingRegion region) {
+void Octree::calculateBounds(BoundingRegion* out, unsigned char quadrant, BoundingRegion region) {
 	glm::vec3 center = region.calculateCenter();
-	unsigned char quadrant = (unsigned char)activeQuad;
-
 	if (quadrant == (unsigned char)Quadrants::Q1) {
 		out = new BoundingRegion(center, region.max);
 	}
@@ -64,7 +62,7 @@ void Octree::node::build() {
 	// create regions
 	BoundingRegion octants[NO_CHILDREN];
 	for (int i = 0; i < NO_CHILDREN; i++) {
-		calculateBounds(&octants[i], (Quadrants)(1 << i), region);
+		calculateBounds(&octants[i], (1 << i), region);
 	}
 
 	std::vector<BoundingRegion> octLists[NO_CHILDREN]; // array of lists of objects in each octant
@@ -102,28 +100,34 @@ void Octree::node::build() {
 
 void Octree::node::update() {
 	if (treeBuilt && treeReady) {
+		/*
+		
+			TODO: IGNORE
+		
+		*/
+
 		// start count down timer if no children or objects
 		// when reaches zero, delete leaf
 		// if counting down and new object enters, double lifespan
-		if (objects.size() == 0) {
-			if (!hasChildren) {
-				// ensure doesn't have any leaves
-				if (currentLifespan == -1) {
-					currentLifespan = maxLifespan;
-				}
-				else if (currentLifespan > 0) {
-					currentLifespan--;
-				}
-			}
-		}
-		else {
-			if (currentLifespan != -1) {
-				if (maxLifespan <= 64) {
-					maxLifespan *= 2;
-				}
-				currentLifespan = -1;
-			}
-		}
+		//if (objects.size() == 0) {
+		//	if (!hasChildren) {
+		//		// ensure doesn't have any leaves
+		//		if (currentLifespan == -1) {
+		//			currentLifespan = maxLifespan;
+		//		}
+		//		else if (currentLifespan > 0) {
+		//			currentLifespan--;
+		//		}
+		//	}
+		//}
+		//else {
+		//	if (currentLifespan != -1) {
+		//		if (maxLifespan <= 64) {
+		//			maxLifespan *= 2;
+		//		}
+		//		currentLifespan = -1;
+		//	}
+		//}
 
 		// get moved objects that were in this leaf in the previous frame
 		std::vector<BoundingRegion> movedObjects(objects.size());
@@ -267,7 +271,7 @@ bool Octree::node::insert(BoundingRegion br) {
 	BoundingRegion octants[NO_CHILDREN];
 	for (int i = 0; i < NO_CHILDREN; i++) {
 		if (children[i] != nullptr) {
-			calculateBounds(&octants[i], (Quadrants)(1 << i), region);
+			calculateBounds(&octants[i], (1 << i), region);
 		}
 		else {
 			octants[i] = BoundingRegion(children[i]->region.min, children[i]->region.max);
@@ -284,11 +288,33 @@ bool Octree::node::insert(BoundingRegion br) {
 				}
 				else {
 					children[i] = new node(octants[i], { br });
-					Quadrants |= 1 << i;
+					States::activate(&Quadrants, i);
 					return true;
 				}
 			}
 		}
 	}
 	return false;
+}
+
+void Octree::node::destroy() {
+	if (children != nullptr) {
+		for (int flags = Quadrants, i = 0;
+			flags > 0;
+			flags >>= 1, i++) {
+			if (States::isActive(&flags, 0)) {
+				// active
+				if (children[i] != nullptr) {
+					// branch/leaf not null
+					children[i]->destroy();
+					children[i] = nullptr;
+				}
+			}
+		}
+	}
+
+	objects.clear();
+	while (pendingQueue.size() > 0) {
+		pendingQueue.pop();
+	}
 }
