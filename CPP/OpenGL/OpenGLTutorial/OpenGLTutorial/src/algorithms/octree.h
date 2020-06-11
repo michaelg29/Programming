@@ -32,7 +32,7 @@ namespace Octree {
 		Utility methods callbacks
 	*/
 	// calculate bounds of specified quadrant in bounded region and output
-	void calculateBounds(BoundingRegion* out, Quadrants quadrant, BoundingRegion region);
+	void calculateBounds(BoundingRegion* out, unsigned char quadrant, BoundingRegion region);
 
 	class node {
 	public:
@@ -69,6 +69,8 @@ namespace Octree {
 		void processPending();
 
 		bool insert(BoundingRegion t);
+
+		void destroy();
 	};
 }
 
