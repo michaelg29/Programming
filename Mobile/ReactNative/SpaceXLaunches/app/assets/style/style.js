@@ -39,5 +39,43 @@ export const mainStyles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 36,
         textAlign: "center"
+    },
+    listItem: {
+        width: "100%",
+        height: 56,
+        flexDirection: "row",
+        padding: 5,
+        margin: 5
+    },
+    listItemIcon: {
+        width: 46,
+        height: 46,
+        margin: 5,
+        flexDirection: "column",
+        justifyContent: "center"
+    },
+    listItemText: {
+        height: 46,
+        flexDirection: "column",
+        justifyContent: "center",
+        marginLeft: 15
+    },
+    paddedList: {
+        marginLeft: 15
+    },
+    launchItem: {
+        marginHorizontal: 15,
+        marginVertical: 5
+    },
+    header: {
+        fontWeight: "bold",
+        fontSize: 36,
+        marginLeft: 10
+    },
+    launchSubItem: {
+        marginLeft: 10
+    },
+    link: {
+        color: "blue"
     }
 });

@@ -57,6 +57,7 @@ export class HomeScreen extends Component {
                                 var idx = this.search();
                                 console.log(idx);
                                 if (idx == -1) {
+                                    alert("Launch name not found");
                                 } else {
                                     navigation.navigate("launch", {
                                         listIdx: idx,
