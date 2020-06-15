@@ -39,7 +39,7 @@ public:
 	bool containsPoint(glm::vec3 pt);
 
 	// method to determine if bounding region is entirely inside
-	bool contains(BoundingRegion br);
+	bool containsRegion(BoundingRegion br);
 
 	// method to determine if bounding region intersects
 	bool intersectsWith(BoundingRegion br);
