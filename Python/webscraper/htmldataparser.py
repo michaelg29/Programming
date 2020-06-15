@@ -243,6 +243,12 @@ class HtmlDataParser:
             if queryString != "":
                 url += "?" + queryString[:len(queryString) - 1] # remove last ampersand
 
+        return self.processCustomQuery(url, action, params, query)
+
+    """
+        meant to be overriden in subclasses to process unique url formats
+    """
+    def processCustomQuery(self, url, action, params, query = False):
         return url
 
     def processData(self, action, data):
