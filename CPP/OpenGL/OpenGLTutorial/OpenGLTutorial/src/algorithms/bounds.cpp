@@ -42,7 +42,7 @@ bool BoundingRegion::containsPoint(glm::vec3 pt) {
 }
 
 // method to determine if bounding region is entirely inside
-bool BoundingRegion::contains(BoundingRegion br) {
+bool BoundingRegion::containsRegion(BoundingRegion br) {
 	if (br.type == BoundTypes::AABB) {
 		// if br is box, just has to contain both min and max
 		return containsPoint(br.min) && containsPoint(br.max);
