@@ -11,6 +11,7 @@ class RegexSelectors:
         ? match as little as possible (find first occurence of ']' after)
     """
     bracketRegex = r"\[.*?]"
+    braceRegex = r"{.*?}"
 
     # remove all whitespace chars (excluding space)
     whitespaceRegex = r"[\t\n\r\f\v]"
@@ -88,7 +89,7 @@ def processSelectStr(str, processAttrs = False):
 
     # get target attributes
     if processAttrs:
-        attrsSearch = re.search(RegexSelectors.bracketRegex, ret["tag"])
+        attrsSearch = re.search(RegexSelectors.braceRegex, ret["tag"])
         if attrsSearch:
             attrs = ret["tag"][attrsSearch.start(0) + 1:attrsSearch.end(0) - 1]
             ret["tag"] = ret["tag"][0:attrsSearch.start(0)] + ret["tag"][attrsSearch.end(0):]
@@ -172,7 +173,7 @@ class HtmlDataParser:
         for action in self.dataFormat:
             # process select string passed in
             for key in self.dataFormat[action]:
-                self.dataFormat[action][key] = re.sub("[ ]", '', self.dataFormat[action][key])
+                self.dataFormat[action][key] = re.sub("( > )|( >)|(> )", '>', self.dataFormat[action][key])
 
                 elements = []
                 selectStrs = re.split("[>]", self.dataFormat[action][key])
@@ -180,6 +181,7 @@ class HtmlDataParser:
                     # only process attributes for target element (final one - where data comes from)
                     elements.insert(0, processSelectStr(selectStrs[i], i == len(selectStrs) - 1))
 
+                # construct top down list
                 previousElement = False
                 for element in elements:
                     if previousElement:
@@ -189,7 +191,7 @@ class HtmlDataParser:
 
                 self.dataFormat[action][key] = previousElement
 
-    def constructUrl(self, action, params, query = False):
+    def constructUrl(self, action, params = False, query = False):
         if action not in self.urlFormat["actions"]:
             return False
 
@@ -205,17 +207,17 @@ class HtmlDataParser:
         
         # parameters
         route = self.urlFormat["actions"][action]["route"]
-
-        for param in self.urlFormat["actions"][action]["params"]:
-            paramString = "{" + param + "}"
-            route = re.sub(paramString, params[param], route)
+        if "params" in self.urlFormat["actions"][action]:
+            for param in self.urlFormat["actions"][action]["params"]:
+                paramString = "{" + param + "}"
+                route = re.sub(paramString, params[param], route)
 
         url += route
 
         # query
-        queryString = ""
-
         if self.urlFormat["actions"][action]["query"]:
+            queryString = ""
+
             # looking for query
             for queryParam in self.urlFormat["actions"][action]["query"]:
                 valid = False
@@ -243,13 +245,15 @@ class HtmlDataParser:
             if queryString != "":
                 url += "?" + queryString[:len(queryString) - 1] # remove last ampersand
 
-        return self.processCustomQuery(url, action, params, query)
+        return url
 
     """
-        meant to be overriden in subclasses to process unique url formats
-    """
+        return self.processCustomQuery(url, action, params, query)
+
+        # meant to be overriden in subclasses to process unique url formats
     def processCustomQuery(self, url, action, params, query = False):
         return url
+    """
 
     def processData(self, action, data):
         soup = BeautifulSoup(data, "html.parser")
@@ -321,8 +325,9 @@ class HtmlDataParser:
 
         return ret
 
-    def request(self, action, params, query = False):
+    def request(self, action, params = False, query = False):
         url = self.constructUrl(action, params, query)
+        print(url)
         if url:
             data = requests.get(url)
             return self.processData(action, data.content)
