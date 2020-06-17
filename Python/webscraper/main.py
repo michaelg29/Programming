@@ -1,5 +1,4 @@
 import json
-import re
 from htmldataparser import HtmlDataParser, RegexSelectors
 
 if __name__ == "__main__":
