@@ -5,18 +5,27 @@
 #include <GLFW/glfw3.h>
 
 #include <vector>
+#include <map>
+#include <string>
 
 #include <glm/glm.hpp>
 
 #include "graphics/light.h"
 #include "graphics/shader.h"
 
+#include "physics/rigidbody.h"
+
 #include "io/camera.h"
 #include "io/keyboard.h"
 #include "io/mouse.h"
 
+class Model; // forward declaration
+
 class Scene {
 public:
+	std::map<std::string, Model*> models;
+	std::map<std::string, RigidBody*> instances;
+
 	/*
 		Callbacks
 	*/
@@ -48,7 +57,11 @@ public:
 	void newFrame();
 
 	// set uniform shader variables (lighting, etc)
-	void render(Shader shader, bool applyLighting);
+	void renderShader(Shader shader, bool applyLighting = true);
+
+	// render instances
+	void renderInstances(std::vector<std::string> modelIds, Shader shader, float dt);
+	void renderInstances(std::string modelId, Shader shader, float dt);
 
 	/*
 		cleanup method
@@ -68,6 +81,23 @@ public:
 	void setShouldClose(bool shouldClose);
 
 	void setWindowColor(float r, float g, float b, float a);
+
+	/*
+		Model/instance methods
+	*/
+	void registerModel(Model* model);
+
+	RigidBody* generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos);
+
+	void addInstance(RigidBody* rb);
+
+	void loadModels();
+
+	std::vector<RigidBody*> getInstances(std::string modelId);
+
+	RigidBody* getInstance(std::string instanceId);
+
+	void removeInstance(std::string instanceId);
 
 	/*
 		Lights
