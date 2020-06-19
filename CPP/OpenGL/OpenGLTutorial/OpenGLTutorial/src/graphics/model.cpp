@@ -1,31 +1,103 @@
 #include "model.h"
-#include "../physics/environment.h"
 
-#include <iostream>
+Model::Model(std::string id, BoundTypes boundType, int maxNoInstances, unsigned char flags)
+	: id(id), boundType(boundType), switches(flags), instances(maxNoInstances), currentNoInstances(0), maxNoInstances(maxNoInstances) {}
 
-Model::Model(BoundTypes boundType, glm::vec3 pos, glm::vec3 size, bool noTex, bool dynamic)
-	: boundType(boundType), size(size), noTex(noTex), dynamic(dynamic) {
-	rb.pos = pos;
- }
-
-void Model::render(Shader shader, float dt, Box *box, bool setModel, bool doRender) {
-	if (dynamic) {
-		rb.update(dt);
+RigidBody* Model::generateInstance(glm::vec3 size, float mass, glm::vec3 pos) {
+	if (currentNoInstances >= maxNoInstances) {
+		return nullptr;
 	}
 
+	instances[currentNoInstances] = new RigidBody(&id, size, mass, pos);
+
+	return instances[currentNoInstances++];
+}
+
+void Model::initInstances() {
+	/*
+		if CONST_INSTANCES, instances already generated, set VBO with that data
+	*/
+
+	glm::vec3* posData = nullptr;
+	glm::vec3* sizeData = nullptr;
+	GLenum usage = GL_DYNAMIC_DRAW;
+
+	if (States::isActive<unsigned char>(&switches, CONST_INSTANCES)) {
+		// set data pointers accordingly
+		std::vector<glm::vec3> positions;
+		std::vector<glm::vec3> sizes;
+
+		for (RigidBody* rb : instances) {
+			positions.push_back(rb->pos);
+			sizes.push_back(rb->size);
+		}
+
+		posData = &positions[0];
+		sizeData = &sizes[0];
+
+		usage = GL_STATIC_DRAW;
+	}
+
+	// generate positions VBO
+	posVBO = BufferObject(GL_ARRAY_BUFFER);
+	posVBO.generate();
+	posVBO.bind();
+	posVBO.setData<glm::vec3>(maxNoInstances, posData, usage);
+
+	// generate size VBO
+	sizeVBO = BufferObject(GL_ARRAY_BUFFER);
+	sizeVBO.generate();
+	sizeVBO.bind();
+	sizeVBO.setData<glm::vec3>(maxNoInstances, sizeData, usage);
+
+	for (unsigned int i = 0, size = meshes.size(); i < size; i++) {
+		meshes[i].VAO.bind();
+
+		// set the vertex attribute pointers
+		// positions
+		posVBO.bind();
+		posVBO.setAttPointer<glm::vec3>(3, 3, GL_FLOAT, 1, 0, 1);
+		// size
+		sizeVBO.bind();
+		sizeVBO.setAttPointer<glm::vec3>(4, 3, GL_FLOAT, 1, 0, 1);
+
+		ArrayObject::clear();
+	}
+}
+
+void Model::render(Shader shader, float dt, Scene *scene, bool setModel) {
 	if (setModel) {
- 		glm::mat4 model = glm::mat4(1.0f);
-
-		model = glm::translate(model, rb.pos);
-		model = glm::scale(model, size);
-
-		shader.setMat4("model", model);
+		shader.setMat4("model", glm::mat4(1.0f));
 	}
+
+	if (!States::isActive<unsigned char>(&switches, CONST_INSTANCES)) {
+		// update vbo data
+
+		std::vector<glm::vec3> positions(currentNoInstances);
+		std::vector<glm::vec3> sizes(currentNoInstances);
+
+		bool doUpdate = States::isActive<unsigned char>(&switches, DYNAMIC);
+		// update each instance
+		for (int i = 0; i < currentNoInstances; i++) {
+			if (doUpdate) {
+				instances[i]->update(dt);
+			}
+			positions[i] = instances[i]->pos;
+			sizes[i] = instances[i]->size;
+		}
+
+		posVBO.bind();
+		posVBO.updateData<glm::vec3>(0, currentNoInstances, &positions[0]);
+
+		sizeVBO.bind();
+		sizeVBO.updateData<glm::vec3>(0, currentNoInstances, &sizes[0]);
+	}
+	// otherwise, data is already set in VBOs
 
 	shader.setFloat("material.shininess", 0.5f);
 
 	for (unsigned int i = 0, noMeshes = meshes.size(); i < noMeshes; i++) {
-		meshes[i].render(shader, rb.pos, size, box, doRender);
+		meshes[i].render(shader, currentNoInstances);
 	}
 }
 
@@ -33,6 +105,8 @@ void Model::cleanup() {
 	for (unsigned int i = 0; i < meshes.size(); i++) {
 		meshes[i].cleanup();
 	}
+	posVBO.cleanup();
+	sizeVBO.cleanup();
 }
 
 void Model::init() {}
@@ -146,11 +220,13 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 		}
 	}
 
+	Mesh ret;
+
 	// process material
 	if (mesh->mMaterialIndex >= 0) {
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		if (noTex) {
+		if (States::isActive<unsigned char>(&switches, NO_TEX)) {
 			// 1. diffuse colors
 			aiColor4D diff(1.0f);
 			aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diff);
@@ -158,7 +234,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			aiColor4D spec(1.0f);
 			aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &spec);
 
-			return Mesh(br, vertices, indices, diff, spec);
+			ret = Mesh(br, diff, spec);
 		}
 		else {
 			// 1. diffuse maps
@@ -168,9 +244,12 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 			std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR);
 			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 
-			return Mesh(br, vertices, indices, textures);
+			ret = Mesh(br, textures);
 		}
 	}
+
+	ret.loadData(&vertices[0], vertices.size(), &indices[0], indices.size());
+	return ret;
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type) {

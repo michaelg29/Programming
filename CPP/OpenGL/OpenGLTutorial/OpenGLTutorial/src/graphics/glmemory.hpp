@@ -92,6 +92,11 @@ public:
 		glBindVertexArray(val);
 	}
 
+	// draw
+	void draw(GLenum mode, GLuint count, GLenum type, GLint indices, GLuint instancecount = 1) {
+		glDrawElementsInstanced(mode, count, type, (void*)indices, instancecount);
+	}
+
 	// cleanup
 	void cleanup() {
 		glDeleteVertexArrays(1, &val);

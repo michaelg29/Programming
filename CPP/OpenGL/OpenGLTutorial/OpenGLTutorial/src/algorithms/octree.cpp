@@ -99,7 +99,7 @@ void Octree::node::build() {
 		if (octLists[i].size() != 0) {
 			// if children go into this octant
 			children[i] = new node(octants[i], octLists[i]);
-			States::activate(&activeOctants, i); // activate octant
+			States::activateIndex(&activeOctants, i); // activate octant
 			children[i]->build();
 			hasChildren = true;
 		}
@@ -156,10 +156,11 @@ void Octree::node::update() {
 		}
 
 		// remove dead branches
-		for (int i = 0, unsigned char flags = activeOctants;
+		unsigned char flags = activeOctants;
+		for (int i = 0;
 			flags > 0;
 			flags >>= 1, i++) {
-			if (States::isActive(&flags, 0) && children[i]->currentLifespan == 0) {
+			if (States::isIndexActive(&flags, 0) && children[i]->currentLifespan == 0) {
 				// active and run out of time
 				if (children[i]->objects.size() > 0) {
 					// branch is dead but has children, reset timer
@@ -169,7 +170,7 @@ void Octree::node::update() {
 					// branch is dead
 					children[i] = nullptr;
 					// turn off switch in active branches list
-					States::deactivate(&activeOctants, i);
+					States::deactivateIndex(&activeOctants, i);
 					//Quadrants ^= 1 << i;
 				}
 			}
@@ -181,7 +182,7 @@ void Octree::node::update() {
 			for (unsigned char flags = activeOctants, i = 0;
 				flags > 0;
 				flags >>= 1, i++) {
-				if (States::isActive(&flags, 0)) {
+				if (States::isIndexActive(&flags, 0)) {
 					// active octant
 					if (children[i] != nullptr) {
 						// child not null
@@ -295,7 +296,7 @@ bool Octree::node::insert(BoundingRegion obj) {
 			else {
 				// create node for child
 				children[i] = new node(octants[i], { obj });
-				States::activate(&activeOctants, i);
+				States::activateIndex(&activeOctants, i);
 				return true;
 			}
 		}

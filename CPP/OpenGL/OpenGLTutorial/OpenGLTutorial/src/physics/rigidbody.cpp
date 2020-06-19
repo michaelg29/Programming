@@ -4,9 +4,24 @@
 
 #include <iostream>
 
-RigidBody::RigidBody(float mass, glm::vec3 pos, glm::vec3 velocity, glm::vec3 acceleration)
-	: mass(mass), pos(pos), velocity(velocity), acceleration(acceleration)
-{}
+std::string RigidBody::currentId = "aaaaaaaa";
+
+std::string RigidBody::generateId() {
+	for (int i = currentId.length() - 1; i >= 0; i--) {
+		if ((int)currentId[i] != (int)'z') {
+			currentId[i] = (char)(((int)currentId[i]) + 1);
+			break;
+		}
+		else {
+			currentId[i] = 'a';
+		}
+	}
+
+	return currentId;
+}
+
+RigidBody::RigidBody(std::string* modelId, glm::vec3 size, float mass, glm::vec3 pos, glm::vec3 velocity, glm::vec3 acceleration)
+	: modelId(modelId), size(size), mass(mass), pos(pos), velocity(velocity), acceleration(acceleration) {}
 
 void RigidBody::update(float dt) {
 	pos += velocity * dt + 0.5f * acceleration * (dt * dt);

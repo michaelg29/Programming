@@ -1,5 +1,19 @@
 #include "bounds.h"
 
+// override operator
+bool BoundingRegion::operator==(BoundingRegion br) {
+	if (type != br.type) {
+		return false;
+	}
+
+	if (type == BoundTypes::AABB) {
+		return (min == br.min) && (max == br.max);
+	}
+	else {
+		return (center == br.center) && (radius == br.radius);
+	}
+}
+
 // initialize with type
 BoundingRegion::BoundingRegion(BoundTypes type)
 	: type(type) {}

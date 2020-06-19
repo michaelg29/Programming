@@ -26,6 +26,7 @@
 #include "graphics/models/troll.hpp"
 
 #include "physics/environment.h"
+#include "physics/rigidbody.h"
 
 #include "algorithms/states.hpp"
 
@@ -34,9 +35,6 @@ void processInput(double dt);
 //Joystick mainJ(0);
 Camera cam(glm::vec3(0.0f));
 Scene scene;
-
-Box box;
-SphereArray launchObjects;
 
 double dt = 0.0f; // time btwn frames
 double lastFrame = 0.0f; // time of last frame
@@ -50,7 +48,7 @@ int main() {
 
 	if (!scene.init()) {
 		std::cout << "Could not open window" << std::endl;
-		glfwTerminate();
+		scene.cleanup();
 		return -1;
 	}
 
@@ -60,16 +58,15 @@ int main() {
 	Shader boxShader("assets/instanced/box.vs", "assets/instanced/box.fs");
 	Shader launchShader("assets/instanced/instanced.vs", "assets/object.fs");
 
-	// objects
+	// camera
 	scene.cameras.push_back(&cam);
 	scene.activeCamera = 0;
 
-	Model sphere(BoundTypes::AABB, glm::vec3(0.0f), glm::vec3(0.1f));
-	sphere.loadModel("assets/models/crysis_nano_suit_2/scene.gltf");
+	// objects
+	Sphere sphere(10);
+	scene.registerModel(&sphere);
 
-	box.init();
-
-	launchObjects.init();
+	scene.loadModels();
 
 	// lighting
 	DirLight dirLight = { glm::vec3(-0.2f, -1.0f, -0.3f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), glm::vec4(0.5f, 0.5f, 0.5f, 1.0f), glm::vec4(0.8f, 0.8f, 0.8f, 1.0f) };
@@ -96,10 +93,8 @@ int main() {
 		{ glm::vec3(0.0f,  0.0f, -3.0f), k0, k1, k2, ambient, diffuse, specular }
 	};
 
-	LampArray lamps;
-	lamps.init();
 	for (unsigned int i = 0; i < 4; i++) {
-		lamps.lightInstances.push_back(pointLights[i]);
+		//lamps.lightInstances.push_back(pointLights[i]);
 		scene.pointLights.push_back(&pointLights[i]);
 		scene.activePointLights |= 1 << i;
 	}
@@ -119,9 +114,6 @@ int main() {
 	}*/
 
 	while (!scene.shouldClose()) {
-		box.positions.clear();
-		box.sizes.clear();
-
 		// calculate dt
 		double currentTime = glfwGetTime();
 		dt = currentTime - lastFrame;
@@ -132,57 +124,39 @@ int main() {
 		// process input
 		processInput(dt);
 		
-		scene.render(shader);
-		sphere.render(shader, dt, &box);
-
-		std::stack<int> removeObjects;
-		for (int i = 0; i < launchObjects.instances.size(); i++) {
+		// remove far launch objects
+		for (int i = 0; i < sphere.currentNoInstances; i++) {
 			// remove if too far away
-			if (glm::length(cam.cameraPos - launchObjects.instances[i].pos) > 250.0f) {
-				removeObjects.push(i);
-				continue;
+			if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
+				scene.removeInstance(sphere.instances[i]->instanceId);
 			}
-		}
- 		for (int i = 0; i < removeObjects.size(); i++) {
-			launchObjects.instances.erase(launchObjects.instances.begin() + removeObjects.top());
-			removeObjects.pop();
 		}
 
 		// render launch objects
-		if (launchObjects.instances.size() > 0) {
-			scene.render(launchShader);
-			launchObjects.render(launchShader, dt, &box);
+		if (sphere.currentNoInstances > 0) {
+			scene.renderShader(launchShader);
+			scene.renderInstances("sphere", shader, dt);
 		}
 
 		// render lamps
-		scene.render(lightShader);
-		lamps.render(lightShader, dt, &box);
-
-		// render boxes
-		if (box.positions.size() > 0) {
-			boxShader.activate();
-			boxShader.setMat4("view", scene.view);
-			boxShader.setMat4("projection", scene.projection);
-			box.render(boxShader);
-		}
+		//scene.renderShader(lightShader);
+		//lamps.render(lightShader, dt, &box);
 
 		scene.newFrame();
 	}
 
-	box.cleanup();
-	launchObjects.cleanup();
-	lamps.cleanup();
-	sphere.cleanup();
+	//box.cleanup();
 
 	scene.cleanup();
 	return 0;
 }
 
 void launchItem(float dt) {
-	RigidBody rb(1.0f, cam.cameraPos);
-	rb.transferEnergy(100, cam.cameraFront);
-	rb.applyAcceleration(Environment::gravity);
-	launchObjects.instances.push_back(rb);
+	RigidBody* rb = scene.generateInstance("sphere", glm::vec3(1.0f), 1.0f, cam.cameraPos);
+	if (rb) {
+		rb->transferEnergy(100, cam.cameraFront);
+		rb->applyAcceleration(Environment::gravity);
+	}
 }
 
 void processInput(double dt) {
@@ -199,7 +173,7 @@ void processInput(double dt) {
 	}
 
 	if (Keyboard::keyWentDown(GLFW_KEY_L)) {
-		States::toggle(&scene.activeSpotLights, 0); // toggle spot light
+		States::toggleIndex(&scene.activeSpotLights, 0); // toggle spot light
 	}
 
 	// launch item

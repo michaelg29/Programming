@@ -20,6 +20,9 @@ public:
 	glm::vec3 min;
 	glm::vec3 max;
 
+	// override operator
+	bool operator==(BoundingRegion br);
+
 	// initialize with type
 	BoundingRegion(BoundTypes type = BoundTypes::AABB);
 

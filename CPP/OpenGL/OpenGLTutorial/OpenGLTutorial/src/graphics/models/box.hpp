@@ -113,7 +113,7 @@ public:
 		}
 
 		VAO.bind();
-		glDrawElementsInstanced(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0, instances);
+		VAO.draw(GL_LINES, indices.size(), GL_UNSIGNED_INT, 0, instances);
 		ArrayObject::clear();
 	}
 
