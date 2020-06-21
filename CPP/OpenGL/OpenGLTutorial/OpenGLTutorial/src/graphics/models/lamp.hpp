@@ -10,24 +10,16 @@ class Lamp : public Cube {
 public:
 	glm::vec3 lightColor;
 
-	PointLight light;
+	Lamp(unsigned int maxNoInstances, glm::vec3 lightColor = glm::vec3(1.0f))
+		: Cube(maxNoInstances) {
+		id = "lamp";
+		this->lightColor = lightColor;
+	}
 
-	Lamp(unsigned int maxNoInstances,
-		glm::vec3 lightColor = glm::vec3(1.0f),
-		glm::vec3 ambient = glm::vec3(1.0f),
-		glm::vec3 diffuse = glm::vec3(1.0f),
-		glm::vec3 specular = glm::vec3(1.0f),
-		float k0 = 1.0f,
-		float k1 = 0.09f,
-		float k2 = 0.032f)
-		: lightColor(lightColor),
-		light({ glm::vec3(0.0f), k0, k1, k2, glm::vec4(ambient, 1.0f), glm::vec4(diffuse, 1.0f), glm::vec4(specular, 1.0f) }),
-		Cube(maxNoInstances) {}
-
-	void render(Shader shader, double dt, Scene *scene) {
+	void render(Shader shader, float dt, Scene* scene, bool setModel = true) {
 		shader.set3Float("lightColor", lightColor);
 
-		Cube::render(shader, dt, scene);
+		Cube::render(shader, dt, scene, setModel);
 	}
 };
 

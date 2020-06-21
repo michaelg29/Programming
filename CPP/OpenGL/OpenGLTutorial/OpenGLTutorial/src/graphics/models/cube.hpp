@@ -66,9 +66,13 @@ public:
 		std::vector<Vertex> vertices = Vertex::genList(vertexVals, noVertices);
 
 		Mesh ret(br, {});
-		ret.loadData(&vertices[0], noVertices, &indices[0], noVertices);
+		ret.loadData(vertices, indices);
 		
 		meshes.push_back(ret);
+	}
+
+	virtual void render(Shader shader, double dt, Scene* scene, bool setModel = true) {
+		Model::render(shader, dt, scene, setModel);
 	}
 };
 
