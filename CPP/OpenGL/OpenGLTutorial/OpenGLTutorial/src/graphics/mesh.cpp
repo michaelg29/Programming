@@ -42,7 +42,10 @@ Mesh::Mesh(BoundingRegion br, aiColor4D diff, aiColor4D spec)
     : br(br), diff(diff), spec(spec), noTex(true) {}
 
 // load vertex and index data
-void Mesh::loadData(Vertex* vertices, unsigned int noVertices, unsigned int* indices, unsigned int noIndices) {
+void Mesh::loadData(std::vector<Vertex> _vertices, std::vector<unsigned int> _indices) {
+    this->vertices = _vertices;
+    this->indices = _indices;
+
     // bind VAO
     VAO.generate();
     VAO.bind();
@@ -51,13 +54,13 @@ void Mesh::loadData(Vertex* vertices, unsigned int noVertices, unsigned int* ind
     VAO["EBO"] = BufferObject(GL_ELEMENT_ARRAY_BUFFER);
     VAO["EBO"].generate();
     VAO["EBO"].bind();
-    VAO["EBO"].setData<GLuint>(noIndices, indices, GL_STATIC_DRAW);
+    VAO["EBO"].setData<GLuint>(this->indices.size(), &this->indices[0], GL_STATIC_DRAW);
 
     // load data into vertex buffers
     VAO["VBO"] = BufferObject(GL_ARRAY_BUFFER);
     VAO["VBO"].generate();
     VAO["VBO"].bind();
-    VAO["VBO"].setData<Vertex>(noVertices, vertices, GL_STATIC_DRAW);
+    VAO["VBO"].setData<Vertex>(this->vertices.size(), &this->vertices[0], GL_STATIC_DRAW);
 
     // set the vertex attribute pointers
     VAO["VBO"].bind();

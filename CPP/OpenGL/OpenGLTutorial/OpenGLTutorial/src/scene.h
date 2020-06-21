@@ -12,6 +12,7 @@
 
 #include "graphics/light.h"
 #include "graphics/shader.h"
+#include "graphics/model.h"
 
 #include "physics/rigidbody.h"
 
@@ -19,12 +20,10 @@
 #include "io/keyboard.h"
 #include "io/mouse.h"
 
-class Model; // forward declaration
-
 class Scene {
 public:
 	std::map<std::string, Model*> models;
-	std::map<std::string, RigidBody*> instances;
+	std::map<std::string, std::pair<std::string, unsigned int>> instances;
 
 	/*
 		Callbacks
@@ -87,15 +86,11 @@ public:
 	*/
 	void registerModel(Model* model);
 
-	RigidBody* generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos);
+	std::string generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos);
 
-	void addInstance(RigidBody* rb);
+	void initInstances();
 
 	void loadModels();
-
-	std::vector<RigidBody*> getInstances(std::string modelId);
-
-	RigidBody* getInstance(std::string instanceId);
 
 	void removeInstance(std::string instanceId);
 

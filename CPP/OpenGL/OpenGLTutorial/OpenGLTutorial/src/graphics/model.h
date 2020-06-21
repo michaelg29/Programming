@@ -20,8 +20,6 @@
 
 #include "models/box.hpp"
 
-#include "../scene.h"
-
 #include "../physics/rigidbody.h"
 
 #include "../algorithms/bounds.h"
@@ -31,6 +29,8 @@
 #define DYNAMIC			(unsigned char)0b00000001
 #define CONST_INSTANCES (unsigned char)0b00000010
 #define NO_TEX			(unsigned char)0b00000100
+
+class Scene; // forward declaration
 
 class Model {
 public:
@@ -49,7 +49,7 @@ public:
 	int currentNoInstances;
 
 	// list of instances
-	std::vector<RigidBody*> instances;
+	std::vector<RigidBody> instances;
 
 	// combination of switches in ModelStates
 	unsigned char switches;
@@ -61,7 +61,7 @@ public:
 	virtual void init();
 
 	// generate instance of model
-	RigidBody* generateInstance(glm::vec3 size, float mass, glm::vec3 pos);
+	unsigned int generateInstance(glm::vec3 size, float mass, glm::vec3 pos);
 	
 	// initialize VBO memory for instances (positions/sizes)
 	void initInstances();
@@ -69,14 +69,24 @@ public:
 	// load model from object file
 	void loadModel(std::string path);
 
+	// remove instance at idx
+	void removeInstance(unsigned int idx);
+
 	// render model with shader (may be overriden)
 	virtual void render(Shader shader, float dt, Scene *scene, bool setModel = true);
 	
 	// cleanup model (all meshes)
 	void cleanup();
 
+	// get index of instance with id
+	unsigned int getIdx(std::string id);
+
 protected:
 	// model data
+
+	// instance data
+	std::vector<glm::vec3> positions;
+	std::vector<glm::vec3> sizes;
 	
 	// directory containing model file
 	std::string directory;

@@ -54,7 +54,7 @@ public:
 	Mesh(BoundingRegion br, aiColor4D diff, aiColor4D spec);
 
 	// load vertex and index data
-	void loadData(Vertex* vertices, unsigned int noVertices, unsigned int* indices, unsigned int noIndices);
+	void loadData(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
 
 	// render number of instances
 	void render(Shader shader, unsigned int noInstances);

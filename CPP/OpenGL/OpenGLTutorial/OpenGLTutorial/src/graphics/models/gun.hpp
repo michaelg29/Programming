@@ -16,8 +16,8 @@ public:
 
 		// translate forward and down
 		glm::vec3 down = glm::cross(scene->getActiveCamera()->cameraFront, scene->getActiveCamera()->cameraRight);
-		instances[0]->pos = scene->getActiveCamera()->cameraPos + glm::vec3(scene->getActiveCamera()->cameraFront * 0.5f) + glm::vec3(down * 0.205f);
-		model = glm::translate(model, instances[0]->pos);
+		instances[0].pos = scene->getActiveCamera()->cameraPos + glm::vec3(scene->getActiveCamera()->cameraFront * 0.5f) + glm::vec3(down * 0.205f);
+		model = glm::translate(model, instances[0].pos);
 
 		// rotate around cameraRight with dot product of cameraFront and cameraRight
 		float theta = acos(glm::dot(scene->getActiveCamera()->cameraUp, scene->getActiveCamera()->cameraFront) /
@@ -30,7 +30,7 @@ public:
 		model = glm::rotate(model, front2d.y < 0 ? theta : -theta, scene->getActiveCamera()->cameraUp);
 
 		// scale
-		model = glm::scale(model, instances[0]->size);
+		model = glm::scale(model, instances[0].size);
 
 		shader.setMat4("model", model);
 

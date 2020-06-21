@@ -3,8 +3,6 @@
 #include "algorithms/states.hpp"
 #include "algorithms/list.hpp"
 
-#include "graphics/model.h"
-
 unsigned int Scene::scrWidth = 0;
 unsigned int Scene::scrHeight = 0;
 
@@ -254,37 +252,27 @@ void Scene::registerModel(Model* model) {
 	models[model->id] = model;
 }
 
-RigidBody* Scene::generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos) {
-	RigidBody* rb = models[modelId]->generateInstance(size, mass, pos);
-	if (rb) {
-		addInstance(rb);
+std::string Scene::generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos) {
+	unsigned int idx = models[modelId]->generateInstance(size, mass, pos);
+	if (idx != -1) {
+		std::string id = RigidBody::generateId();
+		models[modelId]->instances[idx].instanceId = id;
+		instances[id] = { modelId, idx };
+		return id;
 	}
-	return rb;
+	return "";
 }
 
-void Scene::addInstance(RigidBody* rb) {
-	rb->instanceId = RigidBody::generateId();
-	instances[rb->instanceId] = rb;
+void Scene::initInstances() {
+	for (auto& pair : models) {
+		pair.second->initInstances();
+	}
 }
 
 void Scene::loadModels() {
 	for (auto& pair : models) {
 		pair.second->init();
 	}
-}
-
-std::vector<RigidBody*> Scene::getInstances(std::string modelId) {
-	std::vector<RigidBody*> ret;
-	for (auto& pair : instances) {
-		if (*pair.second->modelId == modelId) {
-			ret.push_back(pair.second);
-		}
-	}
-	return ret;
-}
-
-RigidBody* Scene::getInstance(std::string instanceId) {
-	return instances[instanceId];
 }
 
 void Scene::removeInstance(std::string instanceId) {
@@ -294,19 +282,10 @@ void Scene::removeInstance(std::string instanceId) {
 		- Model::instances
 	*/
 
-	RigidBody* target = instances[instanceId];
+	std::string targetModel = instances[instanceId].first;
+	unsigned int targetIdx = instances[instanceId].second;
 
-	int idx = List::getIndexOf<RigidBody*>(models[*target->modelId]->instances, target);
+	models[targetModel]->removeInstance(targetIdx);
 
-	// shift all elements up
-	for (int i = idx; i < models[*target->modelId]->currentNoInstances; i++) {
-		models[*target->modelId]->instances[i - 1] = models[*target->modelId]->instances[i];
-		models[*target->modelId] = nullptr;
-	}
-
-	models[*target->modelId]->currentNoInstances--;
-
-	instances[instanceId] = nullptr;
-
-	free(target);
+	instances.erase(instanceId);
 }

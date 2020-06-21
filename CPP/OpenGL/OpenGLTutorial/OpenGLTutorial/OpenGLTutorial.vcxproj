@@ -137,9 +137,9 @@
     <None Include="assets\coord_system\object.fs" />
     <None Include="assets\coord_system\object.gs" />
     <None Include="assets\coord_system\object.vs" />
-    <None Include="assets\instanced\box.fs" />
-    <None Include="assets\instanced\instanced.vs" />
-    <None Include="assets\instanced\box.vs" />
+    <None Include="assets\box.fs" />
+    <None Include="assets\instanced.vs" />
+    <None Include="assets\box.vs" />
     <None Include="assets\object.fs" />
     <None Include="assets\lamp.fs" />
     <None Include="assets\object.vs" />

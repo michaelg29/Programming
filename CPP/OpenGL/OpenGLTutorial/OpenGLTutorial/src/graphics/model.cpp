@@ -1,16 +1,28 @@
 #include "model.h"
+#include "../scene.h"
 
 Model::Model(std::string id, BoundTypes boundType, int maxNoInstances, unsigned char flags)
-	: id(id), boundType(boundType), switches(flags), instances(maxNoInstances), currentNoInstances(0), maxNoInstances(maxNoInstances) {}
+	: id(id), boundType(boundType), switches(flags), currentNoInstances(0), maxNoInstances(maxNoInstances) {
+}
 
-RigidBody* Model::generateInstance(glm::vec3 size, float mass, glm::vec3 pos) {
+unsigned int Model::generateInstance(glm::vec3 size, float mass, glm::vec3 pos) {
+	// all slots filled
 	if (currentNoInstances >= maxNoInstances) {
-		return nullptr;
+		return -1;
 	}
 
-	instances[currentNoInstances] = new RigidBody(&id, size, mass, pos);
+	instances.push_back(RigidBody(&id, size, mass, pos));
+	return currentNoInstances++;
 
-	return instances[currentNoInstances++];
+	// find first available slot
+	/*for (unsigned int i = 0; i < maxNoInstances; i++) {
+		if (!States::isIndexActive(&activeInstances, i)) {
+			instances[i] = RigidBody(&id, size, mass, pos);
+			currentNoInstances++;
+			States::activateIndex(&activeInstances, i);
+			return i;
+		}
+	}*/
 }
 
 void Model::initInstances() {
@@ -24,17 +36,17 @@ void Model::initInstances() {
 
 	if (States::isActive<unsigned char>(&switches, CONST_INSTANCES)) {
 		// set data pointers accordingly
-		std::vector<glm::vec3> positions;
-		std::vector<glm::vec3> sizes;
 
-		for (RigidBody* rb : instances) {
-			positions.push_back(rb->pos);
-			sizes.push_back(rb->size);
+		for (int i = 0; i < currentNoInstances; i++) {
+			positions.push_back(instances[i].pos);
+			sizes.push_back(instances[i].size);
 		}
 
-		posData = &positions[0];
-		sizeData = &sizes[0];
-
+		if (positions.size() > 0) {
+			posData = &positions[0];
+			sizeData = &sizes[0];
+		}
+		
 		usage = GL_STATIC_DRAW;
 	}
 
@@ -65,6 +77,21 @@ void Model::initInstances() {
 	}
 }
 
+void Model::removeInstance(unsigned int idx) {
+	instances.erase(instances.begin() + idx);
+	currentNoInstances--;
+}
+
+// get index of instance with id
+unsigned int Model::getIdx(std::string id) {
+	for (int i = 0; i < currentNoInstances; i++) {
+		if (instances[i] == id) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 void Model::render(Shader shader, float dt, Scene *scene, bool setModel) {
 	if (setModel) {
 		shader.setMat4("model", glm::mat4(1.0f));
@@ -72,18 +99,18 @@ void Model::render(Shader shader, float dt, Scene *scene, bool setModel) {
 
 	if (!States::isActive<unsigned char>(&switches, CONST_INSTANCES)) {
 		// update vbo data
-
-		std::vector<glm::vec3> positions(currentNoInstances);
-		std::vector<glm::vec3> sizes(currentNoInstances);
+		positions.clear();
+		sizes.clear();
 
 		bool doUpdate = States::isActive<unsigned char>(&switches, DYNAMIC);
 		// update each instance
+
 		for (int i = 0; i < currentNoInstances; i++) {
 			if (doUpdate) {
-				instances[i]->update(dt);
+				instances[i].update(dt);
 			}
-			positions[i] = instances[i]->pos;
-			sizes[i] = instances[i]->size;
+			positions.push_back(instances[i].pos);
+			sizes.push_back(instances[i].size);
 		}
 
 		posVBO.bind();
@@ -248,7 +275,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 		}
 	}
 
-	ret.loadData(&vertices[0], vertices.size(), &indices[0], indices.size());
+	ret.loadData(vertices, indices);
 	return ret;
 }
 

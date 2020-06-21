@@ -66,3 +66,11 @@ void RigidBody::transferEnergy(float joules, glm::vec3 direction) {
 	
 	velocity += joules > 0 ? deltaV : -deltaV;
 }
+
+bool RigidBody::operator==(RigidBody rb) {
+	return instanceId == rb.instanceId;
+}
+
+bool RigidBody::operator==(std::string id) {
+	return instanceId == id;
+}
