@@ -6,7 +6,6 @@
 #include <stack>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "scene.h"
 
@@ -65,9 +64,6 @@ int main() {
 	scene.activeCamera = 0;
 
 	// objects
-	//Sphere sphere(10); // instantiate object class
-	//scene.registerModel(&sphere); // register model with scene
-
 	Lamp lamp(4);
 	scene.registerModel(&lamp);
 

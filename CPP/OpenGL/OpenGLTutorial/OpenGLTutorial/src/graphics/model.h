@@ -83,10 +83,6 @@ public:
 
 protected:
 	// model data
-
-	// instance data
-	std::vector<glm::vec3> positions;
-	std::vector<glm::vec3> sizes;
 	
 	// directory containing model file
 	std::string directory;
