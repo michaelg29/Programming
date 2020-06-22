@@ -34,6 +34,8 @@ void Model::initInstances() {
 	glm::vec3* sizeData = nullptr;
 	GLenum usage = GL_DYNAMIC_DRAW;
 
+	std::vector<glm::vec3> positions, sizes;
+
 	if (States::isActive<unsigned char>(&switches, CONST_INSTANCES)) {
 		// set data pointers accordingly
 
@@ -99,8 +101,8 @@ void Model::render(Shader shader, float dt, Scene *scene, bool setModel) {
 
 	if (!States::isActive<unsigned char>(&switches, CONST_INSTANCES)) {
 		// update vbo data
-		positions.clear();
-		sizes.clear();
+
+		std::vector<glm::vec3> positions, sizes;
 
 		bool doUpdate = States::isActive<unsigned char>(&switches, DYNAMIC);
 		// update each instance

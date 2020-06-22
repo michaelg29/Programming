@@ -2,7 +2,6 @@
 #define TROLL_HPP
 
 #include "../model.h"
-#include "modelArray.hpp"
 
 class Troll : public Model {
 public:

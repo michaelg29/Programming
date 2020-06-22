@@ -2,7 +2,6 @@
 #define SPHERE_HPP
 
 #include "../model.h"
-#include "modelArray.hpp"
 
 class Sphere : public Model {
 public:
