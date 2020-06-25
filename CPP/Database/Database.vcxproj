@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="btree.hpp" />
+    <ClInclude Include="trie.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data.txt" />
