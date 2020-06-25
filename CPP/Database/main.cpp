@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include "btree.hpp"
+#include "trie.hpp"
 
 struct data {
 	unsigned int key;
@@ -62,7 +63,7 @@ int main() {
 
 	//std::vector<data*> d = loadData("data.txt");
 
-	std::vector<test*> elements;
+	/*std::vector<test*> elements;
 
 	for (int i = 0; i < 10; i++) {
 		test* t = new test;
@@ -73,7 +74,17 @@ int main() {
 	BTree<test> t(2);
 	t.insert(elements);
 
-	t.traverse();
+	t.traverse();*/
+
+	trie::Trie<test*> t(trie::ascii_lowercase, 26);
+
+	t.insert("asdf", new test({ 5 }));
+
+	bool b = t.containsKey("asdf");
+	t.erase("asdf");
+	b = t.containsKey("asdf");
+
+	t.cleanup();
 
 	std::cout << "goodbye" << std::endl;
 
