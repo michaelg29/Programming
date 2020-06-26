@@ -21,11 +21,11 @@ namespace trie {
 	};
 
 	// charsets for keys
-	std::vector<Range> ascii_letters = { { 65, 90 }, { 97, 122 } };
-	std::vector<Range> ascii_lowercase = { { 97, 122 } };
-	std::vector<Range> ascii_uppercase = { { 65, 90 } };
-	std::vector<Range> digits = { { 48, 57 } };
-	std::vector<Range> alpha_numeric = { { 48, 57 }, { 65, 90 }, { 97, 122 } };
+	std::vector<Range> ascii_letters = { { 'A', 'Z' }, { 'a', 'z' } };
+	std::vector<Range> ascii_lowercase = { { 'a', 'z' } };
+	std::vector<Range> ascii_uppercase = { { 'A', 'Z' } };
+	std::vector<Range> digits = { { '0', '9' } };
+	std::vector<Range> alpha_numeric = { { '0', '9' }, { 'A', 'Z' }, { 'a', 'z' } };
 
 	/*
 		trie node structure
@@ -68,7 +68,7 @@ namespace trie {
 			for (Range r : chars) {
 				noChars += r.calculateRange();
 			}
-			
+
 			// initialize root memory
 			root = (node<T>*)(malloc(sizeof(node<T>)));
 			root->exists = false;
@@ -137,12 +137,12 @@ namespace trie {
 
 			return true;
 		}
-		
+
 		// release root node
 		void cleanup() {
 			unloadNode(root);
 		}
-		
+
 		/*
 			accesors
 		*/
