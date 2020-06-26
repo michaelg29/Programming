@@ -4,14 +4,32 @@
 #include <string>
 
 namespace trie {
-	// charsets for keys
-	std::string ascii_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	std::string ascii_lowercase = "abcdefghijklmnopqrstuvwxyz";
-	std::string ascii_uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	std::string digits = "0123456789";
-	std::string hex_digits = "0123456789abcdefABCDEF";
-	std::string alpha_numeric = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	/*
+		range structure for charsets
+	*/
+	struct Range {
+		int lower;
+		int upper;
 
+		int calculateRange() {
+			return upper - lower;
+		}
+
+		bool contains(int i) {
+			return i >= lower && i <= upper;
+		}
+	};
+
+	// charsets for keys
+	std::vector<Range> ascii_letters = { { 65, 90 }, { 97, 122 } };
+	std::vector<Range> ascii_lowercase = { { 97, 122 } };
+	std::vector<Range> ascii_uppercase = { { 65, 90 } };
+	std::vector<Range> digits = { { 48, 57 } };
+	std::vector<Range> alpha_numeric = { { 48, 57 }, { 65, 90 }, { 97, 122 } };
+
+	/*
+		trie node structure
+	*/
 	template <typename T>
 	struct node {
 		bool exists;				// if data exists
@@ -35,14 +53,22 @@ namespace trie {
 		}
 	};
 
+	/*
+		trie class
+	*/
 	template <typename T>
 	class Trie {
 	public:
 		/*
 			constructor
 		*/
-		Trie(std::string chars)
-			: chars(chars), noChars(chars.length()), root(nullptr) {
+		Trie(std::vector<Range> chars)
+			: chars(chars), noChars(0), root(nullptr) {
+			// set number of chars
+			for (Range r : chars) {
+				noChars += r.calculateRange();
+			}
+			
 			// initialize root memory
 			root = (node<T>*)(malloc(sizeof(node<T>)));
 			root->exists = false;
@@ -112,6 +138,11 @@ namespace trie {
 			return true;
 		}
 		
+		// release root node
+		void cleanup() {
+			unloadNode(root);
+		}
+		
 		/*
 			accesors
 		*/
@@ -165,18 +196,12 @@ namespace trie {
 		// traverse through all keys
 		void traverse(void(*itemViewer)(T data)) {
 			if (root) {
-				root->traverse(itemViewer, chars.length());
+				root->traverse(itemViewer, noChars);
 			}
 		}
-
-		// release root node
-		void cleanup() {
-			unloadNode(root);
-		}
-
 	private:
 		// character set
-		std::string chars;
+		std::vector<Range> chars;
 		// length of character set
 		unsigned int noChars;
 
@@ -186,18 +211,33 @@ namespace trie {
 		// get index of specific character in character set
 		// return -1 if not found
 		int getIdx(char c) {
-			for (int i = 0, len = chars.length(); i < len; i++) {
-				if (chars[i] == c) {
-					return i;
+			int ret = 0;
+
+			for (Range r : chars) {
+				if (r.contains((int)c)) {
+					ret += (int)c - r.lower;
+					break;
+				}
+				else {
+					ret += r.calculateRange();
 				}
 			}
-			return -1;
+
+			return ret == noChars ? -1 : ret;
 		}
 
 		// get character at specific index of character set
 		// return space if invalid index
 		char getChar(int i) {
-			return (i >= 0 && i < chars.length()) ? chars[i] : ' ';
+			for (Range r : chars) {
+				if (i < r.calculateRange()) {
+					// inside range
+					return (char)(r.lower + i);
+				}
+				i -= r.calculateRange();
+			}
+
+			return ' ';
 		}
 
 		// unload node and its children

@@ -90,7 +90,7 @@ int main() {
 	trie::Trie<test*> t(trie::alpha_numeric);
 
 	t.insert("asdf", new test({ 5 }));
-	t.insert("acdfff", new test({ 182 }));
+	t.insert("222acdfff", new test({ 182 }));
 
 	t.traverse(printData);
 
