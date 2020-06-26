@@ -58,31 +58,41 @@ bool writeData(const char* filename, std::vector<data*> elements) {
 	return false;
 }
 
+void printData(test* data) {
+	std::cout << data->key << ' ';
+}
+
 int main() {
 	std::cout << "Hello, world!" << std::endl;
 
 	//std::vector<data*> d = loadData("data.txt");
 
-	/*std::vector<test*> elements;
-
-	for (int i = 0; i < 10; i++) {
-		test* t = new test;
+	/*std::vector<data*> elements;
+	std::vector<unsigned int> keys = { 13, 50, 90, 40, 30, 35, 20, 10, 5, 2 };
+	for (unsigned int i : keys) {
+		data* t = new data;
 		t->key = i;
+		t->name = "name" + std::to_string(i);
+		t->position = "pos" + std::to_string(i);
 		elements.push_back(t);
 	}
 
-	BTree<test> t(2);
-	t.insert(elements);
+	BTree<data> tree(4);
+	tree.insert(elements);*/
 
-	t.traverse();*/
+	/*std::vector<data*> res = tree.traverse();
+	std::cout << std::endl;
+	for (data* d : res) {
+		std::cout << d->key << ' ';
+	}
+	std::cout << std::endl;*/
 
-	trie::Trie<test*> t(trie::ascii_lowercase, 26);
+	trie::Trie<test*> t(trie::alpha_numeric);
 
 	t.insert("asdf", new test({ 5 }));
+	t.insert("acdfff", new test({ 182 }));
 
-	bool b = t.containsKey("asdf");
-	t.erase("asdf");
-	b = t.containsKey("asdf");
+	t.traverse(printData);
 
 	t.cleanup();
 

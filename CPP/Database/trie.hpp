@@ -17,6 +17,20 @@ namespace trie {
 		bool exists;				// if data exists
 		T data;						// data pointer
 		struct node<T>** children;	// array of children
+
+		void traverse(void(*itemViewer)(T data), unsigned int noChars) {
+			if (exists) {
+				itemViewer(data);
+			}
+
+			if (children) {
+				for (int i = 0; i < noChars; i++) {
+					if (children[i] != NULL) {
+						children[i]->traverse(itemViewer, noChars);
+					}
+				}
+			}
+		}
 	};
 
 	template <typename T>
@@ -37,6 +51,9 @@ namespace trie {
 				root->children[i] = NULL;
 			}
 		}
+
+		Trie(std::string chars)
+			: Trie(chars, chars.length()) {}
 
 		bool containsKey(std::string key) {
 			int idx;
@@ -93,12 +110,7 @@ namespace trie {
 					return false;
 				}
 				if (!current->children[idx] || current->children[idx] == NULL) {
-					current->children[idx] = (node<T>*)(malloc(sizeof(node<T>)));
-
-					if (current->children[idx] == NULL) {
-						// malloc error
-						return false;
-					}
+					current->children[idx] = new node<T>;
 
 					current->children[idx]->exists = false;
 					current->children[idx]->children = new node<T> * [noChars];
@@ -143,6 +155,12 @@ namespace trie {
 			return true;
 		}
 
+		void traverse(void(*itemViewer)(T data)) {
+			if (root) {
+				root->traverse(itemViewer, chars.length());
+			}
+		}
+
 		void cleanup() {
 			unloadNode(root);
 		}
@@ -173,7 +191,6 @@ namespace trie {
 			}
 
 			top = nullptr;
-			free(top);
 		}
 	};
 }

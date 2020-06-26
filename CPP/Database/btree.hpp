@@ -7,228 +7,224 @@
 template <typename T>
 class node {
 public:
-	node** children;	// array of child pointers
-	T** data;			// array of data (has keys)
+	node<T>** children;		// array of child pointers
+	T** data;				// array of data (has keys)
 
-	unsigned int t;		// minimum tree degree
-	unsigned int n;		// current number of keys
+	int m;			// maximum tree degree
+	int divisor;	// index divisor
+	int n;			// current number of keys
 
-	bool leaf;			// true if no children
+	bool leaf;				// true if no children
 
-	node* parent;		// pointer to parent
-
-	node(unsigned int t, bool leaf = true)
-		: t(t), leaf(leaf) {
-		// allocate arrays
-		children = new node*[2 * t];
-		data = new T*[2 * t - 1];
-
-		// set number of keys to 0
-		n = 0;
+	node(int m, bool leaf = true)
+		: m(m), divisor(m / 2), leaf(leaf), n(0) {
+		// allocate memory for arrays
+		children = new node<T> * [m + 1];
+		data = new T * [m];
 	}
 
-	void traverse() {
-		int i;
-		for (i = 0; i < n; i++) {
-			if (!leaf) {
-				children[i]->traverse();
-			}
-			std::cout << ' ' << data[i]->key;
-		}
+	node<T>* split(T*& upshiftElement) {
+		node<T>* right = new node<T>(m, leaf);
 
+		upshiftElement = data[divisor];
+		data[divisor] = nullptr;
+
+		// data
+		for (int idx = divisor + 1; idx < n; idx++) {
+			T* b = data[idx];
+			right->data[idx - divisor - 1] = data[idx];
+			right->n++;
+			data[idx] = nullptr;
+		}
+		n -= right->n + 1; // to account for divisor
+
+		// children
 		if (!leaf) {
-			children[i]->traverse();
+			// m + 1 because overflow creates one additional child
+			for (int idx = divisor + 1; idx < m + 1; idx++) {
+				node<T>* b = children[idx];
+				right->children[idx - divisor - 1] = children[idx];
+				children[idx] = nullptr;
+			}
 		}
+
+		return right;
 	}
 
-	T* search(unsigned int idx) {
+	template <typename V>
+	void shiftRight(V* arr, int i, int& size) {
+		for (int idx = size - 1; idx >= i; idx--) {
+			V b = arr[idx];
+			arr[idx + 1] = arr[idx];
+		}
+		size++;
+	}
+
+	node<T>* insert(T* element, T*& upshiftElement) {
+		/*
+			if full, return branch to right
+		*/
+
+		/*
+			find ordered position for element
+			- start from left and iterate until is less than an element
+			- its location will be i for data after shift, i for children
+		*/
+		int i = 0;
+		while (i < n && element->key > data[i]->key) {
+			i++;
+		}
+
+		if (leaf) {
+			shiftRight<T*>(data, i, n);
+			data[i] = element;
+
+			if (n == m) {
+				// too many elements
+				return split(upshiftElement);
+			}
+		}
+		else {
+			// pass down to child
+			node<T>* right = children[i]->insert(element, upshiftElement);
+
+			if (right) {
+				// child overflowed, returned divisor and right branch
+
+				// set data
+				shiftRight<T*>(data, i, n);
+				data[i] = upshiftElement;
+
+				// add child
+				int j = n;
+				shiftRight<node<T>*>(children, i + 1, j);
+				children[i + 1] = right;
+
+				if (n == m) {
+					// too many elements
+					return split(upshiftElement);
+				}
+			}
+		}
+
+		upshiftElement = nullptr;
 		return nullptr;
 	}
 
-	void splitChild(unsigned int i, node* left) {
-		unsigned int divisor = t - 1;
-		T* element = left->data[divisor];
-		left->data[divisor] = nullptr;
+	bool erase(int key) {
+		/*
+			cases
 
-		// generate node to be put on right
-		node* right = new node(t, left->leaf);
-		
-		// move keys to right of divisor to right
-		for (int j = divisor + 1; j < left->n; j++) {
-			right->data[j - divisor - 1] = left->data[j];
-			left->data[j] = nullptr;
-		}
-		right->n = left->n - divisor - 1;
-		left->n = divisor;
+		*/
 
-		// move children to right of divisor to right
-		if (!left->leaf) {
-			// has children
-			for (int j = divisor + 1; j < left->n + 1; j++) {
-				right->children[j - divisor - 1] = left->children[j];
-				left->children[j] = nullptr;
+		// find location
+		bool found = false;
+		int i = 0;
+		while (i < n && key >= data[i]->key) {
+			if (key == data[i]->key) {
+				// found element
+				found = true;
+				break;
 			}
+			i++;
 		}
 
-		// find slot for new child in this node
-		int j;
-		for (j = n; j >= i + 1; j--) {
-			children[j + 1] = children[j];
-		}
-		children[j + 1] = right;
-
-		// find location for key
-		// start at right and loop until greater than a key
-		for (j = n - 1; j >= 0 && data[j]->key > element->key; j--) {
-			data[j + 1] = data[j];
-		}
-
-		data[j + 1] = element; // i + 1 because decremented in last for loop iteration
-		n++;
-	}
-
-	bool insert(T* element) {
-		if (search(element->key)) {
-			// element already exists
-			return false;
-		}
-
-		int i = n - 1;
-
-		if (leaf) {
-			/*
-				is leaf
-				- upshift all keys above insertion
-				- insert element
-			*/
-
-			// start at right and loop until greater than a key
-			for (; i >= 0 && data[i]->key > element->key; i--) {
-				data[i + 1] = data[i];
+		if (found) {
+			if (leaf) {
+				// simply delete
+				data[i] = nullptr;
 			}
+			else {
 
-			data[i + 1] = element; // i + 1 because decremented in last for loop iteration
-			n++;
+			}
 		}
 		else {
-			/*
-				not leaf
-				- find corresponding child using ranges
-			*/
+			// if no children, no other places to look for the element
+			return leaf ? false : children[i]->erase(key);
+		}
+	}
 
-			while (i >= 0 && data[i]->key > element->key) {
-				i--;
+	T* search(int key) {
+		int i = 0;
+		while (i < n && key >= data[i]->key) {
+			if (key == data[i]->key) {
+				// found element
+				return data[i];
 			}
-
-			// we know data[i] < element < data[i + 1]
-
-			// pre-emptively split children
-			if (children[i + 1]->n == t) {
-				splitChild(i + 1, children[i + 1]);
-
-				// find what child the new key goes to
-				if (element->key > data[i + 1]->key) {
-					// insert to right
-					i++;
-				}
-			}
-
-			// insert data
-			children[i + 1]->insert(element);
+			i++;
 		}
 
-		return true;
+		// know not in data
+
+		// if no children, no other places to look for the element
+		return leaf ? nullptr : children[i]->search(key);
 	}
 
-	bool rem(T* element) {
-		if (!search(element->key)) {
-			// element doesn't exist
-			return false;
+	std::vector<T*> traverse() {
+		std::vector<T*> ret;
+		for (int i = 0; i < n; i++) {
+			if (!leaf) {
+				std::vector<T*> res = children[i]->traverse();
+				ret.insert(ret.end(), res.begin(), res.end());
+			}
+			ret.push_back(data[i]);
+		}
+		if (!leaf) {
+			std::vector<T*> res = children[n]->traverse();
+			ret.insert(ret.end(), res.begin(), res.end());
 		}
 
-		return true;
+		return ret;
 	}
 
-	std::vector<T*> output() {
-		return {};
-	}
-
-	void clear() {
-
-	}
+	void clear();
 };
 
 template <typename T>
 class BTree {
 public:
-	unsigned int t;
+	int m;
 
 	node<T>* root;
 
-	BTree(unsigned int t)
-		: t(t), root(nullptr) {}
+	BTree(int m)
+		: m(m) {
+		root = new node<T>(m, true);
+	}
 
-	void traverse() {
-		if (root) {
-			root->traverse();
-		}
+	std::vector<T*> traverse() {
+		return root->traverse();
 	}
 
 	void insert(std::vector<T*> elements) {
-		unsigned int noElements = elements.size();
-		if (noElements != 0) {
-			for (T* element : elements) {
-				insert(element);
-				//traverse();
-				//std::cout << std::endl;
-			}
+		for (T* element : elements) {
+			insert(element);
 		}
 	}
 
 	void insert(T* element) {
-		if (!root) {
-			// root doesn't exist
-			root = new node<T>(t);
-			root->data[0] = element;
-			root->n = 1;
-		}
-		else {
-			if (root->n == t) {
-				// root full, get more space
+		T* upshiftElement = nullptr;
+		node<T>* right = root->insert(element, upshiftElement);
 
-				node<T>* newRoot = new node<T>(t, false);
+		if (right) {
+			// need to create new root
+			node<T>* newRoot = new node<T>(m, false);
+			
+			// set data
+			newRoot->data[0] = upshiftElement;
+			newRoot->n = 1;
 
-				// left child will be current
-				newRoot->children[0] = root;
+			// place children
+			newRoot->children[0] = root;
+			newRoot->children[1] = right;
 
-				// split current root into two
-				newRoot->splitChild(0, root);
-				newRoot->traverse();
-				std::cout << std::endl;
-
-				// place key accordingly
-				int i = (element->key < newRoot->data[0]->key) ? 0 : 1;
-				newRoot->children[i]->insert(element);
-
-				// update root
-				root = newRoot;
-			}
-			else {
-				// root not full
-				root->insert(element);
-			}
+			// set root
+			root = newRoot;
 		}
 	}
 
-	T* search(unsigned int key) {
-		return (root) ? root->search(key) : nullptr;
-	}
-
-private:
-	void updateRoot() {
-		while (root->parent) {
-			root = root->parent;
-		}
+	T* search(int key) {
+		return root->search(key);
 	}
 };
 
