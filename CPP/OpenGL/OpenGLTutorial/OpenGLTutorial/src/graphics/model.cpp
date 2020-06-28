@@ -5,14 +5,14 @@ Model::Model(std::string id, BoundTypes boundType, int maxNoInstances, unsigned 
 	: id(id), boundType(boundType), switches(flags), currentNoInstances(0), maxNoInstances(maxNoInstances) {
 }
 
-unsigned int Model::generateInstance(glm::vec3 size, float mass, glm::vec3 pos) {
+RigidBody* Model::generateInstance(glm::vec3 size, float mass, glm::vec3 pos) {
 	// all slots filled
 	if (currentNoInstances >= maxNoInstances) {
-		return -1;
+		return nullptr;
 	}
 
-	instances.push_back(RigidBody(&id, size, mass, pos));
-	return currentNoInstances++;
+	instances.push_back(new RigidBody(id, size, mass, pos));
+	return instances[currentNoInstances++];
 
 	// find first available slot
 	/*for (unsigned int i = 0; i < maxNoInstances; i++) {
@@ -40,8 +40,8 @@ void Model::initInstances() {
 		// set data pointers accordingly
 
 		for (int i = 0; i < currentNoInstances; i++) {
-			positions.push_back(instances[i].pos);
-			sizes.push_back(instances[i].size);
+			positions.push_back(instances[i]->pos);
+			sizes.push_back(instances[i]->size);
 		}
 
 		if (positions.size() > 0) {
@@ -99,7 +99,7 @@ void Model::removeInstance(int idx) {
 // get index of instance with id
 unsigned int Model::getIdx(std::string id) {
 	for (int i = 0; i < currentNoInstances; i++) {
-		if (instances[i] == id) {
+		if (instances[i]->instanceId == id) {
 			return i;
 		}
 	}
@@ -121,10 +121,10 @@ void Model::render(Shader shader, float dt, Scene *scene, bool setModel) {
 
 		for (int i = 0; i < currentNoInstances; i++) {
 			if (doUpdate) {
-				instances[i].update(dt);
+				instances[i]->update(dt);
 			}
-			positions.push_back(instances[i].pos);
-			sizes.push_back(instances[i].size);
+			positions.push_back(instances[i]->pos);
+			sizes.push_back(instances[i]->size);
 		}
 
 		posVBO.bind();

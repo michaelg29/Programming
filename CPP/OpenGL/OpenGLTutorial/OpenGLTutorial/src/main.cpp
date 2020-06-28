@@ -136,7 +136,7 @@ int main() {
 		// remove launch objects if too far
 		std::stack<unsigned int> removeObjects;
 		for (int i = 0; i < sphere.currentNoInstances; i++) {
-			if (glm::length(cam.cameraPos - sphere.instances[i].pos) > 250.0f) {
+			if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
 				removeObjects.push(i);
 			}
 		}
@@ -164,10 +164,10 @@ int main() {
 }
 
 void launchItem(float dt) {
-	std::string id = scene.generateInstance("sphere", glm::vec3(1.0f), 1.0f, cam.cameraPos);
-	if (id != "") {
-		sphere.instances[sphere.getIdx(id)].transferEnergy(100.0f, cam.cameraFront);
-		sphere.instances[sphere.getIdx(id)].applyAcceleration(Environment::gravity);
+	RigidBody* rb = scene.generateInstance("sphere", glm::vec3(1.0f), 1.0f, cam.cameraPos);
+	if (rb) {
+		rb->transferEnergy(100.0f, cam.cameraFront);
+		rb->applyAcceleration(Environment::gravity);
 	}
 }
 
