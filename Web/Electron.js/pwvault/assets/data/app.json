@@ -1,0 +1,13 @@
+{
+    "app.name": "PW Vault",
+    "app.icon": "assets/cgi-bin/icon.png",
+    "app.entry": "renderer/html/index.html",
+    "app.initialRoute": "/",
+    "events.renderer.ready": "renderer:ready",
+    "events.renderer.route.request": "route:request",
+    "events.renderer.route.failed": "route:failed",
+    "events.renderer.route.success": "route:success",
+    "events.renderer.page.init": "page:init",
+    "events.renderer.loading-animation.start": "loading-anim:start",
+    "events.renderer.loading-animation.stop": "loading-anim:stop"
+}
