@@ -25,7 +25,9 @@
 class Scene {
 public:
 	trie::Trie<Model*> models;
-	trie::Trie<std::string> instances;
+	trie::Trie<RigidBody*> instances;
+
+	std::vector<std::string> instancesToRemove;
 
 	/*
 		Callbacks
@@ -86,9 +88,13 @@ public:
 	/*
 		Model/instance methods
 	*/
+	std::string currentId = "aaaaaaaa";
+
+	std::string generateId();
+
 	void registerModel(Model* model);
 
-	std::string generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos);
+	RigidBody* generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos);
 
 	void initInstances();
 

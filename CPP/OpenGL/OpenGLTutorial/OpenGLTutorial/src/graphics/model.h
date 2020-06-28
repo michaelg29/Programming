@@ -49,7 +49,7 @@ public:
 	int currentNoInstances;
 
 	// list of instances
-	std::vector<RigidBody> instances;
+	std::vector<RigidBody*> instances;
 
 	// combination of switches in ModelStates
 	unsigned char switches;
@@ -61,7 +61,7 @@ public:
 	virtual void init();
 
 	// generate instance of model
-	unsigned int generateInstance(glm::vec3 size, float mass, glm::vec3 pos);
+	RigidBody* generateInstance(glm::vec3 size, float mass, glm::vec3 pos);
 	
 	// initialize VBO memory for instances (positions/sizes)
 	void initInstances();

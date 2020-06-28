@@ -248,22 +248,36 @@ void Scene::setWindowColor(float r, float g, float b, float a) {
 /*
 	Model/instance methods
 */
+std::string Scene::generateId() {
+	for (int i = currentId.length() - 1; i >= 0; i--) {
+		if ((int)currentId[i] != (int)'z') {
+			currentId[i] = (char)(((int)currentId[i]) + 1);
+			break;
+		}
+		else {
+			currentId[i] = 'a';
+		}
+	}
+
+	return currentId;
+}
+
 void Scene::registerModel(Model* model) {
 	models.insert(model->id, model);
 
 	//models[model->id] = model;
 }
 
-std::string Scene::generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos) {
-	unsigned int idx = models[modelId]->generateInstance(size, mass, pos);
-	if (idx != -1) {
-		std::string id = RigidBody::generateId();
-		models[modelId]->instances[idx].instanceId = id;
-		instances.insert(id, modelId);
+RigidBody* Scene::generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos) {
+	RigidBody* rb = models[modelId]->generateInstance(size, mass, pos);
+	if (rb) {
+		std::string id = generateId();
+		rb->instanceId = id;
+		instances.insert(id, rb);
 		//instances[id] = { modelId, idx };
-		return id;
+		return rb;
 	}
-	return "";
+	return nullptr;
 }
 
 void Scene::initInstances() {
@@ -291,10 +305,10 @@ void Scene::removeInstance(std::string instanceId) {
 		- Model::instances
 	*/
 
-	std::string targetModel = instances[instanceId];
+	std::string targetModel = instances[instanceId]->modelId;
 	//unsigned int targetIdx = instances[instanceId].second;
 
-	models[targetModel]->removeInstance(targetModel);
+	models[targetModel]->removeInstance(instanceId);
 
 	instances.erase(instanceId);
 }
