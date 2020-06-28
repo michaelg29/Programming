@@ -79,9 +79,19 @@ void Model::initInstances() {
 	}
 }
 
-void Model::removeInstance(unsigned int idx) {
-	instances.erase(instances.begin() + idx);
-	currentNoInstances--;
+// remove instance using instance id
+void Model::removeInstance(std::string instanceId) {
+	int idx = getIdx(instanceId);
+	if (idx != -1) {
+		instances.erase(instances.begin() + getIdx(instanceId));
+	}
+}
+
+// remove instance using instance idx
+void Model::removeInstance(int idx) {
+	if (idx != -1) {
+		instances.erase(instances.begin() + idx);
+	}
 }
 
 // get index of instance with id

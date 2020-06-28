@@ -57,7 +57,6 @@ int main() {
 	Shader shader("assets/instanced.vs", "assets/object.fs");
 	Shader lightShader("assets/instanced.vs", "assets/lamp.fs");
 	Shader boxShader("assets/box.vs", "assets/box.fs");
-	Shader launchShader("assets/instanced.vs", "assets/object.fs");
 
 	// camera
 	scene.cameras.push_back(&cam);
@@ -130,6 +129,10 @@ int main() {
 		// process input
 		processInput(dt);
 
+		// render troll
+		scene.renderShader(shader);
+		scene.renderInstances("troll", shader, dt);
+
 		// remove launch objects if too far
 		std::stack<unsigned int> removeObjects;
 		for (int i = 0; i < sphere.currentNoInstances; i++) {
@@ -144,17 +147,12 @@ int main() {
 
 		// render launch objects
 		if (sphere.currentNoInstances > 0) {
-			scene.renderShader(launchShader);
-			scene.renderInstances("sphere", launchShader, dt);
+			scene.renderInstances("sphere", shader, dt);
 		}
 
 		// render lamps
 		scene.renderShader(lightShader, false);
 		scene.renderInstances("lamp", lightShader, dt);
-
-		// render troll
-		scene.renderShader(shader);
-		scene.renderInstances("troll", shader, dt);
 
 		scene.newFrame();
 	}
@@ -168,8 +166,8 @@ int main() {
 void launchItem(float dt) {
 	std::string id = scene.generateInstance("sphere", glm::vec3(1.0f), 1.0f, cam.cameraPos);
 	if (id != "") {
-		sphere.instances[scene.instances[id].second].transferEnergy(100.0f, cam.cameraFront);
-		sphere.instances[scene.instances[id].second].applyAcceleration(Environment::gravity);
+		sphere.instances[sphere.getIdx(id)].transferEnergy(100.0f, cam.cameraFront);
+		sphere.instances[sphere.getIdx(id)].applyAcceleration(Environment::gravity);
 	}
 }
 

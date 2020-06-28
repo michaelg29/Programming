@@ -69,8 +69,11 @@ public:
 	// load model from object file
 	void loadModel(std::string path);
 
-	// remove instance at idx
-	void removeInstance(unsigned int idx);
+	// remove instance using instance id
+	void removeInstance(std::string instanceId);
+
+	// remove instance using instance idx
+	void removeInstance(int idx);
 
 	// render model with shader (may be overriden)
 	virtual void render(Shader shader, float dt, Scene *scene, bool setModel = true);
