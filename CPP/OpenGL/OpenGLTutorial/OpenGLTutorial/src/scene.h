@@ -20,10 +20,13 @@
 #include "io/keyboard.h"
 #include "io/mouse.h"
 
+#include "algorithms/trie.hpp"
+#include "algorithms/json.hpp"
+
 class Scene {
 public:
-	std::map<std::string, Model*> models;
-	std::map<std::string, std::pair<std::string, unsigned int>> instances;
+	trie::Trie<Model*> models;
+	trie::Trie<std::string> instances;
 
 	/*
 		Callbacks

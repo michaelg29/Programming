@@ -211,9 +211,9 @@ void Scene::renderInstances(std::string modelId, Shader shader, float dt) {
 }
 
 void Scene::cleanup() {
-	for (auto& pair : models) {
-		pair.second->cleanup();
-	}
+	models.traverse([](Model* model) -> void {
+		model->cleanup();
+	});
 
 	glfwTerminate();
 }
@@ -249,7 +249,9 @@ void Scene::setWindowColor(float r, float g, float b, float a) {
 	Model/instance methods
 */
 void Scene::registerModel(Model* model) {
-	models[model->id] = model;
+	models.insert(model->id, model);
+
+	//models[model->id] = model;
 }
 
 std::string Scene::generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos) {
@@ -257,22 +259,29 @@ std::string Scene::generateInstance(std::string modelId, glm::vec3 size, float m
 	if (idx != -1) {
 		std::string id = RigidBody::generateId();
 		models[modelId]->instances[idx].instanceId = id;
-		instances[id] = { modelId, idx };
+		instances.insert(id, modelId);
+		//instances[id] = { modelId, idx };
 		return id;
 	}
 	return "";
 }
 
 void Scene::initInstances() {
-	for (auto& pair : models) {
+	models.traverse([](Model* model) -> void {
+		model->initInstances();
+	});
+	/*for (auto& pair : models) {
 		pair.second->initInstances();
-	}
+	}*/
 }
 
 void Scene::loadModels() {
-	for (auto& pair : models) {
+	models.traverse([](Model* model) -> void {
+		model->init();
+	});
+	/*for (auto& pair : models) {
 		pair.second->init();
-	}
+	}*/
 }
 
 void Scene::removeInstance(std::string instanceId) {
@@ -282,10 +291,10 @@ void Scene::removeInstance(std::string instanceId) {
 		- Model::instances
 	*/
 
-	std::string targetModel = instances[instanceId].first;
-	unsigned int targetIdx = instances[instanceId].second;
+	std::string targetModel = instances[instanceId];
+	//unsigned int targetIdx = instances[instanceId].second;
 
-	models[targetModel]->removeInstance(targetIdx);
+	models[targetModel]->removeInstance(targetModel);
 
 	instances.erase(instanceId);
 }
