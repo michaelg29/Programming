@@ -21,7 +21,6 @@
 #include "io/mouse.h"
 
 #include "algorithms/trie.hpp"
-#include "algorithms/json.hpp"
 
 class Scene {
 public:

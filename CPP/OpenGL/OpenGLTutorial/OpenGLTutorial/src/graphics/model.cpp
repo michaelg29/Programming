@@ -84,13 +84,15 @@ void Model::removeInstance(std::string instanceId) {
 	int idx = getIdx(instanceId);
 	if (idx != -1) {
 		instances.erase(instances.begin() + getIdx(instanceId));
+		currentNoInstances--;
 	}
 }
 
 // remove instance using instance idx
 void Model::removeInstance(int idx) {
-	if (idx != -1) {
+	if (idx != -1 && idx < currentNoInstances) {
 		instances.erase(instances.begin() + idx);
+		currentNoInstances--;
 	}
 }
 
