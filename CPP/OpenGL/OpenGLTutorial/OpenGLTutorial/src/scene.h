@@ -27,7 +27,7 @@ public:
 	trie::Trie<Model*> models;
 	trie::Trie<RigidBody*> instances;
 
-	std::vector<std::string> instancesToRemove;
+	std::vector<RigidBody*> instancesToDelete;
 
 	/*
 		Callbacks
@@ -101,6 +101,10 @@ public:
 	void loadModels();
 
 	void removeInstance(std::string instanceId);
+
+	void markForDeletion(std::string instanceId);
+
+	void clearDeadInstances();
 
 	/*
 		Lights

@@ -134,15 +134,10 @@ int main() {
 		scene.renderInstances("troll", shader, dt);
 
 		// remove launch objects if too far
-		std::stack<unsigned int> removeObjects;
 		for (int i = 0; i < sphere.currentNoInstances; i++) {
-			if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
-				removeObjects.push(i);
+			if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 50.0f) {
+				scene.markForDeletion(sphere.instances[i]->instanceId);
 			}
-		}
-		while (removeObjects.size() != 0) {
-			sphere.removeInstance(removeObjects.top());
-			removeObjects.pop();
 		}
 
 		// render launch objects
@@ -154,10 +149,9 @@ int main() {
 		scene.renderShader(lightShader, false);
 		scene.renderInstances("lamp", lightShader, dt);
 
+		scene.clearDeadInstances();
 		scene.newFrame();
 	}
-
-	//box.cleanup();
 
 	scene.cleanup();
 	return 0;
