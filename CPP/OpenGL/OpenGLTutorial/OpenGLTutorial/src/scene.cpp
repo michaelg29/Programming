@@ -312,3 +312,15 @@ void Scene::removeInstance(std::string instanceId) {
 
 	instances.erase(instanceId);
 }
+
+void Scene::markForDeletion(std::string instanceId) {
+	States::activate(&instances[instanceId]->state, INSTANCE_DEAD);
+	instancesToDelete.push_back(instances[instanceId]);
+}
+
+void Scene::clearDeadInstances() {
+	for (RigidBody* rb : instancesToDelete) {
+		removeInstance(rb->instanceId);
+	}
+	instancesToDelete.clear();
+}

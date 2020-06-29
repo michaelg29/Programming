@@ -120,8 +120,13 @@ void Model::render(Shader shader, float dt, Scene *scene, bool setModel) {
 		// update each instance
 
 		for (int i = 0; i < currentNoInstances; i++) {
+
 			if (doUpdate) {
 				instances[i]->update(dt);
+				States::activate(&instances[i]->state, INSTANCE_MOVED);
+			}
+			else {
+				States::deactivate(&instances[i]->state, INSTANCE_MOVED);
 			}
 			positions.push_back(instances[i]->pos);
 			sizes.push_back(instances[i]->size);
