@@ -174,7 +174,9 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
 	// process all nodes
 	for (unsigned int i = 0; i < node->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(processMesh(mesh, scene));
+		Mesh newMesh = processMesh(mesh, scene);
+		meshes.push_back(newMesh);
+		boundingRegions.push_back(newMesh.br);
 	}
 
 	// do same for children (recursive)
@@ -238,11 +240,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 	if (boundType == BoundTypes::AABB) {
 		// assign max and min
 		br.min = min;
+		br.ogMin = min;
 		br.max = max;
+		br.ogMax = max;
 	}
 	else {
 		// calculate max distance from center
 		br.center = BoundingRegion(min, max).calculateCenter();
+		br.ogCenter = br.center;
 		float maxRadiusSquared = 0.0f;
 
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -256,6 +261,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 		}
 
 		br.radius = sqrt(maxRadiusSquared);
+		br.ogRadius = br.radius;
 	}
 
 	// process indices

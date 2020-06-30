@@ -11,6 +11,11 @@
 #include "list.hpp"
 #include "states.hpp"
 #include "bounds.h"
+#include "trie.hpp"
+
+#include "../graphics/model.h"
+
+#include "../physics/rigidbody.h"
 
 namespace Octree {
 	/*
@@ -64,6 +69,9 @@ namespace Octree {
 
 		// initialize with bounds and list of objects
 		node(BoundingRegion bounds, std::vector<BoundingRegion> objectList);
+
+		// add to pending queue
+		void addToPending(RigidBody* instance, trie::Trie<Model*> models);
 
 		// build tree (called during initialization)
 		void build();
