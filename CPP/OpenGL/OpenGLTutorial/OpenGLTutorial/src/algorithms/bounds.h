@@ -2,6 +2,9 @@
 #define BOUNDS_H
 
 #include <glm/glm.hpp>
+#include <string>
+
+#include "../physics/rigidbody.h"
 
 enum class BoundTypes : unsigned char {
 	AABB = 0x01,
@@ -12,13 +15,22 @@ class BoundingRegion {
 public:
 	BoundTypes type;
 
+	// rigid body pointer (for quick access to state)
+	RigidBody* instance;
+
 	// sphere values
 	glm::vec3 center;
 	float radius;
 
+	glm::vec3 ogCenter;
+	float ogRadius;
+
 	// AABB values
 	glm::vec3 min;
 	glm::vec3 max;
+
+	glm::vec3 ogMin;
+	glm::vec3 ogMax;
 
 	// override operator
 	bool operator==(BoundingRegion br);
@@ -31,6 +43,9 @@ public:
 
 	// initialize as AABB
 	BoundingRegion(glm::vec3 min, glm::vec3 max);
+
+	// apply transformations of instance
+	void transform();
 
 	// method to calculate center of region
 	glm::vec3 calculateCenter();

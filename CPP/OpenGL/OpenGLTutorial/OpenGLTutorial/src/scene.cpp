@@ -310,6 +310,8 @@ void Scene::removeInstance(std::string instanceId) {
 
 	models[targetModel]->removeInstance(instanceId);
 
+	instances[instanceId] = nullptr;
+
 	instances.erase(instanceId);
 }
 

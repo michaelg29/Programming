@@ -36,6 +36,8 @@ class Model {
 public:
 	// list of meshes
 	std::vector<Mesh> meshes;
+	// list of bounding regions
+	std::vector<BoundingRegion> boundingRegions;
 
 	// type of bounding region for meshes
 	BoundTypes boundType;

@@ -69,6 +69,7 @@ public:
 		ret.loadData(vertices, indices);
 		
 		meshes.push_back(ret);
+		boundingRegions.push_back(br);
 	}
 
 	virtual void render(Shader shader, double dt, Scene* scene, bool setModel = true) {

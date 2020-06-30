@@ -45,6 +45,15 @@ Octree::node::node(BoundingRegion bounds, std::vector<BoundingRegion> objectList
 	objects.insert(objects.end(), objectList.begin(), objectList.end());
 }
 
+// add to pending queue
+void Octree::node::addToPending(RigidBody* instance, trie::Trie<Model*> models) {
+	// get all bounding regions
+	for (BoundingRegion br : models[instance->modelId]->boundingRegions) {
+		br.instance = instance;
+		queue.push(br);
+	}
+}
+
 // build tree (called during initialization)
 void Octree::node::build() {
 	/*
@@ -136,23 +145,24 @@ void Octree::node::update() {
 			}
 		}
 
-		// get moved objects that were in this leaf in previous frame
-		std::vector<BoundingRegion> movedObjects(objects.size());
-		// TODO
-
 		// remove objects that don't exist anymore
 		for (int i = 0, listSize = objects.size(); i < listSize; i++) {
-			// if doesn't exist, remove from objects and possibly moved objects
-			/*
-			if (!objects[i].alive) {
-				if (contains(movedObjects, objects[i])) {
-					movedObjects.erase(getIndexOf(movedObjects, objects[i]));
-				}
+			// if doesn't exist, remove from objects
+			if (States::isActive(&objects[i].instance->state, INSTANCE_DEAD)) {
 				objects.erase(objects.begin() + i);
+				// update counter/size var accordingly
 				i--;
 				listSize--;
 			}
-			*/
+		}
+
+		// get moved objects that were in this leaf in previous frame
+		std::stack<std::pair<int, BoundingRegion>> movedObjects;
+		for (int i = 0, listSize = objects.size(); i < listSize; i++) {
+			if (States::isActive(&objects[i].instance->state, INSTANCE_MOVED)) {
+				objects[i].transform();
+				movedObjects.push({ i, objects[i] });
+			}
 		}
 
 		// remove dead branches
@@ -177,7 +187,7 @@ void Octree::node::update() {
 		}
 
 		// update child nodes
-		if (children != nullptr) {
+		if (children) {
 			// go through each octant using flags
 			for (unsigned char flags = activeOctants, i = 0;
 				flags > 0;
@@ -201,7 +211,7 @@ void Octree::node::update() {
 				- call insert (push object as far down as possible)
 			*/
 
-			movedObj = movedObjects[0]; // set to first object in list
+			movedObj = movedObjects.top().second; // set to first object in list
 			node* current = this; // placeholder
 
 			while (!current->region.containsRegion(movedObj)) {
@@ -214,9 +224,14 @@ void Octree::node::update() {
 				}
 			}
 
-			// remove first object, second object now becomes first
-			movedObjects.erase(movedObjects.begin());
-			objects.erase(objects.begin() + List::getIndexOf<BoundingRegion>(objects, movedObj));
+			/*
+				once finished
+				- remove from objects list
+				- remove from movedObjects stack
+				- insert into found region
+			*/
+			objects.erase(objects.begin() + movedObjects.top().first);
+			movedObjects.pop();
 			current->insert(movedObj);
 
 			// collision detection
