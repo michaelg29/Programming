@@ -65,10 +65,10 @@ void printData(test* data) {
 int main() {
 	std::cout << "Hello, world!" << std::endl;
 
-	//std::vector<data*> d = loadData("data.txt");
+	std::vector<data*> d = loadData("data.txt");
 
-	/*std::vector<data*> elements;
-	std::vector<unsigned int> keys = { 13, 50, 90, 40, 30, 35, 20, 10, 5, 2 };
+	std::vector<data*> elements;
+	std::vector<unsigned int> keys = { 1, 50, 90, 40, 30, 35, 20, 10, 5, 2 };
 	for (unsigned int i : keys) {
 		data* t = new data;
 		t->key = i;
@@ -77,24 +77,20 @@ int main() {
 		elements.push_back(t);
 	}
 
-	BTree<data> tree(4);
-	tree.insert(elements);*/
+	btree::BTree<data> tree(4);
+	tree.insert(elements);
 
-	/*std::vector<data*> res = tree.traverse();
+	tree.erase(20);
+
+	data* da = tree.root->children[0]->children[1]->data[1];
+	std::cout << da->name << std::endl;
+
+	std::vector<data*> res = tree.traverse();
 	std::cout << std::endl;
 	for (data* d : res) {
 		std::cout << d->key << ' ';
 	}
-	std::cout << std::endl;*/
-
-	trie::Trie<test*> t(trie::alpha_numeric);
-
-	t.insert("asdf", new test({ 5 }));
-	t.insert("222acdfff", new test({ 182 }));
-
-	t.traverse(printData);
-
-	t.cleanup();
+	std::cout << std::endl;
 
 	std::cout << "goodbye" << std::endl;
 
