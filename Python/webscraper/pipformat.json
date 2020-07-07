@@ -9,7 +9,7 @@
                 ]
             },
             "search": {
-                "route": "/search/",
+                "route": "/search",
                 "query": {
                     "term": {
                         "title": "q"
