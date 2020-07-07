@@ -6,14 +6,14 @@ if __name__ == "__main__":
     data = HtmlDataParser(formats["url"], formats["data"])
 
     while True:
-        code = input("Search term: ")
+        code = input("Search course code: ")
         if code == "stop":
             break
 
-        res = data.request("search", params={
+        res = data.request("course", params={
             "startYr": 2020,
             "endYr": 2021,
-        }, query={
-            "term": code
+            "code": code
         })
         print(res)
+        print()
