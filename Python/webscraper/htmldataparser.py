@@ -4,24 +4,6 @@ import json
 import enum
 import re
 
-class RegexSelectors:
-    """
-        . matches any character
-        * match 0 or more
-        ? match as little as possible (find first occurence of ']' after)
-    """
-    bracketRegex = r"\[.*?]"
-    braceRegex = r"{.*?}"
-
-    # remove all whitespace chars (excluding space)
-    whitespaceRegex = r"[\t\n\r\f\v]"
-
-    # remove instances of >= 2 spaces
-    multipleSpaceRegex = r"[ ]{2,}"
-
-    # left/right strip strings
-    stripRegex = r"^[ ]+|[ ]+$"
-
 class TokenType(enum.Enum):
     Tag = 0
     Class_ = 1
@@ -30,43 +12,31 @@ class TokenType(enum.Enum):
 def processSelectStr(str, processAttrs = False):
     """
         take in:
-        tag[attr1, ...].class1.class2#id
-
-        return format:
-        {
-            "selectStr": str
-            "tag": tag,
-            "class": [ class1, ... ],
-            "id": id,
-            "attrs": [ attr1, ... ]
-        }
+            tag[selector1, ...]{attr1,...}.class1.class2#id
     """
-    
+
     ret = {
         "tag": "",
         "class": [],
-        "id": ""
+        "id": "",
+        "obtainMultiple": False
     }
 
-    obtainMultiple = False
     if str[0] == "*":
-        # get multiple of this element
-        obtainMultiple = True
+        ret["obtainMultiple"] = True
         str = str[1:]
 
-    ret["obtainMultiple"] = obtainMultiple
-
-    currentAttr = ""
+    currentSection = ""
     currentType = TokenType.Tag
     for c in str:
         if c in ".#":
-            # end of attr
+            # end of section - set in variable
             if currentType == TokenType.Tag:
-                ret["tag"] = currentAttr
+                ret["tag"] = currentSection
             elif currentType == TokenType.Class_:
-                ret["class"].append(currentAttr)
+                ret["class"].append(currentSection)
             else:
-                ret["id"] = currentAttr
+                ret["id"] = currentSection
 
             # reset type
             if c == '.':
@@ -74,18 +44,17 @@ def processSelectStr(str, processAttrs = False):
             else:
                 currentType = TokenType.Id
 
-            currentAttr = ""
+            currentSection = ""
         else:
-            currentAttr += c
+            currentSection += c
 
-    # last type
-    # end of attr
+    # last section
     if currentType == TokenType.Tag:
-        ret["tag"] = currentAttr
+        ret["tag"] = currentSection
     elif currentType == TokenType.Class_:
-        ret["class"].append(currentAttr)
+        ret["class"].append(currentSection)
     else:
-        ret["id"] = currentAttr
+        ret["id"] = currentSection
 
     # get target attributes
     if processAttrs:
@@ -93,9 +62,9 @@ def processSelectStr(str, processAttrs = False):
         if attrsSearch:
             attrs = ret["tag"][attrsSearch.start(0) + 1:attrsSearch.end(0) - 1]
             ret["tag"] = ret["tag"][0:attrsSearch.start(0)] + ret["tag"][attrsSearch.end(0):]
-            
-            attrs = re.sub("[ ]", '', attrs)
-            ret["attrs"] = re.split("[,]", attrs)
+
+            attrs = re.sub(r"[ ]", '', attrs)
+            ret["attrs"] = re.split(r"[,]", attrs)
             ret["selectStr"] = str[0:attrsSearch.start(0)] + str[attrsSearch.end(0):]
         else:
             ret["attrs"] = False
@@ -106,21 +75,21 @@ def processSelectStr(str, processAttrs = False):
     return ret
 
 def cleanText(text):
-    text = re.sub(RegexSelectors.whitespaceRegex, ' ', text)
-    text = re.sub(RegexSelectors.multipleSpaceRegex, ' ', text)
-    text = re.sub(RegexSelectors.stripRegex, '', text)
+    text = re.sub(RegexSelectors.whitespaceRegex, ' ', text) # replace all new lines, etc with spaces
+    text = re.sub(RegexSelectors.multipleSpaceRegex, ' ', text) # replace >= 2 spaces with 1
+    text = re.sub(RegexSelectors.stripRegex, '', text) # strip text
     return text
 
 def processElementData(element, attrs):
     """
-        return format:
+        return format
         {
             "text": text,
-            "attr1": attr1,
+            "attr1" attr1,
             ...
         }
     """
-    
+
     ret = {
         "text": cleanText(element.text)
     }
@@ -130,6 +99,22 @@ def processElementData(element, attrs):
             ret[attr] = element.get(attr)
 
     return ret
+
+"""
+    Stores strings for general use in program
+"""
+class RegexSelectors:
+    bracketRegex = r"\[.*?]"
+    braceRegex = r"{.*?}"
+
+    # remove all whitespace characters (excluding space)
+    whitespaceRegex = r"[\t\n\r\f\v]"
+
+    # remove instances of >= 2 spaces
+    multipleSpaceRegex = r"[ ]{2,}"
+
+    # left/right strip strings
+    stripRegex = r"^[ ]+|[ ]+$"
 
 class HtmlDataParser:
     def __init__(self, urlFormat, dataFormat):
@@ -141,45 +126,59 @@ class HtmlDataParser:
 
     def processUrlFormat(self, urlFormat):
         if type(urlFormat) is str:
-            # is a filepath, so read
+            # is a filepath, so read file
             self.urlFormat = json.load(open(urlFormat))
         else:
+            # is precompiled dictionary
             self.urlFormat = urlFormat
 
-        # now in json format
+        # now is in json format
+
         for action in self.urlFormat["actions"]:
+            """
+                for each action, fill in nonexistent values for params/query
+            """
             if "query" in self.urlFormat["actions"][action]:
                 for query in self.urlFormat["actions"][action]["query"]:
-                    # give uniform format to specify values/default
                     if "vals" not in self.urlFormat["actions"][action]["query"][query]:
                         self.urlFormat["actions"][action]["query"][query]["vals"] = False
                     if "default" not in self.urlFormat["actions"][action]["query"][query]:
                         self.urlFormat["actions"][action]["query"][query]["default"] = False
-
             else:
-                # uniform format (have query attribute)
                 self.urlFormat["actions"][action]["query"] = False
+
+            if "params" not in self.urlFormat["actions"][action]:
+                self.urlFormat["actions"][action]["params"] = False
 
     def processDataFormat(self, dataFormat):
         if type(dataFormat) is str:
-            # is a filepath, so read
+            # is a filepath, so read file
             self.dataFormat = json.load(open(dataFormat))
         else:
+            # is precompiled dictionary
             self.dataFormat = dataFormat
 
-        # now in json format
+        # now is in json format
 
-        # process each action
         for action in self.dataFormat:
-            # process select string passed in
+            """
+                process each element in separate select str
+                create top down element tree
+            """
+
             for key in self.dataFormat[action]:
-                self.dataFormat[action][key] = re.sub("( > )|( >)|(> )", '>', self.dataFormat[action][key])
+                self.dataFormat[action][key] = re.sub(r"( > )|( >)|( >)", '>', self.dataFormat[action][key])
 
                 elements = []
                 selectStrs = re.split("[>]", self.dataFormat[action][key])
                 for i in range(len(selectStrs)):
-                    # only process attributes for target element (final one - where data comes from)
                     elements.insert(0, processSelectStr(selectStrs[i], i == len(selectStrs) - 1))
+
+                """
+                    ul[aria-label='Search results']
+                    *li
+                    a{href}.package-snippet
+                """
 
                 # construct top down list
                 previousElement = False
@@ -197,35 +196,32 @@ class HtmlDataParser:
 
         """
             construct url
-            1) get domain
+            1) get domain/route
             2) fill in parameters
             3) add query vals
         """
 
         # domain
         url = self.urlFormat["domain"]
-        
+
         # parameters
         route = self.urlFormat["actions"][action]["route"]
-        if "params" in self.urlFormat["actions"][action]:
+        if self.urlFormat["actions"][action]["params"]:
             for param in self.urlFormat["actions"][action]["params"]:
                 paramString = "{" + param + "}"
-                route = re.sub(paramString, params[param], route)
+                route = re.sub(paramString, str(params[param]), route)
 
         url += route
 
         # query
         if self.urlFormat["actions"][action]["query"]:
             queryString = ""
-
-            # looking for query
             for queryParam in self.urlFormat["actions"][action]["query"]:
                 valid = False
                 title = self.urlFormat["actions"][action]["query"][queryParam]["title"]
                 if query and queryParam in query:
                     if self.urlFormat["actions"][action]["query"][queryParam]["vals"]:
                         if query[queryParam] in self.urlFormat["actions"][action]["query"][queryParam]["vals"]:
-                            # ensure valid value
                             valid = True
                     else:
                         # no specified value
@@ -247,28 +243,21 @@ class HtmlDataParser:
 
         return url
 
-    """
-        return self.processCustomQuery(url, action, params, query)
-
-        # meant to be overriden in subclasses to process unique url formats
-    def processCustomQuery(self, url, action, params, query = False):
-        return url
-    """
-
     def processData(self, action, data):
         soup = BeautifulSoup(data, "html.parser")
 
         """
-            return format:
-            action: {
+            return format
+            {
                 "key1": {
                     "text": text,
                     "attr1": attr1
-                },
+                    ...
+                }
                 "key2_obtainMultiple": [
                     {
-                        "text": text,
-                        "attr1": attr1
+                        "text": text
+                        "attr": attr
                     }
                 ]
             }
@@ -279,9 +268,9 @@ class HtmlDataParser:
         for key in self.dataFormat[action]:
             """
                 for each key
-                - traverse down "tree" (using children in format)
-                - select element(s) using selectStr
-                - determine if want attrs
+                - traverse down the tree (using children)
+                - select elements using selectStr
+                - determine if attributes
             """
 
             select = self.dataFormat[action][key]
@@ -291,16 +280,23 @@ class HtmlDataParser:
                 newElements = []
                 for el in elements:
                     if el:
+                        res = el.select(select["selectStr"])
                         if select["obtainMultiple"]:
                             # get all instances
-                            newElements.extend(el.select(select["selectStr"]))
+                            newElements.extend(res)
                         else:
                             # get first instance
-                            res = el.select(select["selectStr"])
                             if res:
                                 newElements.append(res[0])
 
-                # use the elements in next iteration
+                """
+                    |soup|
+                    |p|
+                    |span1,span2,...|
+                    |span1 > a, span1 > a2, span2 > a, span2 > a2, ...|
+                """
+
+                # use the elements in the next iteration
                 elements = newElements
 
                 # determine if need attributes
@@ -311,6 +307,7 @@ class HtmlDataParser:
                 if "child" in select:
                     select = select["child"]
                 else:
+                    # end of tree
                     break
 
             # take data from elements
@@ -322,12 +319,13 @@ class HtmlDataParser:
                 ret[key] = []
                 for el in elements:
                     ret[key].append(processElementData(el, attrs))
+            else:
+                return False
 
         return ret
 
     def request(self, action, params = False, query = False):
         url = self.constructUrl(action, params, query)
-        print(url)
         if url:
             data = requests.get(url)
             return self.processData(action, data.content)
