@@ -14,6 +14,7 @@
 #include "trie.hpp"
 
 #include "../graphics/model.h"
+#include "../graphics/models/box.hpp"
 
 #include "../physics/rigidbody.h"
 
@@ -36,7 +37,7 @@ namespace Octree {
 		Utility methods callbacks
 	*/
 	// calculate bounds of specified octant in bounded region and output
-	void calculateBounds(BoundingRegion* out, Octant octant, BoundingRegion region);
+	void calculateBounds(BoundingRegion &out, Octant octant, BoundingRegion region);
 
 	/*
 		class to represent each node in the octree
@@ -77,7 +78,7 @@ namespace Octree {
 		void build();
 
 		// update objects in tree (called during each iteration of main loop)
-		void update();
+		void update(Box *box);
 
 		// process pending queue
 		void processPending();
