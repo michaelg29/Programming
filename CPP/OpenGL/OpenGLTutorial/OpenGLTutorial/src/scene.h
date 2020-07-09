@@ -56,7 +56,7 @@ public:
 	bool init();
 
 	// prepare for main loop (octree, etc)
-	void prepare(Box* box);
+	void prepare(Box &box);
 
 	/*
 		main loop methods
@@ -65,7 +65,7 @@ public:
 	void processInput(float dt);
 
 	// update screen before each frame
-	void update(Box *box);
+	void update(Box &box);
 
 	// update screen after each frame
 	void newFrame();

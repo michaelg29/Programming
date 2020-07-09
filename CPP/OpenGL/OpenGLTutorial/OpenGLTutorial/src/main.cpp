@@ -117,7 +117,7 @@ int main() {
 	scene.initInstances();
 
 	// prepare scene
-	scene.prepare(&box);
+	scene.prepare(box);
 
 	/*mainJ.update();
 	if (mainJ.isPresent()) {
@@ -133,7 +133,7 @@ int main() {
 		dt = currentTime - lastFrame;
 		lastFrame = currentTime;
 		
-		scene.update(&box);
+		scene.update(box);
 
 		// process input
 		processInput(dt);
