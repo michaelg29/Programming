@@ -65,10 +65,10 @@ public:
 	void processInput(float dt);
 
 	// update screen before each frame
-	void update(Box &box);
+	void update();
 
 	// update screen after each frame
-	void newFrame();
+	void newFrame(Box& box);
 
 	// set uniform shader variables (lighting, etc)
 	void renderShader(Shader shader, bool applyLighting = true);
