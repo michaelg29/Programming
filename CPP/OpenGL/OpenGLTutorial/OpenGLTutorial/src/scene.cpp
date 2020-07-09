@@ -95,7 +95,7 @@ bool Scene::init()
 }
 
 // prepare for main loop
-void Scene::prepare(Box *box) {
+void Scene::prepare(Box &box) {
 	octree->update(box);
 	octree->build();
 }
@@ -155,7 +155,7 @@ void Scene::processInput(float dt) {
 }
 
 // update screen before each frame
-void Scene::update(Box *box)
+void Scene::update(Box &box)
 {
 	glClearColor(bg[0], bg[1], bg[2], bg[3]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

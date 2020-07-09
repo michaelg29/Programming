@@ -151,12 +151,12 @@ void Octree::node::build()
 }
 
 // update objects in tree (called during each iteration of main loop)
-void Octree::node::update(Box *box)
+void Octree::node::update(Box &box)
 {
 	if (treeBuilt && treeReady)
 	{
-		box->positions.push_back(region.calculateCenter());
-		box->sizes.push_back(region.calculateDimensions());
+		box.positions.push_back(region.calculateCenter());
+		box.sizes.push_back(region.calculateDimensions());
 
 		// start count down timer if no children or objects
 		// when reaches zero, delete leaf
@@ -210,8 +210,8 @@ void Octree::node::update(Box *box)
 				objects[i].transform();
 				movedObjects.push({i, objects[i]});
 			}
-			box->positions.push_back(objects[i].calculateCenter());
-			box->sizes.push_back(objects[i].calculateDimensions());
+			box.positions.push_back(objects[i].calculateCenter());
+			box.sizes.push_back(objects[i].calculateDimensions());
 		}
 
 		// remove dead branches

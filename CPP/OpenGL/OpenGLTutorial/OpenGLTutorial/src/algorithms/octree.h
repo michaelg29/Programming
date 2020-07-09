@@ -78,7 +78,7 @@ namespace Octree {
 		void build();
 
 		// update objects in tree (called during each iteration of main loop)
-		void update(Box *box);
+		void update(Box &box);
 
 		// process pending queue
 		void processPending();
