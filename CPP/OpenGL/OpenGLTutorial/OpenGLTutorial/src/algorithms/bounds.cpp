@@ -54,9 +54,9 @@ glm::vec3 BoundingRegion::calculateDimensions() {
 bool BoundingRegion::containsPoint(glm::vec3 pt) {
 	if (type == BoundTypes::AABB) {
 		// box - must be more than min and less than max
-		return (pt.x > min.x) && (pt.x < max.x) &&
-			(pt.y > min.y) && (pt.y < max.y) &&
-			(pt.z > min.z) && (pt.z < min.z);
+		return (pt.x >= min.x) && (pt.x <= max.x) &&
+			(pt.y >= min.y) && (pt.y <= max.y) &&
+			(pt.z >= min.z) && (pt.z <= max.z);
 	}
 	else {
 		// sphere - distance must be less than radius

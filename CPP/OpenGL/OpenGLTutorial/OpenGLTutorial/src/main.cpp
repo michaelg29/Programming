@@ -68,8 +68,11 @@ int main() {
 
 	scene.registerModel(&sphere);
 
-	Troll troll(1);
- 	scene.registerModel(&troll);
+	//Troll troll(1);
+ 	//scene.registerModel(&troll);
+
+	Box box;
+	box.init();
 
 	// load all model data
 	scene.loadModels();
@@ -108,10 +111,13 @@ int main() {
 	scene.activeSpotLights = 1;
 
 	// add static instances
-	scene.generateInstance("troll", glm::vec3(0.025f), 100.0f, glm::vec3(1.0f));
+	//scene.generateInstance("troll", glm::vec3(0.025f), 100.0f, glm::vec3(1.0f));
 
 	// instantiate instances
 	scene.initInstances();
+
+	// prepare scene
+	scene.prepare(&box);
 
 	/*mainJ.update();
 	if (mainJ.isPresent()) {
@@ -119,19 +125,22 @@ int main() {
 	}*/
 
 	while (!scene.shouldClose()) {
+		box.positions.clear();
+		box.sizes.clear();
+
 		// calculate dt
 		double currentTime = glfwGetTime();
 		dt = currentTime - lastFrame;
 		lastFrame = currentTime;
 		
-		scene.update();
+		scene.update(&box);
 
 		// process input
 		processInput(dt);
 
 		// render troll
-		scene.renderShader(shader);
-		scene.renderInstances("troll", shader, dt);
+		//scene.renderShader(shader);
+		//scene.renderInstances("troll", shader, dt);
 
 		// remove launch objects if too far
 		for (int i = 0; i < sphere.currentNoInstances; i++) {
@@ -142,12 +151,17 @@ int main() {
 
 		// render launch objects
 		if (sphere.currentNoInstances > 0) {
+			scene.renderShader(shader);
 			scene.renderInstances("sphere", shader, dt);
 		}
 
 		// render lamps
 		scene.renderShader(lightShader, false);
 		scene.renderInstances("lamp", lightShader, dt);
+
+		// render box
+		scene.renderShader(boxShader, false);
+		box.render(boxShader);
 
 		scene.clearDeadInstances();
 		scene.newFrame();

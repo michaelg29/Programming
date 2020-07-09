@@ -21,13 +21,21 @@
 #include "io/mouse.h"
 
 #include "algorithms/trie.hpp"
+#include "algorithms/octree.h"
 
 class Scene {
 public:
+	// trie for models
 	trie::Trie<Model*> models;
+
+	// trie for instances
 	trie::Trie<RigidBody*> instances;
 
+	// list of instances to delete
 	std::vector<RigidBody*> instancesToDelete;
+
+	// octree object
+	Octree::node* octree;
 
 	/*
 		Callbacks
@@ -47,6 +55,9 @@ public:
 	*/
 	bool init();
 
+	// prepare for main loop (octree, etc)
+	void prepare(Box* box);
+
 	/*
 		main loop methods
 	*/
@@ -54,7 +65,7 @@ public:
 	void processInput(float dt);
 
 	// update screen before each frame
-	void update();
+	void update(Box *box);
 
 	// update screen after each frame
 	void newFrame();

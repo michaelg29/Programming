@@ -86,7 +86,18 @@ bool Scene::init()
 	// disable cursor
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+	/*
+		set up octree
+	*/
+	octree = new Octree::node(BoundingRegion(glm::vec3(-16.0f), glm::vec3(16.0f)));
+
 	return true;
+}
+
+// prepare for main loop
+void Scene::prepare(Box *box) {
+	octree->update(box);
+	octree->build();
 }
 
 /*
@@ -99,7 +110,7 @@ void Scene::processInput(float dt) {
 
 		// set camera direction
 		double dx = Mouse::getDX(),
-			dy = Mouse::getDY();;
+			dy = Mouse::getDY();
 		if (dx != 0 || dy != 0) {
 			cameras[activeCamera]->updateCameraDirection(dx, dy);
 		}
@@ -144,14 +155,19 @@ void Scene::processInput(float dt) {
 }
 
 // update screen before each frame
-void Scene::update()
+void Scene::update(Box *box)
 {
 	glClearColor(bg[0], bg[1], bg[2], bg[3]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	octree->update(box);
 }
 
 // update screen after each frame
 void Scene::newFrame() {
+	// process pending
+	octree->processPending();
+
 	// send new frame to window
 	glfwSwapBuffers(window);
 	glfwPollEvents();
@@ -274,7 +290,10 @@ RigidBody* Scene::generateInstance(std::string modelId, glm::vec3 size, float ma
 		std::string id = generateId();
 		rb->instanceId = id;
 		instances.insert(id, rb);
-		//instances[id] = { modelId, idx };
+		/*
+			octree
+		*/
+		octree->addToPending(rb, models);
 		return rb;
 	}
 	return nullptr;
