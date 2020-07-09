@@ -397,7 +397,7 @@ bool Octree::node::insert(BoundingRegion obj)
 				}
 
 				// create node for child
-				children[i] = new node(octants[i], {objs});
+				children[i] = new node(octants[i], objs);
 				children[i]->parent = this;
 				States::activateIndex(&activeOctants, i);
 				children[i]->build();
