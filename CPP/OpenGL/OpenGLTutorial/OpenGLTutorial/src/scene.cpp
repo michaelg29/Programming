@@ -155,18 +155,20 @@ void Scene::processInput(float dt) {
 }
 
 // update screen before each frame
-void Scene::update(Box &box)
+void Scene::update()
 {
 	glClearColor(bg[0], bg[1], bg[2], bg[3]);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	octree->update(box);
 }
 
 // update screen after each frame
-void Scene::newFrame() {
+void Scene::newFrame(Box &box) {
+	box.positions.clear();
+	box.sizes.clear();
+
 	// process pending
 	octree->processPending();
+	octree->update(box);
 
 	// send new frame to window
 	glfwSwapBuffers(window);

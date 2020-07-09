@@ -125,15 +125,12 @@ int main() {
 	}*/
 
 	while (!scene.shouldClose()) {
-		box.positions.clear();
-		box.sizes.clear();
-
 		// calculate dt
 		double currentTime = glfwGetTime();
 		dt = currentTime - lastFrame;
 		lastFrame = currentTime;
 		
-		scene.update(box);
+		scene.update();
 
 		// process input
 		processInput(dt);
@@ -163,8 +160,8 @@ int main() {
 		scene.renderShader(boxShader, false);
 		box.render(boxShader);
 
+		scene.newFrame(box);
 		scene.clearDeadInstances();
-		scene.newFrame();
 	}
 
 	scene.cleanup();
