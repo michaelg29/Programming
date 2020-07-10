@@ -386,18 +386,8 @@ bool Octree::node::insert(BoundingRegion obj)
 			}
 			else
 			{
-				std::vector<BoundingRegion> objs = { obj };
-
-				// determine if any existing children fit inside
-				for (int i = objects.size() - 1; i >= 0; i--) {
-					if (octants[i].containsRegion(objects[i])) {
-						objs.push_back(objects[i]);
-						objects.erase(objects.begin() + i);
-					}
-				}
-
 				// create node for child
-				children[i] = new node(octants[i], objs);
+				children[i] = new node(octants[i], { obj });
 				children[i]->parent = this;
 				States::activateIndex(&activeOctants, i);
 				children[i]->build();
