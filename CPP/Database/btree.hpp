@@ -1,20 +1,17 @@
 #ifndef BTREE_HPP
 #define BTREE_HPP
 
-#include <vector>
-#include <iostream>
-
 namespace btree {
-    template <typename V>
-    void shiftRight(V* arr, int i, int& size) {
+    template <typename T>
+    void shiftRight(T* arr, int i, int& size) {
         for (int idx = size - 1; idx >= i; idx--) {
             arr[idx + 1] = arr[idx];
         }
         size++;
     }
 
-    template <typename V>
-    void shiftLeft(V* arr, int i, int& size) {
+    template <typename T>
+    void shiftLeft(T* arr, int i, int& size) {
         for (; i < size - 1; i++) {
             arr[i] = arr[i + 1];
         }
@@ -24,72 +21,40 @@ namespace btree {
     template <typename T>
     class node {
     public:
-        node<T>** children;		// array of child pointers
-        T** data;				// array of data (has keys)
+        node<T>** children;	// array of child pointers
+        T** data;       // array of data (has keys)
 
-        int m;			// maximum tree degree
-        int divisor;	// index divisor
-        int n;			// current number of keys
-        int min;		// min no keys = ceil(m / 2) - 1
+        int m;                  // tree degree
+        int n;                  // current number of keys
+        int min;                // min no keys = ceil(m / 2) - 1
 
-        bool leaf;				// true if no children
+        bool leaf;              // true if no children
 
         node(int m, bool leaf = true)
-            : m(m), divisor(m / 2), min(ceil(m / 2.) - 1), leaf(leaf), n(0) {
+            : m(m), min(ceil(m / 2.) - 1), leaf(leaf), n(0) {
             // allocate memory for arrays
             children = new node<T> * [m + 1];
             data = new T * [m];
         }
 
-        node<T>* split(T*& upshiftElement) {
-            node<T>* right = new node<T>(m, leaf);
-
-            upshiftElement = data[divisor];
-            data[divisor] = nullptr;
-
-            // data
-            for (int idx = divisor + 1; idx < n; idx++) {
-                T* b = data[idx];
-                right->data[idx - divisor - 1] = data[idx];
-                right->n++;
-                data[idx] = nullptr;
-            }
-            n -= right->n + 1; // to account for divisor
-
-            // children
-            if (!leaf) {
-                // m + 1 because overflow creates one additional child
-                for (int idx = divisor + 1; idx < m + 1; idx++) {
-                    node<T>* b = children[idx];
-                    right->children[idx - divisor - 1] = children[idx];
-                    children[idx] = nullptr;
-                }
-            }
-
-            return right;
-        }
-
         node<T>* insert(T* element, T*& upshiftElement) {
             /*
-                if full, return branch to right
+                if overflow, return new created child and update reference for new parent
             */
 
-            /*
-                find ordered position for element
-                - start from left and iterate until is less than an element
-                - its location will be i for data after shift, i for children
-            */
+            // find ordered position for element
             int i = 0;
             while (i < n && element->key > data[i]->key) {
                 i++;
             }
 
             if (leaf) {
+                // allocate space and assign
                 shiftRight<T*>(data, i, n);
                 data[i] = element;
 
                 if (n == m) {
-                    // too many elements
+                    // overflow
                     return split(upshiftElement);
                 }
             }
@@ -98,15 +63,15 @@ namespace btree {
                 node<T>* right = children[i]->insert(element, upshiftElement);
 
                 if (right) {
-                    // child overflowed, returned divisor and right branch
+                    // overflow in child, returned min and right branch
 
                     // set data
                     shiftRight<T*>(data, i, n);
                     data[i] = upshiftElement;
 
                     // add child
-                    int j = n;
-                    shiftRight<node<T>*>(children, i + 1, j);
+                    int _n = n;
+                    shiftRight<node<T>*>(children, i + 1, _n);
                     children[i + 1] = right;
 
                     if (n == m) {
@@ -120,174 +85,200 @@ namespace btree {
             return nullptr;
         }
 
-        /*
-            return cases
-            -1: child not found
-            0: successful deletion
-            1: leaf node, cannot delete because violates min
-        */
-        int eraseIndex(int i) {
-            int childIdx = -1;
-            int keyIdx = -1;
-
-            if (leaf) {
-                // leaf node
-                /*
-                    - delete data
-                    - determine if need to shift
-                */
-                data[i] = nullptr;
-                //shiftLeft<T*>(data, i, n);
-                /*
-                    - if doesn't violate min number of keys, successful deletion
-                    - else, need to borrow
-                */
-                return (n > min) ? 0 : 1;
-            }
-            else {
-                if (children[i]->n > min) {
-                    // left child can give key
-                    /*
-                        - get greatest key in left child
-                        - delete the greatest key in left child recursively
-                        - replace target in this with that key
-                    */
-                }
-                else if (children[i + 1] > min) {
-                    // right child can give key
-                    /*
-                        - get smallest key in right child
-                        - delete smallest key in right child recursively
-                        - replace target in this with that key
-                    */
-                }
-                else {
-                    // both children have min number of keys
-                    /*
-                        - merge left and right children with target key
-                        - left shift children to right
-                        - recursively delete target key from merged child
-                    */
+        T*& search(int key) {
+            int i = 0;
+            for (; i < n && key >= data[i]->key; i++) {
+                if (key == data[i]->key) {
+                    // found element
+                    return data[i];
                 }
             }
 
-        childDeletion:
-            if (childIdx != -1 && keyIdx != -1) {
-                int res = children[childIdx]->eraseIdx(keyIdx);
-                switch (res) {
-                case -1:
-                    return -1;
-                case 0:
-                    // successful deletion
-                    // shift left
-                    shiftLeft<T*>(children[childIdx]->data, keyIdx, children[childIdx]->n);
-                    return 0;
-                case 1:
-                    // leaf node violates minimum number of keys
-                    /*
-                        - if left sibling has more than min, borrow from left
-                        - if right sibling has more than min, borrow from right
-                        - else merge with left parent and sibling
-                        note: no need for recursion because all leaves on same level
-                        borrow: take parent from left/right and insert, take smallest/largest key from left/right and move up
-                    */
+            // if no children, no other places to look
+            return leaf ? nullptr : children[i]->search(key);
+        }
 
-                    int _n = -1;
-
-                    if (childIdx > 0) {
-                        _n = children[childIdx - 1]->n;
-                    }
-                    if (_n > min) {
-                        // make space in target
-                        //shiftRight<T*>(children[childIdx]->data, 0, children[childIdx]->n);
-                        // insert data in parent to target
-                        children[childIdx]->data[0] = data[childIdx - 1];
-                        // bring data from left child up
-                        data[childIdx - 1] = children[childIdx - 1]->data[_n - 1];
-                        // remove data from left child
-                        children[childIdx - 1]->data[_n - 1] = nullptr;
-                        children[childIdx - 1]->n--;
-                        return 0;
-                    }
-
-                    if (childIdx < m - 1) {
-                        _n = children[childIdx + 1];
-                    }
-                    if (_n > min) {
-                        // make space in target
-                        // insert data in parent to target
-                        children[childIdx]->data[_n] = data[childIdx];
-                        // bring data from right child up
-                        data[childIdx] = children[childIdx + 1]->data[0];
-                        // remove data from right child
-                        children[childIdx + 1]->data[0] = nullptr;
-                        shiftLeft<T*>(children[childIdx - 1]->data, 0, children[childIdx - 1]->n);
-                        return 0;
-                    }
-
-                    // merge otherwise
-                    // shift left
-                    shiftLeft<T*>(children[childIdx]->data, keyIdx, children[childIdx]->n);
-                    if (childIdx < m - 1) {
-                        // merge with right child
-                        _n = children[childIdx]->n++;
-                        //children[childIdx]->data[_n - 1] = 
-                    }
-                    else {
-                        // merge with left child
-                    }
+        void traverse(void(itemViewer)(T* data)) {
+            for (int i = 0; i < n; i++) {
+                if (!leaf) {
+                    // has children
+                    children[i]->traverse(itemViewer);
                 }
+                itemViewer(data[i]);
+            }
+            if (!leaf) {
+                // get rightmost child
+                children[n]->traverse(itemViewer);
             }
         }
 
+        /*
+            return vals
+            -1:	child not found
+            0:	successful deletion
+            1:	cannot delete because violates min
+        */
+        int erase(int key) {
+            // find location
+            bool found = false;
+            int i = 0;
+            while (i < n && key >= data[i]->key) {
+                if (key == data[i]->key) {
+                    // found element
+                    found = true;
+                    break;
+                }
+                i++;
+            }
 
+            if (found) {
+                // key in data
+                if (leaf) {
+                    // remove item
+                    data[i] = nullptr;
+                    shiftLeft<T*>(data, i, n);
+                }
+                else {
+                    // left child: children[i], right child: children[i + 1]
 
+                    // substitute from left
+                    int _n = children[i]->n;
+                    if (_n > children[i]->min) {
+                        T* repl = getPredecessor(i);
+                        // recursively delete largest key from left
+                        children[i]->erase(repl->key);
+                        // borrow largest key from left
+                        data[i] = repl;
+                        return 0;
+                    }
 
+                    // substitute from right
+                    _n = children[i + 1]->n;
+                    if (_n > children[i]->min) {
+                        T* repl = getSuccessor(i + 1);
+                        // recursively delete smallest key from right
+                        children[i + 1]->erase(repl->key);
+                        // borrow smallest key from right
+                        data[i] = repl;
+                        return 0;
+                    }
 
+                    // both children have min no keys (no possible substitution)
+                    data[i] = nullptr;
+                    shiftLeft<T*>(data, i, n);
+                    mergeChildren(i);
+                }
 
+                // if violates minimum condition, return that case
+                return n >= min ? 0 : 1;
+            }
+            else {
+                if (leaf) {
+                    // no more children to search
+                    return -1;
+                }
 
+                // goto child
+                int res = children[i]->erase(key);
+                if (res < 1) {
+                    // successful or not found
+                    return res;
+                }
+                else {
+                    // deletion in child violates minimum condition
+                    /*
+                        - look to its siblings, if either sibling has more than min, borrow from it
+                        - else, merge with sibling and parent
 
+                        will have left sibling if i > 0
+                        will have right sibling if i < n - 1
+                    */
 
+                    bool hasLeft = i > 0;
+                    bool hasRight = i < n + 1; // + 1 because data already removed
 
+                    if (hasLeft && children[i - 1]->n > children[i]->min) {
+                        borrow(i, true);
+                        return 0;
+                    }
 
+                    if (hasRight && children[i + 1]->n > children[i]->min) {
+                        borrow(i, false);
+                        return 0;
+                    }
 
+                    // merge with sibling and parent
+                    if (hasLeft) {
+                        // parent is data[i - 1]
 
+                        // insert into target child
+                        shiftRight<T*>(children[i]->data, 0, children[i]->n);
+                        children[i]->data[0] = data[i - 1];
 
+                        mergeChildren(i - 1);
+                        shiftLeft(data, i - 1, n);
 
+                        return n >= min ? 0 : 1;
+                    }
+                    if (hasRight) {
+                        // parent is data[i]
 
+                        // insert into right sibling
+                        shiftRight<T*>(children[i + 1]->data, 0, children[i + 1]->n);
+                        children[i + 1]->data[0] = data[i];
 
+                        mergeChildren(i);
+                        shiftLeft<T*>(data, i, n);
+                       
+                        return n >= min ? 0 : 1;
+                    }
+                }
 
+                return -1;
+            }
+        }
 
+        void clear() {
+            for (int i = 0; i < n; i++) {
+                if (!leaf) {
+                    children[i]->clear();
+                    children[i] = nullptr;
+                }
+                data[i] = nullptr;
+            }
+            if (!leaf) {
+                children[n]->clear();
+                children[n] = nullptr;
+            }
+            children = nullptr;
+            data = nullptr;
+        }
 
+    private:
+        node<T>* split(T*& upshiftElement) {
+            node<T>* right = new node<T>(m, leaf);
 
+            upshiftElement = data[min];
+            data[min] = nullptr;
 
+            // data
+            for (int idx = min + 1; idx < n; idx++) {
+                right->data[idx - min - 1] = data[idx];
+                data[idx] = nullptr;
+                right->n++;
+            }
+            n -= right->n + 1;  // +1 to account for divisor
 
+            // children
+            if (!leaf) {
+                for (int idx = min + 1; idx <= m; idx++) {
+                    right->children[idx - min - 1] = children[idx];
+                    children[idx] = nullptr;
+                }
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            return right;
+        }
 
         T* getPredecessor(int idx) {
             node<T>* current = children[idx];
@@ -314,15 +305,22 @@ namespace btree {
             node<T>* sibling = children[leftIdx + 1];
 
             int ogN = child->n;
+            if (ogN == 0) {
+                ogN++;
+            }
 
             // data
             for (int i = 0; i < children[leftIdx + 1]->n; i++) {
+                T* c = child->data[child->n];
+                T* s = sibling->data[i];
                 child->data[child->n++] = sibling->data[i];
             }
 
             // children
             if (!child->leaf) {
                 for (int i = 0; i <= sibling->n; i++) {
+                    node<T>* c = child->children[ogN + i - 1];
+                    node<T>* s = sibling->children[i];
                     child->children[ogN + i] = sibling->children[i];
                 }
             }
@@ -332,206 +330,80 @@ namespace btree {
             shiftLeft<node<T>*>(children, leftIdx + 1, _n);
         }
 
-        /*
-            return vals
-            -1:	child not found
-            0:	successful deletion
-            1:	cannot delete because violates min
-        */
-        int erase(int key, int idx = -1) {
-            // find location
-            bool found = false;
-            int i = -1;
-            if (idx == -1) {
-                i++;
-                while (i < n && key >= data[i]->key) {
-                    if (key == data[i]->key) {
-                        // found element
-                        found = true;
-                        break;
-                    }
-                    i++;
-                }
-            }
+        void borrow(int base, bool toLeft) {
+            bool isLeaf = children[base]->leaf;
 
-            if (found) {
-                // key in data
-                if (leaf) {
-                    // remove item
-                    data[i] = nullptr;
-                    shiftLeft<T*>(data, i, n);
+            // bring parent down
+            /*
+                if to left, parent is data[base - 1]
+                if to right, parent is data[base]
+            */
 
-                    // if violates minimum condition, return that case
-                    return n >= min ? 0 : 1;
-                }
-                else {
-                    // left child: children[i], right child: children[i + 1]
+            if (toLeft) {
+                // shift data over
+                shiftRight<T*>(children[base]->data, 0, children[base]->n);
+                // insert parent element
+                children[base]->data[0] = data[base - 1];
 
-                    int _n = children[i]->n;
-                    if (_n > children[i]->min) {
-                        T* repl = getPredecessor(i);
-                        // recursively delete largest key from left
-                        children[i]->erase(repl->key);
-                        // borrow largest key from left
-                        data[i] = repl;
-                        return 0;
-                    }
+                // substitute greatest child from left sibling
+                int _n = children[base - 1]->n;
+                data[base - 1] = children[base - 1]->data[_n - 1];
 
-                    _n = children[i + 1]->n;
-                    if (_n > children[i]->min) {
-                        T* repl = getSuccessor(i + 1);
-                        // recursively delete smallest key from right
-                        children[i]->erase(repl->key);
-                        // borrow smallest key from right
-                        data[i] = repl;
-                        return 0;
-                    }
+                // update sibling
+                children[base - 1]->data[_n - 1] = nullptr;
+                children[base - 1]->n--;
 
-                    // both children have min no keys
-                    /*
-                        - if more than min keys in this node, merge children
-                        - 
-                    */
-                    if (n > min) {
-                        // deletion doesn't violate condition
-                        shiftLeft<T*>(data, i, n);
-                        mergeChildren(i);
-                    }
-                    else {
+                if (!isLeaf) {
+                    // also bring over child
+                    int noChildren = children[base]->n;
+                    shiftRight<node<T>*>(children[base]->children, 0, noChildren);
 
-                    }
+                    children[base]->children[0] = children[base - 1]->children[_n];
+                    children[base - 1]->children[_n] = nullptr;
                 }
             }
             else {
-                if (leaf) {
-                    // no more children to search
-                    return -1;
-                }
+                // insert parent element
+                children[base]->data[children[base]->n] = data[base];
+                children[base]->n++;
 
-                // goto child
-                int res = children[i]->erase(key);
-                if (res < 1) {
-                    // successful or not found
-                    return res;
-                }
-                else {
-                    // TODO
-                    return -1;
+                // substitute smallest child from right sibling
+                int _n = children[base + 1]->n;
+                data[base] = children[base + 1]->data[0];
+
+                // update sibling
+                shiftLeft<T*>(children[base + 1]->data, 0, children[base + 1]->n);
+                children[base + 1]->data[children[base + 1]->n] = nullptr; // remove last key (extra)
+
+                if (!isLeaf) {
+                    // also bring over child
+                    int noChildren = children[base]->n;
+
+                    children[base]->children[noChildren] = children[base + 1]->children[0];
+                    _n++;
+                    shiftLeft<node<T>*>(children[base + 1]->children, 0, _n);
+                    children[base + 1]->children[_n] = nullptr; // remove last child (extra)
                 }
             }
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        T* search(int key) {
-            int i = 0;
-            while (i < n && key >= data[i]->key) {
-                if (key == data[i]->key) {
-                    // found element
-                    return data[i];
-                }
-                i++;
-            }
-
-            // if no children, no other places to look for the element
-            return leaf ? nullptr : children[i]->search(key);
-        }
-
-        std::vector<T*> traverse() {
-            std::vector<T*> ret;
-            for (int i = 0; i < n; i++) {
-                if (!leaf) {
-                    std::vector<T*> res = children[i]->traverse();
-                    ret.insert(ret.end(), res.begin(), res.end());
-                }
-                ret.push_back(data[i]);
-            }
-            if (!leaf) {
-                std::vector<T*> res = children[n]->traverse();
-                ret.insert(ret.end(), res.begin(), res.end());
-            }
-
-            return ret;
-        }
-
-        void clear() {
-            for (int i = 0; i < n; i++) {
-                if (!leaf) {
-                    children[i]->clear();
-                    children[i] = nullptr;
-                }
-                data[i] = nullptr;
-            }
-            if (!leaf) {
-                children[n]->clear();
-                children[n] = nullptr;
-            }
-            children = nullptr;
-            data = nullptr;
         }
     };
 
     template <typename T>
     class BTree {
     public:
-        int m;
+        int m;			// degree of tree
 
-        node<T>* root;
+        node<T>* root;	// root node of tree
 
         BTree(int m)
             : m(m) {
+            // allocate for root
             root = new node<T>(m, true);
             root->min = 1;
         }
 
-        std::vector<T*> traverse() {
-            return root->traverse();
+        void traverse(void(itemViewer)(T* data)) {
+            root->traverse(itemViewer);
         }
 
         void insert(std::vector<T*> elements) {
@@ -552,36 +424,55 @@ namespace btree {
                 newRoot->data[0] = upshiftElement;
                 newRoot->n = 1;
 
-                // place children
+                // set children
                 newRoot->children[0] = root;
                 newRoot->children[1] = right;
 
-                // set root
+                // reset root in class
                 root = newRoot;
             }
         }
 
-        T* search(int key) {
+        T*& operator[](int key) {
             return root->search(key);
         }
 
+        T*& search(int key) {
+            return root->search(key);
+        }
+
+        void clear() {
+            clearNode(root);
+        }
+
         bool erase(int key) {
-            if (root->leaf) {
-                // determine if in root data
-                for (int i = 0; i < root->n; i++) {
-                    if (root->data[i]->key == key) {
-                        root->data[i] = nullptr;
-                        shiftLeft<T*>(root->data, i, root->n);
-                        return true;
-                    }
+            int res = root->erase(key);
+
+            if (root->n == 0) {
+                // no more keys
+                root = root->children[0];
+            }
+
+            return res == 0;
+        }
+
+    private:
+        void clearNode(node<T>* n) {
+            for (int i = 0; i < n->n; i++) {
+                if (!n->leaf) {
+                    clearNode(n->children[i]);
+                    n->children[i] = nullptr;
                 }
-                return false;
+                n->data[i] = nullptr;
             }
-            else {
-                root->erase(key);
+            if (!n->leaf) {
+                clearNode(n->children[n->n]);
+                n->children[n->n] = nullptr;
             }
+            n->children = nullptr;
+            n->data = nullptr;
         }
     };
-};
+}
 
 #endif
