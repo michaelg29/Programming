@@ -1,4 +1,5 @@
 #include "bounds.h"
+#include "octree.h"
 
 // override operator
 bool BoundingRegion::operator==(BoundingRegion br) {

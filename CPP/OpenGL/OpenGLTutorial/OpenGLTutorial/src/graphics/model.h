@@ -18,11 +18,8 @@
 #include "mesh.h"
 #include "glmemory.hpp"
 
-#include "models/box.hpp"
-
 #include "../physics/rigidbody.h"
 
-#include "../algorithms/bounds.h"
 #include "../algorithms/states.hpp"
 
 // model switches

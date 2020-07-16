@@ -167,6 +167,10 @@ void Scene::newFrame(Box &box) {
 	box.sizes.clear();
 
 	// process pending
+	if (Keyboard::key(GLFW_KEY_F)) {
+		std::cout << "";
+	}
+
 	octree->processPending();
 	octree->update(box);
 
