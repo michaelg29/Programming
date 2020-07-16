@@ -237,6 +237,8 @@ void Scene::cleanup() {
 		model->cleanup();
 	});
 
+	octree->destroy();
+
 	glfwTerminate();
 }
 
@@ -286,8 +288,6 @@ std::string Scene::generateId() {
 
 void Scene::registerModel(Model* model) {
 	models.insert(model->id, model);
-
-	//models[model->id] = model;
 }
 
 RigidBody* Scene::generateInstance(std::string modelId, glm::vec3 size, float mass, glm::vec3 pos) {
@@ -296,9 +296,6 @@ RigidBody* Scene::generateInstance(std::string modelId, glm::vec3 size, float ma
 		std::string id = generateId();
 		rb->instanceId = id;
 		instances.insert(id, rb);
-		/*
-			octree
-		*/
 		octree->addToPending(rb, models);
 		return rb;
 	}
@@ -309,18 +306,12 @@ void Scene::initInstances() {
 	models.traverse([](Model* model) -> void {
 		model->initInstances();
 	});
-	/*for (auto& pair : models) {
-		pair.second->initInstances();
-	}*/
 }
 
 void Scene::loadModels() {
 	models.traverse([](Model* model) -> void {
 		model->init();
 	});
-	/*for (auto& pair : models) {
-		pair.second->init();
-	}*/
 }
 
 void Scene::removeInstance(std::string instanceId) {
@@ -331,7 +322,6 @@ void Scene::removeInstance(std::string instanceId) {
 	*/
 
 	std::string targetModel = instances[instanceId]->modelId;
-	//unsigned int targetIdx = instances[instanceId].second;
 
 	models[targetModel]->removeInstance(instanceId);
 
