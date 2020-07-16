@@ -14,9 +14,11 @@
 #include "trie.hpp"
 
 #include "../graphics/model.h"
-#include "../graphics/models/box.hpp"
 
 #include "../physics/rigidbody.h"
+
+class BoundingRegion;
+class Box;
 
 namespace Octree {
 	/*
@@ -85,6 +87,12 @@ namespace Octree {
 
 		// dynamically insert object into node
 		bool insert(BoundingRegion obj);
+
+		// check collisions with all objects in node
+		void checkCollisionSelf(BoundingRegion obj);
+
+		// check collisions with all objects in child nodes
+		void checkCollisionChildren(BoundingRegion obj);
 
 		// destroy object (free memory)
 		void destroy();

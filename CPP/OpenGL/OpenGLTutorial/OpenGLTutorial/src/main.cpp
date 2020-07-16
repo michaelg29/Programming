@@ -40,7 +40,7 @@ Sphere sphere(10);
 double dt = 0.0f; // time btwn frames
 double lastFrame = 0.0f; // time of last frame
 
-glm::vec3 Environment::gravity = glm::vec3(0.0f, -9.81f, 0.0f);
+glm::vec3 Environment::gravity = glm::vec3(0.0f, -.0981f, 0.0f);
 
 int main() {
 	std::cout << "Hello, OpenGL!" << std::endl;
@@ -89,9 +89,9 @@ int main() {
 	float k2 = 0.032f;
 
 	PointLight pointLights[] = {
-		{ glm::vec3(0.7f,  0.2f,  2.0f), k0, k1, k2, ambient, diffuse, specular },
-		{ glm::vec3(2.3f, -3.3f, -4.0f), k0, k1, k2, ambient, diffuse, specular },
-		{ glm::vec3(-4.0f,  2.0f, -12.0f), k0, k1, k2, ambient, diffuse, specular },
+		{ glm::vec3(0.5f,  0.5f,  0.5f), k0, k1, k2, ambient, diffuse, specular },
+		{ glm::vec3(0.5f, -0.5f, -0.5f), k0, k1, k2, ambient, diffuse, specular },
+		{ glm::vec3(-0.5f,  0.5f, -0.5f), k0, k1, k2, ambient, diffuse, specular },
 		{ glm::vec3(0.0f,  0.0f, -3.0f), k0, k1, k2, ambient, diffuse, specular }
 	};
 
@@ -160,6 +160,7 @@ int main() {
 		scene.renderShader(boxShader, false);
 		box.render(boxShader);
 
+		
 		scene.newFrame(box);
 		scene.clearDeadInstances();
 	}
@@ -171,7 +172,7 @@ int main() {
 void launchItem(float dt) {
 	RigidBody* rb = scene.generateInstance("sphere", glm::vec3(1.0f), 1.0f, cam.cameraPos);
 	if (rb) {
-		rb->transferEnergy(100.0f, cam.cameraFront);
+		rb->transferEnergy(10.0f, cam.cameraFront);
 		rb->applyAcceleration(Environment::gravity);
 	}
 }

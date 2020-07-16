@@ -6,6 +6,10 @@
 
 #include "../physics/rigidbody.h"
 
+namespace Octree {
+	class node;
+}
+
 enum class BoundTypes : unsigned char {
 	AABB = 0x01,
 	SPHERE = 0x02
@@ -17,6 +21,9 @@ public:
 
 	// rigid body pointer (for quick access to state)
 	RigidBody* instance;
+
+	// octree cell pointer (for quick access to current cell)
+	Octree::node* cell;
 
 	// sphere values
 	glm::vec3 center;
