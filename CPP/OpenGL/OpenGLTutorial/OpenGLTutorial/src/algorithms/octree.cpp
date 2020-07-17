@@ -293,7 +293,7 @@ void Octree::node::update(Box &box)
 			*/
 			objects.erase(objects.begin() + movedObjects.top());
 			movedObjects.pop();
-			movedObj.cell = current;
+			//movedObj.cell = current;
 			current->insert(movedObj);
 
 			// collision detection
@@ -403,10 +403,9 @@ bool Octree::node::insert(BoundingRegion obj)
 
 	// determine which octants to place objects in
 	std::vector<BoundingRegion> octLists[NO_CHILDREN]; // array of lists of objects in each octant
-	//std::stack<int> delList;						   // list of objects that have been placed
-
 	for (int i = 0, length = objects.size(); i < length; i++)
 	{
+		objects[i].cell = this;
 		for (int j = 0; j < NO_CHILDREN; j++)
 		{
 			if (octants[j].containsRegion(objects[i]))
@@ -430,7 +429,6 @@ bool Octree::node::insert(BoundingRegion obj)
 			{
 				// insert into existing child
 				for (BoundingRegion br : octLists[i]) {
-					br.cell = children[i];
 					children[i]->insert(br);
 				}
 			}
