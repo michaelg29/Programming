@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Password Vault</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+</head>
+
+<body>
+    <main>
+
+    </main>
+
+    <footer>
+        <ul id="footer-properties">
+            <li id="loading-animation"></li>
+        </ul>
+    </footer>
+
+    <script src="../renderer.js"></script>
+
+    <script>
+        // loading animation
+        var loadingAnimTimer;
+
+        setResponse('loading-animation:start', () => {
+            var i = 0;
+
+            loadingAnimTimer = setInterval(() => {
+                i = ++i % 4;
+                jQuery('#loading-animation').html(`Loading ${Array(i + 1).join(".")}`);
+            }, 800);
+        });
+
+        setResponse('loading-animation:stop', () => {
+            if (loadingAnimTimer) {
+                clearInterval(loadingAnimTimer);
+            }
+
+            jQuery('#loading-animation').html('');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,87 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        * {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-size: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            margin: 15px 0;
+        }
+
+        li span {
+            padding: 15px;
+            margin: 0;
+        }
+
+        li span[name] {
+            font-weight: bold;
+        }
+
+        span {
+            cursor: pointer;
+
+            background-color: gray;
+            opacity: 0.5;
+        }
+
+        span.selected {
+            background-color: navy;
+            opacity: 1;
+            color: white;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <ul>
+        <li>
+            <span name>Amazon</span>
+            <span>Password</span>
+            <span>Email</span>
+            <span>URL</span>
+        </li>
+        <li>
+            <span name>Google</span>
+            <span>Password</span>
+            <span>Username</span>
+            <span>URL</span>
+        </li>
+    </ul>
+
+    <button id="submit">Enter</button>
+
+    <script>
+        $("li").each((idx, element) => {
+            var _element = this;
+            console.log(element.textContent);
+
+            this.clickHandler = function (event) {
+                console.log(event.target.hasAttribute("name"));
+                if (event.target.hasAttribute("name")) {
+                    // select all
+                    $(this).children("span").classList.toggle("selected");
+                }
+                else {
+                    event.target.classList.toggle("selected");
+                }
+            }
+
+            $(this).children("span").click(this.clickHandler);
+        });
+    </script>
+</body>
+
+</html>
