@@ -2,19 +2,66 @@
 #define IMAGE_HPP
 
 #include "bmp.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
-class Image
-{
+class Image {
 public:
-	bool read(const char *file)
-	{
+	/*
+		utility methods
+	*/
+
+	void generate(LONG _width, LONG _height) {
+		width = _width;
+		height = _height;
+
+		// allocate memory for arrays
+		data = new RGBTRIPLE * [height];
+		for (int i = 0; i < height; i++) {
+			data[i] = new RGBTRIPLE[width];
+		}
+	}
+
+	void clear() {
+		for (int i = 0; i < height; i++) {
+			data[i] = nullptr;
+		}
+		data = nullptr;
+
+		// reset properties
+		width = 0;
+		height = 0;
+	}
+
+	bool inBounds(int x, int y) {
+		return x < width && y < height;
+	}
+
+	bool setPixel(int x, int y, BYTE r, BYTE g, BYTE b) {
+		if (!inBounds(x, y)) {
+			return false;
+		}
+		data[y][x] = { b, g, r };
+		return true;
+	}
+
+	bool setPixel(int x, int y, double r, double g, double b) {
+		return setPixel(x, y,
+			r * 255 + 0.5,
+			g * 255 + 0.5,
+			b * 255 + 0.5);
+	}
+
+	/*
+		input/output
+	*/
+
+	bool read(const char* file) {
 		// open file
-		FILE *inptr;
+		FILE* inptr;
 		errno_t error = fopen_s(&inptr, file, "r");
-		if (error != 0)
-		{
+		if (error != 0) {
 			return false;
 		}
 
@@ -28,25 +75,24 @@ public:
 		width = bi.biWidth;
 		height = bi.biHeight;
 
-		// pad so line length becomes multiple of 4
+		// calculate padding so line length becomes multiple of 4
 		int padding = 4 - (width * sizeof(RGBTRIPLE)) % 4;
 
 		// calculate row size
 		int rowSize = width * sizeof(RGBTRIPLE) + padding;
 
 		// read data row by row
-		unsigned char *row = new unsigned char[rowSize];
-		data = new RGBTRIPLE *[height];
-		for (int i = 0; i < height; i++)
-		{
+		BYTE* row = new BYTE[rowSize];
+		data = new RGBTRIPLE * [height];
+		for (int i = 0; i < height; i++) {
 			data[i] = new RGBTRIPLE[width];
-			fread(row, sizeof(unsigned char), rowSize, inptr);
-			for (int j = 0; j < width; j++)
-			{
+			fread(row, sizeof(BYTE), rowSize, inptr);
+			for (int j = 0; j < width; j++) {
 				data[i][j] = {
 					row[j * 3],
 					row[j * 3 + 1],
-					row[j * 3 + 2]};
+					row[j * 3 + 2]
+				};
 			}
 		}
 
@@ -56,13 +102,11 @@ public:
 		return true;
 	}
 
-	bool write(const char *file)
-	{
+	bool write(const char* file) {
 		// open file
-		FILE *outptr;
+		FILE* outptr;
 		errno_t error = fopen_s(&outptr, file, "w");
-		if (error != 0)
-		{
+		if (error != 0) {
 			return false;
 		}
 
@@ -87,7 +131,6 @@ public:
 		bi.biBitCount = 24;
 		bi.biCompression = 0;
 		bi.biSizeImage = 0;
-		bi.biSizeImage = 0;
 		bi.biXPelsPerMeter = 0;
 		bi.biYPelsPerMeter = 0;
 		bi.biClrUsed = 0;
@@ -95,16 +138,13 @@ public:
 		fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
 
 		// write data
-		for (int i = 0; i < height; i++)
-		{
+		for (int i = 0; i < height; i++) {
 			// write row
-			fwrite(&data[i][0], sizeof(RGBTRIPLE), width, outptr);
+			fwrite(data[i], sizeof(RGBTRIPLE), width, outptr);
 
 			// write padding
-			if (padding > 0)
-			{
-				for (int k = 0; k < padding; k++)
-				{
+			if (padding > 0) {
+				for (int j = 0; j < padding; j++) {
 					fputc(0x00, outptr);
 				}
 			}
@@ -116,99 +156,47 @@ public:
 		return true;
 	}
 
-	void clear()
-	{
-		for (int i = 0; i < height; i++)
-		{
-			data[i] = nullptr;
-		}
-		data = nullptr;
+	/*
+		transformations - scaling
+	*/
 
-		width = 0;
-		height = 0;
-	}
-
-	void generate(LONG _width, LONG _height)
-	{
-		width = _width;
-		height = _height;
-
-		data = new RGBTRIPLE *[height];
-		for (int i = 0; i < height; i++)
-		{
-			data[i] = new RGBTRIPLE[width];
-		}
-	}
-
-	bool inBounds(int x, int y)
-	{
-		return x < width && y < height;
-	}
-
-	bool setPixel(int x, int y, unsigned char r, unsigned char g, unsigned char b)
-	{
-		if (!inBounds(x, y))
-		{
-			return false;
-		}
-		data[y][x] = {b, g, r};
-		return true;
-	}
-
-	bool setPixel(int x, int y, double r, double g, double b)
-	{
-		return setPixel(x, y, r * 255 + 0.5, g * 255 + 0.5, b * 255 + 0.5);
-	}
-
-	void scale(float f)
-	{
+	void scale(float f) {
 		horizontalScale(f);
 		verticalScale(f);
 	}
 
-	void scale(float fx, float fy)
-	{
+	void scale(float fx, float fy) {
 		horizontalScale(fx);
 		verticalScale(fy);
 	}
 
-	void horizontalScale(float f)
-	{
-		if (f == 1.0f)
-		{
+	void horizontalScale(float f) {
+		if (f == 1.0f) {
 			return;
 		}
 
 		// update properties
-		LONG oldWidth = width;
-
 		width *= f;
 
 		// allocate new array
-		RGBTRIPLE **newData = new RGBTRIPLE *[height];
-		for (int i = 0; i < height; i++)
-		{
+		RGBTRIPLE** newData = new RGBTRIPLE * [height];
+		for (int i = 0; i < height; i++) {
 			newData[i] = new RGBTRIPLE[width];
 		}
 
-		// load modified data into new array
-		for (int row = 0; row < height; row++)
-		{
+		// load data into new array
+		for (int row = 0; row < height; row++) {
 			for (int newi = 0, oldi = 0;
-				 newi < width;
-				 newi++, oldi++)
-			{
-				if (f < 1.0f)
-				{
+				newi < width;
+				newi++, oldi++) {
+				if (f < 1.0f) {
 					// skip cols
 					newData[row][newi] = data[row][oldi];
 					oldi += 1 / f - 1;
 				}
-				else
-				{
+				else {
 					// copy cols
-					for (int j = 0; j < f; j++)
-					{
+					for (int j = 0; j < f; j++) {
 						newData[row][newi++] = data[row][oldi];
 					}
 					newi--;
@@ -216,45 +204,36 @@ public:
 			}
 		}
 
-		// set new data
+		// set data
 		data = newData;
 	}
 
-	void verticalScale(float f)
-	{
-		if (f == 1.0f)
-		{
+	void verticalScale(float f) {
+		if (f == 1.0f) {
 			return;
 		}
 
 		// update properties
-		LONG oldHeight = height;
-
 		height *= f;
 
 		// allocate new array
-		RGBTRIPLE **newData = new RGBTRIPLE *[height];
-		for (int i = 0; i < height; i++)
-		{
+		RGBTRIPLE** newData = new RGBTRIPLE * [height];
+		for (int i = 0; i < height; i++) {
 			newData[i] = new RGBTRIPLE[width];
 		}
 
-		// load modified data into new array
+		// load new data
 		for (int newi = 0, oldi = 0;
-			 newi < height;
-			 newi++, oldi++)
-		{
-			if (f < 1.0f)
-			{
+			newi < height;
+			newi++, oldi++) {
+			if (f < 1.0f) {
 				// skip rows
 				newData[newi] = data[oldi];
 				oldi += 1 / f - 1;
 			}
-			else
-			{
+			else {
 				// copy rows
-				for (int j = 0; j < f; j++)
-				{
+				for (int j = 0; j < f; j++) {
 					newData[newi++] = data[oldi];
 				}
 				newi--;
@@ -265,46 +244,49 @@ public:
 		data = newData;
 	}
 
-	void rotate90CW()
-	{
-		reflectXY();
-		reflectX();
+	/*
+		transformations - reflections
+	*/
+
+	// reflect across x axis (vertically)
+	void reflectX() {
+		for (int i = 0; i < height / 2; i++) {
+			// make copy of row
+			RGBTRIPLE* tmp = data[i];
+			data[i] = data[height - 1 - i];
+			data[height - 1 - i] = tmp;
+		}
 	}
 
-	void rotate90CCW()
-	{
-		reflectXY();
-		reflectY();
+	// reflect across y axis (horizontally)
+	void reflectY() {
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width / 2; j++) {
+				// swap pixels
+				RGBTRIPLE tmp = data[i][j];
+				data[i][j] = data[i][width - 1 - j];
+				data[i][width - 1 - j] = tmp;
+			}
+		}
 	}
 
-	void rotate180()
-	{
-		rotate90CW();
-		rotate90CW();
-	}
-
-	// reflect across diagonal
-	void reflectXY()
-	{
+	// reflect across line y = x
+	void reflectXY() {
 		// update properties
 		LONG oldWidth = width;
-		LONG oldHeight = height;
 
-		width = oldHeight;
+		width = height;
 		height = oldWidth;
 
 		// allocate new array
 		RGBTRIPLE** newData = new RGBTRIPLE * [height];
-		for (int i = 0; i < height; i++)
-		{
+		for (int i = 0; i < height; i++) {
 			newData[i] = new RGBTRIPLE[width];
 		}
 
-		// load modified data into new array
-		for (int i = 0; i < height; i++)
-		{
-			for (int j = 0; j < width; j++)
-			{
+		// load new data
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
 				newData[i][j] = data[j][i];
 			}
 		}
@@ -313,40 +295,54 @@ public:
 		data = newData;
 	}
 
-	// reflect across x axis (vertically)
-	void reflectX()
-	{
-		// update data
-		for (int i = 0; i < height / 2; i++)
-		{
-			// make copy of row
-			RGBTRIPLE *tmp = data[i];
-			data[i] = data[height - 1 - i];
-			data[height - 1 - i] = tmp;
-		}
+	/*
+		transformations - rotations
+	*/
+
+	void rotate90CW() {
+		reflectXY();
+		reflectX();
 	}
 
-	// reflect across y axis (horizontally)
-	void reflectY()
-	{
-		// update data
-		for (int i = 0; i < height; i++)
-		{
-			for (int j = 0; j < width / 2; j++)
-			{
-				// swap pixel with one on other side
-				RGBTRIPLE tmp = data[i][j];
-				data[i][j] = data[i][width - 1 - j];
-				data[i][width - 1 - j] = tmp;
+	void rotate90CCW() {
+		reflectXY();
+		reflectY();
+	}
+
+	void rotate180() {
+		rotate90CW();
+		rotate90CW();
+	}
+
+	/*
+		transformations - cropping
+	*/
+
+	void crop(int left, int right, int top, int bottom) {
+		width -= left + right;
+		height -= top + bottom;
+
+		// allocate new array
+		RGBTRIPLE** newData = new RGBTRIPLE * [height];
+		for (int i = 0; i < height; i++) {
+			newData[i] = new RGBTRIPLE[width];
+		}
+
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				newData[i][j] = data[top + i][left + j];
 			}
 		}
+
+		// set new data
+		data = newData;
 	}
 
 private:
 	LONG width;
 	LONG height;
 
-	RGBTRIPLE **data;
+	RGBTRIPLE** data;
 };
 
 #endif
