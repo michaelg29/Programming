@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClInclude Include="bmp.h" />
     <ClInclude Include="image.hpp" />
+    <ClInclude Include="perlin.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

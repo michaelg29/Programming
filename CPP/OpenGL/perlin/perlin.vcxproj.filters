@@ -26,5 +26,8 @@
     <ClInclude Include="image.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="perlin.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
