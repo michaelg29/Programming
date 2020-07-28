@@ -46,41 +46,6 @@ namespace perlin {
 
 		return newMin + prop * (newMax - newMin);
 	}
-	
-	/*
-		dot product
-	*/
-
-	// two dimensions
-	inline float dot2D(float x1, float y1, float x2, float y2) {
-		return x1 * x2 + y1 * y2;
-	}
-
-	// three dimensions
-	inline float dot3D(float x1, float y1, float z1, float x2, float y2, float z2) {
-		return x1 * x2 + y1 * y2 + z1 * z2;
-	}
-
-	/*
-		normalize
-	*/
-
-	// two dimenisons
-	inline void normalize2D(float v[2]) {
-		float mag = sqrt(v[0] * v[0] + v[1] * v[1]);
-
-		v[0] /= mag;
-		v[1] /= mag;
-	}
-
-	// three dimenisons
-	inline void normalize3D(float v[3]) {
-		float mag = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-
-		v[0] /= mag;
-		v[1] /= mag;
-		v[2] /= mag;
-	}
 
 	/*
 		main class
@@ -93,11 +58,6 @@ namespace perlin {
 
 		// current seed
 		unsigned int seed;
-
-		// gradient arrays
-		float grad1[512];
-		float grad2[512][2];
-		float grad3[512][3];
 
 	public:
 		/*
@@ -115,16 +75,6 @@ namespace perlin {
 			// populate array in order
 			for (unsigned int i = 0; i < 256; i++) {
 				p[i] = i;
-
-				grad1[i] = (float)((rand() % (512)) - 256) / 256;
-
-				for (int j = 0; j < 2; j++)
-					grad2[i][j] = (float)((rand() % (512)) - 256) / 256;
-				normalize2D(grad2[i]);
-
-				for (int j = 0; j < 3; j++)
-					grad3[i][j] = (float)((rand() % (512)) - 256) / 256;
-				normalize3D(grad3[i]);
 			}
 
 			// shuffle first half
@@ -133,16 +83,6 @@ namespace perlin {
 			// duplicate array for overflow
 			for (unsigned int i = 0; i < 256; i++) {
 				p[256 + i] = p[i];
-
-				grad1[256 + i] = grad1[i];
-
-				for (int j = 0; j < 2; j++) {
-					grad2[256 + i][j] = grad2[i][j];
-				}
-
-				for (int j = 0; j < 3; j++) {
-					grad3[256 + i][j] = grad3[i][j];
-				}
 			}
 		}
 
