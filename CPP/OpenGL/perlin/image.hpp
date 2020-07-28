@@ -31,9 +31,6 @@ public:
 		data = new RGBTRIPLE * [height];
 		for (int i = 0; i < height; i++) {
 			data[i] = new RGBTRIPLE[width];
-			for (int j = 0; j < width; j++) {
-				data[i][j] = { 0, 0, 0 };
-			}
 		}
 	}
 
@@ -91,7 +88,7 @@ public:
 		height = bi.biHeight;
 
 		// calculate padding so line length becomes multiple of 4
-		int padding = 4 - (width * sizeof(RGBTRIPLE)) % 4;
+		int padding = width * sizeof(RGBTRIPLE) % 4;
 
 		// calculate row size
 		int rowSize = width * sizeof(RGBTRIPLE) + padding;
@@ -126,7 +123,7 @@ public:
 		}
 
 		// get size of image
-		int padding = 4 - (width * sizeof(RGBTRIPLE)) % 4;
+		int padding = width * sizeof(RGBTRIPLE) % 4;
 		DWORD imgSize = height * (width * sizeof(RGBTRIPLE) + padding);
 
 		// set/write headers
