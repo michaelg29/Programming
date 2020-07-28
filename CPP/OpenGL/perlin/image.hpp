@@ -9,6 +9,17 @@
 class Image {
 public:
 	/*
+		accessors
+	*/
+	LONG getWidth() {
+		return width;
+	}
+
+	LONG getHeight() {
+		return height;
+	}
+
+	/*
 		utility methods
 	*/
 
@@ -20,6 +31,9 @@ public:
 		data = new RGBTRIPLE * [height];
 		for (int i = 0; i < height; i++) {
 			data[i] = new RGBTRIPLE[width];
+			for (int j = 0; j < width; j++) {
+				data[i][j] = { 0, 0, 0 };
+			}
 		}
 	}
 
@@ -48,9 +62,10 @@ public:
 
 	bool setPixel(int x, int y, double r, double g, double b) {
 		return setPixel(x, y,
-			r * 255 + 0.5,
-			g * 255 + 0.5,
-			b * 255 + 0.5);
+			(BYTE)(r * 255 + 0.5),
+			(BYTE)(g * 255 + 0.5),
+			(BYTE)(b * 255 + 0.5)
+		);
 	}
 
 	/*

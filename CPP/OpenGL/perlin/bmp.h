@@ -86,11 +86,11 @@ PACK(struct BITMAPINFOHEADER
 
     Adapted from http://msdn.microsoft.com/en-us/library/aa922590.aspx.
 */
-PACK(struct RGBTRIPLE
+struct RGBTRIPLE
 {
     BYTE  rgbtBlue;
     BYTE  rgbtGreen;
     BYTE  rgbtRed;
-});
+};
 
 #endif
