@@ -108,52 +108,45 @@ bool BoundingRegion::containsRegion(BoundingRegion br) {
 
 // method to determine if bounding region intersects
 bool BoundingRegion::intersectsWith(BoundingRegion br) {
+	// overlap on all axes
+
 	if (type == BoundTypes::AABB && br.type == BoundTypes::AABB) {
 		// both boxes
-		// must overlap on all axes
 
-		glm::vec3 rad = calculateDimensions() / 2.0f;		// "radius" of this box
-		glm::vec3 rad_br = br.calculateDimensions() / 2.0f; // "radius" of other box
+		glm::vec3 rad = calculateDimensions() / 2.0f;				// "radius" of this box
+		glm::vec3 radBr = br.calculateDimensions() / 2.0f;			// "radius" of br
 
-		glm::vec3 c = calculateCenter();       // center of this box
-		glm::vec3 c_br = br.calculateCenter(); // center of other box
+		glm::vec3 center = calculateCenter();						// center of this box
+		glm::vec3 centerBr = br.calculateCenter();					// center of br
 
-		glm::vec3 dist = abs(c - c_br);
+		glm::vec3 dist = abs(center - centerBr);
 
 		for (int i = 0; i < 3; i++) {
-			if (glm::length(dist[i]) > glm::length(rad[i] + rad_br[i])) {
+			if (dist[i] > rad[i] + radBr[i]) {
 				// no overlap on this axis
 				return false;
 			}
 		}
 
+		// failed to prove wrong on each axis
 		return true;
 	}
 	else if (type == BoundTypes::SPHERE && br.type == BoundTypes::SPHERE) {
-		// both spheres
-		// distance between centers must be less than combined radii
+		// both spheres - distance between centers must be less than combined radius
 
-		return (glm::length(center - br.center)) < (radius + br.radius);
+		return glm::length(center - br.center) < (radius + br.radius);
 	}
 	else if (type == BoundTypes::SPHERE) {
 		// this is a sphere, br is a box
-
-		// determine if above top, below bottom, etc
-		// find distance (squared) to each closest plane
 		float distSquared = 0.0f;
 		for (int i = 0; i < 3; i++) {
-			if (center[i] < br.min[i]) {
-				// beyond min
-				distSquared += (br.min[i] - center[i]) * (br.min[i] - center[i]);
-			}
-			else if (center[i] > br.max[i]) {
-				// beyond max
-				distSquared += (center[i] - br.max[i]) * (center[i] - br.max[i]);
-			}
-			// else inside
+			// determine closest side
+			float closestPt = std::max(br.min[i], std::min(center[i], br.max[i]));
+			// add distance
+			distSquared += (closestPt - center[i]) * (closestPt - center[i]);
 		}
 
-		return distSquared < (radius * radius);
+		return distSquared < (radius* radius);
 	}
 	else {
 		// this is a box, br is a sphere
