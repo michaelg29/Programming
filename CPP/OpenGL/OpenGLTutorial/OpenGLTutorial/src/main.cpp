@@ -16,6 +16,7 @@
 
 #include "graphics/shader.h"
 #include "graphics/light.h"
+#include "graphics/cubemap.h"
 
 #include "graphics/models/gun.hpp"
 #include "graphics/models/cube.hpp"
@@ -57,6 +58,10 @@ int main() {
 	Shader shader("assets/instanced.vs", "assets/object.fs");
 	Shader lightShader("assets/instanced.vs", "assets/lamp.fs");
 	Shader boxShader("assets/box.vs", "assets/box.fs");
+
+	// skybox
+	Cubemap skybox("assets/skybox");
+	skybox.init();
 
 	// camera
 	scene.cameras.push_back(&cam);
@@ -135,6 +140,9 @@ int main() {
 		// process input
 		processInput(dt);
 
+		// render skybox
+		skybox.render(&scene);
+
 		// render troll
 		//scene.renderShader(shader);
 		//scene.renderInstances("troll", shader, dt);
@@ -159,12 +167,12 @@ int main() {
 		// render box
 		scene.renderShader(boxShader, false);
 		box.render(boxShader);
-
 		
 		scene.newFrame(box);
 		scene.clearDeadInstances();
 	}
 
+	skybox.cleanup();
 	scene.cleanup();
 	return 0;
 }
