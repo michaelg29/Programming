@@ -21,9 +21,9 @@ public:
 
 	// contructor
 	Shader();
-	Shader(const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
+	Shader(const char* vertexShaderPath, const char* fragShaderPath);
 
-	bool generateProgram(const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = "");
+	bool generateProgram(const char* vertexShaderPath, const char* fragShaderPath);
 
 	// activate shader
 	void activate();
