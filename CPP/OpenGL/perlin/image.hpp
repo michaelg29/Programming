@@ -46,7 +46,7 @@ public:
 	}
 
 	bool inBounds(int x, int y) {
-		return x < width && y < height;
+		return x < width&& y < height;
 	}
 
 	bool setPixel(int x, int y, BYTE r, BYTE g, BYTE b) {
