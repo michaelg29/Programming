@@ -15,5 +15,10 @@ function processAppData(err, data) {
 }
 
 app.on("ready", () => {
-    fs.readFile("app/app.json", "utf8", processAppData);
+    console.log(__filename);
+
+    global.appData = require("./app.json");
+
+    require("./main/main").createWindow();
+
 });
