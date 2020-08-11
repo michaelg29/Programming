@@ -15,14 +15,25 @@
 */
 class MP3 {
 public:
+    /*
+        constructors
+    */
+
+    // default
     MP3()
         : hasID3v1(false), hasID3v2(false) {}
 
+    // read file upon initialization
     MP3(const char* path)
         : MP3() {
         read(path);
     }
 
+    /*
+        input/output methods
+    */
+
+    // read in mp3 file
     bool read(const char* path) {
         // open file
         // ate to put cursor at end so when get cursor pos, get file size
@@ -108,6 +119,7 @@ public:
         return true;
     }
 
+    // write out mp3 file
     bool write(const char* path) {
         std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::ate);
 
@@ -137,6 +149,97 @@ public:
 
         // close file
         file.close();
+
+        return true;
+    }
+
+    /*
+        modifiers
+    */
+
+    // erase tag (return false if not found)
+    bool eraseTag(std::string tag) {
+        return id3v2Data.erase(tag) != 0;
+    }
+
+    // set tag
+    void setTag(std::string tag, std::vector<char> data) {
+        id3v2Data[tag] = data;
+    }
+
+    // set character at index
+    bool setChar(std::string tag, unsigned int idx, char c) {
+        if (id3v2Data.find(tag) == id3v2Data.end() || idx >= id3v2Data[tag].size()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    // set data starting at index
+    bool setData(std::string tag, unsigned int startIdx, std::vector<char> data) {
+        if (id3v2Data.find(tag) == id3v2Data.end()) {
+            return false;
+        }
+
+        unsigned int insertLength = data.size();
+
+        // if beyond end, just insert at end
+        if (startIdx > id3v2Data[tag].size()) {
+            startIdx = id3v2Data[tag].size();
+        }
+
+        for (int i = startIdx; i < startIdx + insertLength; i++) {
+            if (i >= id3v2Data[tag].size()) {
+                // add to end
+                id3v2Data[tag].push_back(data[i - startIdx]);
+            }
+            else {
+                // reset existing character
+                id3v2Data[tag][i] = data[i - startIdx];
+            }
+        }
+
+        return true;
+    }
+
+    // replace range of data
+    bool replaceData(std::string tag, unsigned int startIdx, unsigned int endIdx, std::vector<char> data) {
+        if (id3v2Data.find(tag) == id3v2Data.end()) {
+            return false;
+        }
+        
+        // shift data
+        /*
+            3 cases:
+            range = insertLen: no shift
+            range > insertLen: shift left by (range - insertLen)
+            range < insertLen: shift right by (insertLen - range)
+        */
+        unsigned int range = endIdx - startIdx;
+        unsigned int insertLen = data.size();
+        unsigned int ogSize = id3v2Data[tag].size();
+        if (range > insertLen) {
+            // shift left
+            unsigned int shift = range - insertLen;
+            for (int i = endIdx; i < ogSize; i++) {
+                id3v2Data[tag][i - shift] = id3v2Data[tag][i];
+            }
+            id3v2Data[tag].resize(ogSize - shift);
+        }
+        else if (range < insertLen) {
+            // shift right
+            unsigned int shift = insertLen - range;
+            id3v2Data[tag].resize(ogSize + shift);
+            for (int i = ogSize - 1; i >= endIdx; i--) {
+                id3v2Data[tag][i + shift] = id3v2Data[tag][i];
+            }
+        }
+
+        // insert new data
+        for (int i = startIdx; i < startIdx + insertLen; i++) {
+            id3v2Data[tag][i] = data[i - startIdx];
+        }
 
         return true;
     }
