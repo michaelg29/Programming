@@ -6,7 +6,14 @@
 
 #include "trie.hpp"
 
+/*
+    namespace to tie together ID3 data structures
+*/
 namespace ID3 {
+    /*
+        ID3v1 header (present at end of file)
+        total size = 128 bytes
+    */
     struct ID3v1 {
         char header[3];
         char title[30];
@@ -17,6 +24,10 @@ namespace ID3 {
         char genre[1];
     };
 
+    /*
+        ID3v2 header (present at beginning of file)
+        total size = 10 bytes
+    */
     struct ID3v2 {
         char identifier[3];
         char major[1];
@@ -24,9 +35,17 @@ namespace ID3 {
         char flags[1];
         char size[4];
 
+        /*
+            calculate size (in bytes) of ID3v2 body
+        */
         unsigned int calcSize() {
             unsigned int ret = 0;
 
+            // add 7 bits of each byte to value
+            /*
+                size = 4 * 0b0xxxxxxx; total = 28 bits
+                left shift by multiple of 7 based on place
+            */
             for (int i = 0; i < 4; i++) {
                 ret += size[3 - i] << (7 * i);
             }
@@ -37,14 +56,23 @@ namespace ID3 {
         static trie::Trie frameTags;
     };
 
+    // trie with charset of capital letters and numbers
     trie::Trie ID3v2::frameTags({ { '0', '9' }, { 'A', 'Z' } });
 
+    /*
+        utility methods
+    */
+
+    // method to determine if character could be part of an id3v2 tag
     inline bool isValidChar(char c) {
+        // either capital letter or number
         return ((c >= '0') && (c <= '9')) ||
             ((c >= 'A') && (c <= 'Z'));
     }
 
+    // load id3v2 tags
     inline void load() {
+        // all possible tags
         std::vector<std::string> frameTags = {
             "AENC",
             "APIC",
@@ -132,12 +160,15 @@ namespace ID3 {
             "WXXX"
         };
     
+        // insert each tag
         for (std::string tag : frameTags) {
             ID3v2::frameTags.insert(tag);
         }
     }
 
+    // clear id3v2 tags
     inline void clear() {
+        // clear trie's memory
         ID3v2::frameTags.cleanup();
     }
 }

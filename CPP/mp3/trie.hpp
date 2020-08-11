@@ -36,7 +36,7 @@ namespace trie {
 	};
 
 	/*
-		trie class
+		trie class (simplified to only hold boolean as data)
 	*/
 	class Trie {
 	public:
