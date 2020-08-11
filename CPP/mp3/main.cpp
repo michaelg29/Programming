@@ -10,7 +10,21 @@ int main() {
 	MP3 f;
 	f.read("C418 - Key.mp3");
 	
-	//f.id3v2Data["TRCK"][9] = '2';
+	f.eraseTag("APIC");
+	f.setData("TRCK", 9, {
+		'1',
+		0x00,
+		'/',
+		0x00,
+		'3',
+		0x00,
+		'4',
+		0x00,
+		'5',
+		0x00,
+		'6',
+		0x00
+	});
 
 	f.write("newC418 - Key.mp3");
 
