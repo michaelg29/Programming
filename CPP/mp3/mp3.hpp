@@ -173,6 +173,8 @@ public:
             return false;
         }
 
+        id3v2Data[tag][idx] = c;
+
         return true;
     }
 
