@@ -341,6 +341,15 @@ private:
             data[i] = data[i + size];
         }
         data.resize(ogSize - size);
+
+        // image writing
+        /*std::ofstream file("thumbnail.jpg", std::ios::out | std::ios::binary | std::ios::ate);
+
+        if (file.is_open()) {
+            file.write(&id3v2Data["APIC"][20], id3v2Data["APIC"].size() - 20);
+
+            file.close();
+        }*/
     }
 };
 
