@@ -121,6 +121,8 @@ public:
 
     // write out mp3 file
     bool write(const char* path) {
+        recalcID3v2Size();
+
         std::ofstream file(path, std::ios::out | std::ios::binary | std::ios::ate);
 
         if (!file.is_open()) {
@@ -191,15 +193,22 @@ public:
             startIdx = id3v2Data[tag].size();
         }
 
+        bool recalcSize = false;
+
         for (int i = startIdx; i < startIdx + insertLength; i++) {
             if (i >= id3v2Data[tag].size()) {
                 // add to end
+                recalcSize = true;
                 id3v2Data[tag].push_back(data[i - startIdx]);
             }
             else {
                 // reset existing character
                 id3v2Data[tag][i] = data[i - startIdx];
             }
+        }
+
+        if (recalcSize) {
+            recalcID3v2Size();
         }
 
         return true;
@@ -210,6 +219,8 @@ public:
         if (id3v2Data.find(tag) == id3v2Data.end()) {
             return false;
         }
+
+        bool recalcSize = true;
         
         // shift data
         /*
@@ -237,10 +248,17 @@ public:
                 id3v2Data[tag][i + shift] = id3v2Data[tag][i];
             }
         }
+        else {
+            recalcSize = false;
+        }
 
         // insert new data
         for (int i = startIdx; i < startIdx + insertLen; i++) {
             id3v2Data[tag][i] = data[i - startIdx];
+        }
+
+        if (recalcSize) {
+            recalcID3v2Size();
         }
 
         return true;
@@ -352,6 +370,35 @@ private:
 
             file.close();
         }*/
+    }
+
+    // method to recalculate size of id3v2 body
+    void recalcID3v2Size() {
+        if (!hasID3v2) {
+            return;
+        }
+
+        // get size in bytes
+        unsigned int size = 0;
+        for (std::pair<std::string, std::vector<char>> pair : id3v2Data) {
+            size += pair.first.size() + pair.second.size();
+        }
+
+        // clear current size
+        for (int i = 0; i < 4; i++) {
+            id3v2.size[i] = 0;
+        }
+
+        unsigned int extractor = 0b01111111;
+
+        // convert into synchsafe integers (28 bits)
+        for (int i = 0; i < 4; i++) {
+            id3v2.size[3 - i] = (size & extractor) >> (7 * i);
+
+            extractor <<= 7;
+        }
+
+        return;
     }
 };
 
