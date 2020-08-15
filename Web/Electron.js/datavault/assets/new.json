@@ -1,0 +1,18 @@
+{
+    "hash": "",
+    "prefs": {
+        "labels": {
+            "Site URL": "url",
+            "Password": "pwd",
+            "Question": "txt",
+            "Description": "txt",
+            "Username": "txt"
+        },
+        "tags": {
+            "home": "#003A61",
+            "work": "#CA1313",
+            "school": "#D2A611"
+        }
+    },
+    "data": {}
+}

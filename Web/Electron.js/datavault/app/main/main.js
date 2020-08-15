@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require("electron");
+const fs = require("fs");
 
 const mainProcess = require("./mainProcess");
 
@@ -43,23 +44,21 @@ app.on("activate", () => {
 });
 
 mainProcess.setResponse("events.renderer.ready", () => {
-    mainProcess.sendData("events.renderer.route.request", {
-        route: appData["app.initialRoute"],
-        args: {
-            text: "this is the test from the main bois"
-        }
-    });
+    mainProcess.sendData("events.renderer.route.request", appData["app.initialRoute"]);
 
-    const express = require('express');
-    const app = express();
-    const port = 3000;
+    // // start server
+    // const express = require('express');
+    // const app = express();
+    // const port = 3000;
 
-    app.get('/get', (req, res) => {
-        global.res = res;
-        console.log("got request");
-    });
+    // app.get('/get', (req, res) => {
+    //     global.res = res;
+    //     console.log("got request");
+    // });
 
-    app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
+    // app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`));
+
+    // get file with data
 });
 
 module.exports = {
