@@ -1,3 +1,4 @@
 {
-    "/": "home.html"
+    "/": "home.html",
+    "/authenticate/login": "authenticate/login.html"
 }

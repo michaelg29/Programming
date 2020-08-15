@@ -1,0 +1,41 @@
+<style type="text/css">
+    @import url("assets/style/authenticate/login.css");
+</style>
+
+<h1>Select a Data Sheet</h1>
+
+<section id="select">
+    <select id="file-select">
+        <option value="new">Create New Sheet</option>
+        <option value="0">Home</option>
+        <option value="1">School</option>
+    </select>
+
+    <button id="select-btn">Select</button>
+</section>
+
+<section id="create">
+    <h3>Create a Data Sheet</h3>
+
+    <br />
+
+    <label for="create-name">Input a name for the sheet:</label>
+    <input type="text" id="create-name" />
+
+    <br />
+
+    <label for="create-pwd">Input a password for the sheet:</label>
+    <input type="password" id="create-pwd">
+    <div id="pwd" class="pwd-generator"></div>
+
+    <br />
+
+    <label for="create-pwd-repeat">Re-enter the password:</label>
+    <input type="password" id="create-pwd-repeat">
+
+    <br />
+
+    <button id="create">Create</button>
+</section>
+
+<script src="authenticate/login.js"></script>

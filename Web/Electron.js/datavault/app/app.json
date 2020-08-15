@@ -2,5 +2,8 @@
     "app.name": "PW Vault",
     "app.icon": "assets/icons/png/icon.png",
     "app.entry": "app/renderer/html/index.html",
-    "app.initialRoute": "/"
+    "app.initialRoute": "/authenticate/login",
+    "files.list": {
+        "Home": ""
+    }
 }

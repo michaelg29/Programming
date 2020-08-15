@@ -1,6 +1,8 @@
 const { ipcRenderer, remote } = require("electron");
 const jQuery = require("jquery");
 
+const components = require("./components/components");
+
 // get global app data
 const appData = remote.getGlobal("appData");
 const routes = require("./routes.json");
