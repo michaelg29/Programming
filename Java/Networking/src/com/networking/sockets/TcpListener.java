@@ -71,6 +71,11 @@ public class TcpListener {
 				}
 			}
 			
+			socket.close();
+			
+			running = false;
+			bound = false;
+			
 			logger.Log("Server stopped");
 		}
 	}
