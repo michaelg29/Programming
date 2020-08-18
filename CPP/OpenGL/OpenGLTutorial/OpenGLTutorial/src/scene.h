@@ -8,6 +8,8 @@
 #include <map>
 #include <string>
 
+#include <jsoncpp/json.hpp>
+
 #include <glm/glm.hpp>
 
 #include "graphics/light.h"
@@ -36,6 +38,9 @@ public:
 
 	// octree object
 	Octree::node* octree;
+
+	// map for logged variables
+	jsoncpp::json variableLog;
 
 	/*
 		Callbacks
