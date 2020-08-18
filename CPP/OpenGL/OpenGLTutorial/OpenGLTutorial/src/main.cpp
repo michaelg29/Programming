@@ -30,6 +30,8 @@
 
 #include "algorithms/states.hpp"
 
+#include <jsoncpp/json.hpp>
+
 void processInput(double dt);
 
 //Joystick mainJ(0);
@@ -60,8 +62,8 @@ int main() {
 	Shader boxShader("assets/box.vs", "assets/box.fs");
 
 	// skybox
-	Cubemap skybox("assets/skybox");
-	skybox.init();
+	//Cubemap skybox("assets/skybox");
+	//skybox.init();
 
 	// camera
 	scene.cameras.push_back(&cam);
@@ -129,19 +131,22 @@ int main() {
 		std::cout << mainJ.getName() << " is present." << std::endl;
 	}*/
 
+	scene.variableLog["time"] = 0.0;
+
 	while (!scene.shouldClose()) {
 		// calculate dt
 		double currentTime = glfwGetTime();
 		dt = currentTime - lastFrame;
 		lastFrame = currentTime;
-		
+		scene.variableLog["time"] += dt;
+
 		scene.update();
 
 		// process input
 		processInput(dt);
 
 		// render skybox
-		skybox.render(&scene);
+		//skybox.render(&scene);
 
 		// render troll
 		//scene.renderShader(shader);
@@ -172,7 +177,7 @@ int main() {
 		scene.clearDeadInstances();
 	}
 
-	skybox.cleanup();
+	//skybox.cleanup();
 	scene.cleanup();
 	return 0;
 }
@@ -206,6 +211,14 @@ void processInput(double dt) {
 		if (Keyboard::keyWentDown(GLFW_KEY_1 + i)) {
 			States::toggleIndex(&scene.activePointLights, i);
 		}
+	}
+
+	if (Keyboard::key(GLFW_KEY_P)) {
+		std::cout << "time: " << scene.variableLog["time"].val<double>() << std::endl;
+	}
+
+	if (Keyboard::key(GLFW_KEY_R)) {
+		scene.variableLog.eraseKey("time");
 	}
 
 	// launch item
