@@ -30,8 +30,6 @@
 
 #include "algorithms/states.hpp"
 
-#include <jsoncpp/json.hpp>
-
 void processInput(double dt);
 
 //Joystick mainJ(0);
