@@ -261,12 +261,16 @@ void Scene::renderText(std::string font, Shader shader, std::string text, float 
 }
 
 void Scene::cleanup() {
+	instances.cleanup();
+
 	models.traverse([](Model* model) -> void {
 		model->cleanup();
 	});
-	
-	instances.cleanup();
 	models.cleanup();
+
+	fonts.traverse([](TextRenderer &tr) -> void {
+		tr.cleanup();
+	});
 	fonts.cleanup();
 
 	octree->destroy();

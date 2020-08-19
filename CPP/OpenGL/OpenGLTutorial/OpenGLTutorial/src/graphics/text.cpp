@@ -122,3 +122,7 @@ void TextRenderer::render(Shader shader, std::string text, float x, float y, flo
 
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void TextRenderer::cleanup() {
+    VAO.cleanup();
+}
