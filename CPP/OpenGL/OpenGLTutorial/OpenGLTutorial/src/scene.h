@@ -8,6 +8,9 @@
 #include <map>
 #include <string>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <jsoncpp/json.hpp>
 
 #include <glm/glm.hpp>
@@ -15,6 +18,7 @@
 #include "graphics/light.h"
 #include "graphics/shader.h"
 #include "graphics/model.h"
+#include "graphics/text.h"
 
 #include "physics/rigidbody.h"
 
@@ -42,6 +46,10 @@ public:
 	// map for logged variables
 	jsoncpp::json variableLog;
 
+	// freetype library
+	FT_Library ft;
+	trie::Trie<TextRenderer> fonts;
+
 	/*
 		Callbacks
 	*/
@@ -63,6 +71,9 @@ public:
 	// prepare for main loop (octree, etc)
 	void prepare(Box &box);
 
+	// register font
+	//bool registerFont(TextRenderer* tr, std::string name, std::string path, int size);
+
 	/*
 		main loop methods
 	*/
@@ -81,6 +92,9 @@ public:
 	// render instances
 	void renderInstances(std::vector<std::string> modelIds, Shader shader, float dt);
 	void renderInstances(std::string modelId, Shader shader, float dt);
+
+	// render text
+	void renderText(std::string font, Shader shader, std::string text, float x, float y, float scale, glm::vec3 color);
 
 	/*
 		cleanup method
@@ -142,6 +156,7 @@ public:
 	unsigned int activeCamera;
 	glm::mat4 view;
 	glm::mat4 projection;
+	glm::mat4 textProjection;
 	glm::vec3 cameraPos;
 
 protected:
@@ -157,7 +172,6 @@ protected:
 	// GLFW info
 	int glfwVersionMajor;
 	int glfwVersionMinor;
-
 };
 
 #endif
