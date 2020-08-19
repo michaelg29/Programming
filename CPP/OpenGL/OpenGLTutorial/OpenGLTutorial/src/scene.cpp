@@ -83,6 +83,8 @@ bool Scene::init()
 	*/
 	// so doesn't show vertices not visible to camera (ie back of object)
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// disable cursor
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -90,6 +92,22 @@ bool Scene::init()
 		set up octree
 	*/
 	octree = new Octree::node(BoundingRegion(glm::vec3(-16.0f), glm::vec3(16.0f)));
+
+	/*
+		initialize freetype library
+	*/
+	if (FT_Init_FreeType(&ft)) {
+		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return -1;
+	}
+
+	fonts.insert("comic", TextRenderer(32));
+	if (!fonts["comic"].loadFont(ft, "assets/fonts/comic.ttf")) {
+		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+		return false;
+	}
+	
+	FT_Done_FreeType(ft);
 
 	return true;
 }
@@ -99,6 +117,11 @@ void Scene::prepare(Box &box) {
 	octree->update(box);
 	octree->build();
 }
+
+// register font
+//bool registerFont(TextRenderer* tr, std::string name, std::string path, int size) {
+//	tr = new TextRenderer(size);
+//}
 
 /*
 	main loop methods
@@ -148,6 +171,7 @@ void Scene::processInput(float dt) {
 			(float)scrWidth / (float)scrHeight,				// aspect ratio
 			0.1f, 100.0f									// near and far bounds
 		);
+		textProjection = glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight);
 
 		// set pos at end
 		cameraPos = cameras[activeCamera]->cameraPos;
@@ -228,10 +252,22 @@ void Scene::renderInstances(std::string modelId, Shader shader, float dt) {
 	models[modelId]->render(shader, dt, this);
 }
 
+// render text
+void Scene::renderText(std::string font, Shader shader, std::string text, float x, float y, float scale, glm::vec3 color) {
+ 	shader.activate();
+	shader.setMat4("projection", textProjection);
+
+	fonts[font].render(shader, text, x, y, scale, color);
+}
+
 void Scene::cleanup() {
 	models.traverse([](Model* model) -> void {
 		model->cleanup();
 	});
+	
+	instances.cleanup();
+	models.cleanup();
+	fonts.cleanup();
 
 	octree->destroy();
 

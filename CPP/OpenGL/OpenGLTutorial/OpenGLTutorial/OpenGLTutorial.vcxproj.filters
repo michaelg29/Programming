@@ -31,6 +31,8 @@
     <None Include="assets\box.vs" />
     <None Include="assets\skybox\skybox.fs" />
     <None Include="assets\skybox\skybox.vs" />
+    <None Include="assets\text.fs" />
+    <None Include="assets\text.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -82,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics\cubemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\text.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -165,6 +170,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\cubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

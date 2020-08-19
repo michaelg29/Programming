@@ -148,6 +148,8 @@
     <None Include="assets\octree\octree.gs" />
     <None Include="assets\skybox\skybox.fs" />
     <None Include="assets\skybox\skybox.vs" />
+    <None Include="assets\text.fs" />
+    <None Include="assets\text.vs" />
     <None Include="assimp-vc142-mtd.dll" />
     <None Include="glfw3.dll" />
   </ItemGroup>
@@ -160,6 +162,7 @@
     <ClCompile Include="src\graphics\light.cpp" />
     <ClCompile Include="src\graphics\mesh.cpp" />
     <ClCompile Include="src\graphics\model.cpp" />
+    <ClCompile Include="src\graphics\text.cpp" />
     <ClCompile Include="src\graphics\texture.cpp" />
     <ClCompile Include="src\io\camera.cpp" />
     <ClCompile Include="src\io\joystick.cpp" />
@@ -178,6 +181,7 @@
     <ClInclude Include="src\algorithms\trie.hpp" />
     <ClInclude Include="src\graphics\cubemap.h" />
     <ClInclude Include="src\graphics\glmemory.hpp" />
+    <ClInclude Include="src\graphics\text.h" />
     <ClInclude Include="src\graphics\models\troll.hpp" />
     <ClInclude Include="src\graphics\light.h" />
     <ClInclude Include="src\graphics\mesh.h" />

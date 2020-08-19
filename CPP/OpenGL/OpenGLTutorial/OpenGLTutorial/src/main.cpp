@@ -58,6 +58,7 @@ int main() {
 	Shader shader("assets/instanced.vs", "assets/object.fs");
 	Shader lightShader("assets/instanced.vs", "assets/lamp.fs");
 	Shader boxShader("assets/box.vs", "assets/box.fs");
+	Shader textShader("assets/text.vs", "assets/text.fs");
 
 	// skybox
 	//Cubemap skybox("assets/skybox");
@@ -166,6 +167,8 @@ int main() {
 		// render lamps
 		scene.renderShader(lightShader, false);
 		scene.renderInstances("lamp", lightShader, dt);
+
+		scene.renderText("comic", textShader, "Hello, world!", 50.0f, 50.0f, 1.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
 		// render box
 		scene.renderShader(boxShader, false);
