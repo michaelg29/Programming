@@ -32,6 +32,7 @@ public:
 
 	void render(Shader shader, std::string text, float xPos, float yPos, float scale, glm::vec3 color);
 
+	void cleanup();
 private:
 	int height;
 	FT_Face fontFace;
