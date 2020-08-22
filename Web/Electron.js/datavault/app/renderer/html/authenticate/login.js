@@ -10,8 +10,13 @@ jQuery("#file-select").change(() => {
 // read possible files
 
 // initialize password generator
-components.passwordGenerator(jQuery("#pwd"), jQuery("#create-pwd"), {
+components.passwordGenerator("#pwd", "#create-pwd", {
     target: "create-pwd",
-    canChange: true,
-    charset: components.Charsets.printable
+    canChangeLength: true,
+    canChangeReqs: false,
+    defaultLength: 10
+});
+
+jQuery("#create-submit").on("click", () => {
+    console.log(jQuery("#create-pwd").val());
 });

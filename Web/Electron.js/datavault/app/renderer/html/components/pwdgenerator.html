@@ -2,25 +2,34 @@
     @import url("assets/style/components/pwdgenerator.css");
 </style>
 
-<form>
+<input type="checkbox" name="pwd-toggle" style="display: none;">
+
+<form class="pwd-generator">
+    <a class="btn btn-danger" name="close">Close</a>
+
     <input type="text" name="output" />
     <br />
+
     <label>Password Length</label>
     <input type="range" name="length" min="4" max="32" value="12">
     <span class="range-result">12</span>
     <br />
+
     <input type="checkbox" checked name="chars-symbols" value="symbols">
     <label>Symbols</label>
     <br />
-    <input type="checkbox" checked name="chars-lower" value="lower">
+
+    <input type="checkbox" checked name="chars-lowercase" value="lowercase">
     <label>Lowercase Letters</label>
     <br />
-    <input type="checkbox" checked name="chars-upper" value="upper">
+
+    <input type="checkbox" checked name="chars-uppercase" value="uppercase">
     <label>Uppercase Letters</label>
     <br />
+
     <input type="checkbox" checked name="chars-digits" value="digits">
     <label>Digits</label>
     <br />
-    <a class="btn-primary">Generate</a>
-    <a class="btn-success">Reset</a>
+
+    <a class="btn btn-primary" name="gen">Generate</a>
 </form>
