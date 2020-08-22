@@ -1,11 +1,22 @@
 .pwd-generator {
-    visibility: hidden;
+    /* visibility: hidden;
 
-    position: absolute;
+    position: absolute; */
+
+    display: none;
 
     padding: 25px;
+    margin: 15px;
 
     background-color: white;
     border: 1px solid gray;
     border-radius: 15px;
+}
+
+input[type="checkbox"][name="pwd-toggle"]:checked ~ .pwd-generator {
+    display: inherit;
+}
+
+.pwd-generator:focus {
+    outline: none;
 }
