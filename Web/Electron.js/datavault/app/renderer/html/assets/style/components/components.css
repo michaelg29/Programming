@@ -1,5 +1,12 @@
 .btn {
     cursor: pointer;
+
+    padding: 10px;
+    border-radius: 5px;
+
+    margin: 10px;
+
+    display: inline-block;
 }
 
 .btn-primary {
@@ -15,4 +22,22 @@
 .btn-danger {
     color: #fff;
     background-color: #C70039;
+}
+
+.msg {
+    margin: 2px;
+    display: inline-block;
+    font-size: 12px;
+}
+
+.txt-primary {
+    color: #337ab7;
+}
+
+.txt-success {
+    color: #5cb85c;
+}
+
+.txt-danger {
+    color: #C70039;
 }

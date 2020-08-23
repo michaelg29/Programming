@@ -1,4 +1,5 @@
 const { ipcRenderer, remote } = require("electron");
+const { dialog } = remote;
 const jQuery = require("jquery");
 
 const components = require("./components/components");

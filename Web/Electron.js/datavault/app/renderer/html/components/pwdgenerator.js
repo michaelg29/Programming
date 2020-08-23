@@ -23,14 +23,25 @@ function passwordGenerator(itemId, targetId, options) {
             target.val(jQuery(`input[type="text"][name="output"]`).val());
         });
 
+        // set min val on range if necessary
+        if ("minLength" in options) {
+            jQuery(`input[type="range"][name="length"]`).attr("min", options.minLength);
+        }
+
+        // set max val on range if necessary
+        if ("maxLength" in options) {
+            jQuery(`input[type="range"][name="length"]`).attr("max", options.maxLength);
+        }
+
         // link range input to its output
         jQuery(`input[type="range"][name="length"]`).on("input", () => {
             item.find("form span.range-result").html(jQuery(`input[type="range"][name="length"]`).val());
         });
         if ("defaultLength" in options) {
             jQuery(`input[type="range"][name="length"]`).val(options.defaultLength);
-            item.find("form span.range-result").html(options.defaultLength);
         }
+
+        item.find("form span.range-result").html(jQuery(`input[type="range"][name="length"]`).val());
 
         item.find(`a.btn[name="gen"]`).on("click", () => {
             let names = ["symbols", "lowercase", "uppercase", "digits"];
@@ -47,7 +58,11 @@ function passwordGenerator(itemId, targetId, options) {
             }
 
             if (noChars.length == 0) {
-                alert("Please check at least 1 box");
+                dialog.showMessageBox({
+                    type: "error",
+                    buttons: ["Ok"],
+                    message: "Please check one or more of the checkboxes"
+                });
                 return;
             }
 

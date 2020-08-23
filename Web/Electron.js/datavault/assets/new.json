@@ -14,5 +14,9 @@
             "school": "#D2A611"
         }
     },
+    "info": {
+        "name": "",
+        "details": ""
+    },
     "data": {}
 }

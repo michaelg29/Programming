@@ -43,6 +43,11 @@ app.on("activate", () => {
     }
 });
 
+/*
+    responses
+*/
+
+// renderer initialized
 mainProcess.setResponse("events.renderer.ready", () => {
     mainProcess.sendData("events.renderer.route.request", appData["app.initialRoute"]);
 
@@ -61,6 +66,10 @@ mainProcess.setResponse("events.renderer.ready", () => {
     // get file with data
 });
 
+// authentication responses
+require("./authentication");
+
+// exports
 module.exports = {
     createWindow
 }
