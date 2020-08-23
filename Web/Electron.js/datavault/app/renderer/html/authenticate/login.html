@@ -21,21 +21,24 @@
 
     <label for="create-name">Input a name for the sheet:</label>
     <input type="text" id="create-name" />
+    <span name="no-name"></span>
 
     <br />
 
     <label for="create-pwd">Input a password for the sheet:</label>
     <input type="password" id="create-pwd">
+    <span name="no-pwd"></span>
     <div id="pwd"></div>
 
     <br />
 
     <label for="create-pwd-repeat">Re-enter the password:</label>
     <input type="password" id="create-pwd-repeat">
+    <span name="pwd-mismatch"></span>
 
     <br />
 
-    <button id="create-submit">Create</button>
+    <a class="btn btn-primary" id="create-submit">Create Sheet</a>
 </section>
 
 <script src="authenticate/login.js"></script>
