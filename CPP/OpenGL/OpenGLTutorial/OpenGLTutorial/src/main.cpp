@@ -59,10 +59,11 @@ int main() {
 	Shader lightShader("assets/instanced.vs", "assets/lamp.fs");
 	Shader boxShader("assets/box.vs", "assets/box.fs");
 	Shader textShader("assets/text.vs", "assets/text.fs");
+	Shader skyboxShader("assets/skybox/skybox.vs", "assets/skybox/skybox.fs");
 
 	// skybox
-	//Cubemap skybox("assets/skybox");
-	//skybox.init();
+	Cubemap skybox("assets/skybox");
+	skybox.init();
 
 	// camera
 	scene.cameras.push_back(&cam);
@@ -145,7 +146,9 @@ int main() {
 		processInput(dt);
 
 		// render skybox
-		//skybox.render(&scene);
+		skyboxShader.activate();
+		skyboxShader.setFloat("time", scene.variableLog["time"].val<float>());
+		skybox.render(skyboxShader, &scene);
 
 		// render troll
 		//scene.renderShader(shader);
@@ -178,7 +181,7 @@ int main() {
 		scene.clearDeadInstances();
 	}
 
-	//skybox.cleanup();
+	skybox.cleanup();
 	scene.cleanup();
 	return 0;
 }

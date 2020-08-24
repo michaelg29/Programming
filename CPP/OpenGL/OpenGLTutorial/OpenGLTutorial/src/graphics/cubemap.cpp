@@ -13,12 +13,6 @@ Cubemap::Cubemap(std::string dir,
 
 void Cubemap::init() {
 	/*
-		initialize shader
-	*/
-
-	shader = Shader("assets/skybox/skybox.vs", "assets/skybox/skybox.fs");
-
-	/*
 		set up vertices
 	*/
 
@@ -139,7 +133,7 @@ void Cubemap::init() {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-void Cubemap::render(Scene* scene) {
+void Cubemap::render(Shader shader, Scene* scene) {
 	glDepthMask(GL_FALSE);
 	shader.activate();
 

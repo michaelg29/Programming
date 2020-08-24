@@ -25,7 +25,7 @@ public:
 
 	void init();
 
-	void render(Scene* scene);
+	void render(Shader shader, Scene* scene);
 
 	void cleanup();
 
@@ -36,7 +36,6 @@ private:
 
 	// cube object
 	ArrayObject VAO;
-	Shader shader;
 
 	std::vector<std::string> faces;
 };
