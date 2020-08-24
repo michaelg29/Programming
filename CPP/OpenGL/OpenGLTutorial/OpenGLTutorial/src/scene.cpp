@@ -268,7 +268,7 @@ void Scene::cleanup() {
 	});
 	models.cleanup();
 
-	fonts.traverse([](TextRenderer &tr) -> void {
+	fonts.traverse([](TextRenderer tr) -> void {
 		tr.cleanup();
 	});
 	fonts.cleanup();
