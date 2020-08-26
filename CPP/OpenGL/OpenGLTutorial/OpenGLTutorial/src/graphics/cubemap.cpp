@@ -102,20 +102,9 @@ void Cubemap::init() {
 		 1.0f, -1.0f,  1.0f
 	};
 
-	std::vector<unsigned int> indices(noVertices);
-	for (unsigned int i = 0; i < noVertices; i++) {
-		indices[i] = i;
-	}
-
 	// bind VAO
 	VAO.generate();
 	VAO.bind();
-
-	// set EBO
-	VAO["EBO"] = BufferObject(GL_ELEMENT_ARRAY_BUFFER);
-	VAO["EBO"].generate();
-	VAO["EBO"].bind();
-	VAO["EBO"].setData<GLuint>(indices.size(), &indices[0], GL_STATIC_DRAW);
 
 	// load data into vertex buffers
 	VAO["VBO"] = BufferObject(GL_ARRAY_BUFFER);
@@ -147,7 +136,7 @@ void Cubemap::render(Shader shader, Scene* scene) {
 	}
 
 	VAO.bind();
-	VAO.draw(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+	VAO.draw(GL_TRIANGLES, 0, 36);
 	ArrayObject::clear();
 
 	glDepthMask(GL_TRUE);
