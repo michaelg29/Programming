@@ -146,6 +146,7 @@
     <None Include="assets\octree\octree.fs" />
     <None Include="assets\octree\octree.vs" />
     <None Include="assets\octree\octree.gs" />
+    <None Include="assets\skybox\sky.fs" />
     <None Include="assets\skybox\skybox.fs" />
     <None Include="assets\skybox\skybox.vs" />
     <None Include="assets\text.fs" />

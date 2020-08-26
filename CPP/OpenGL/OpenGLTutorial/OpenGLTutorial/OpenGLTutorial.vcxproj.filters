@@ -33,6 +33,7 @@
     <None Include="assets\skybox\skybox.vs" />
     <None Include="assets\text.fs" />
     <None Include="assets\text.vs" />
+    <None Include="assets\skybox\sky.fs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

@@ -15,7 +15,9 @@
 
 class Cubemap {
 public:
-	Cubemap(std::string dir,
+	Cubemap();
+
+	void loadTextures(std::string dir,
 		std::string right = "right.png",
 		std::string left = "left.png",
 		std::string top = "top.png",
@@ -33,6 +35,7 @@ private:
 	// texture object
 	unsigned int id;
 	std::string dir;
+	bool hasTextures;
 
 	// cube object
 	ArrayObject VAO;
