@@ -59,7 +59,7 @@ int main() {
 	Shader lightShader("assets/instanced.vs", "assets/lamp.fs");
 	Shader boxShader("assets/box.vs", "assets/box.fs");
 	Shader textShader("assets/text.vs", "assets/text.fs");
-	Shader skyboxShader("assets/skybox/skybox.vs", "assets/skybox/sky.fs");
+	Shader skyboxShader("assets/skybox/skybox.vs", "assets/skybox/skybox.fs");
 	skyboxShader.activate();
 	skyboxShader.set3Float("min", 0.047f, 0.016f, 0.239f);
 	skyboxShader.set3Float("max", 0.945f, 1.000f, 0.682f);
@@ -67,7 +67,7 @@ int main() {
 	// skybox
 	Cubemap skybox;
 	skybox.init();
-	//skybox.loadTextures("assets/skybox");
+	skybox.loadTextures("assets/skybox");
 
 	// camera
 	scene.cameras.push_back(&cam);
