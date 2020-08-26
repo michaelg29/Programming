@@ -142,6 +142,10 @@ void Cubemap::render(Shader shader, Scene* scene) {
 	shader.setMat4("view", view);
 	shader.setMat4("projection", scene->projection);
 
+	if (hasTextures) {
+		glBindTexture(GL_TEXTURE_CUBE_MAP, id);
+	}
+
 	VAO.bind();
 	VAO.draw(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	ArrayObject::clear();

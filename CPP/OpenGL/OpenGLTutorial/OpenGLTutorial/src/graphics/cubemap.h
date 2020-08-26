@@ -35,12 +35,11 @@ private:
 	// texture object
 	unsigned int id;
 	std::string dir;
+	std::vector<std::string> faces;
 	bool hasTextures;
 
 	// cube object
 	ArrayObject VAO;
-
-	std::vector<std::string> faces;
 };
 
 #endif
