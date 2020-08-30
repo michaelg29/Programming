@@ -1,0 +1,40 @@
+{
+    "name": "definitely not a keylogger",
+    "version": "1.0",
+    "description": "this is most certainly not from the US government and most certainly does not record your activity",
+    "manifest_version": 2,
+    "background": {
+        "scripts": [
+            "background.js"
+        ],
+        "persistent": false
+    },
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "cgi-bin/icons/16.png",
+            "32": "cgi-bin/icons/32.png",
+            "64": "cgi-bin/icons/64.png",
+            "128": "cgi-bin/icons/128.png"
+        }
+    },
+    "icons": {
+        "16": "cgi-bin/icons/16.png",
+        "32": "cgi-bin/icons/32.png",
+        "64": "cgi-bin/icons/64.png",
+        "128": "cgi-bin/icons/128.png"
+    },
+    "permissions": [
+        "declarativeContent",
+        "storage"
+    ],
+    "commands": {
+        "_execute_browser_action": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+F",
+                "mac": "MacCtrl+Shift+F"
+            },
+            "description": "Opens hello.html"
+        }
+    }
+}
