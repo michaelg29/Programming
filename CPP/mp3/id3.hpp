@@ -7,12 +7,11 @@
 #include "trie.hpp"
 
 /*
-    namespace to tie together ID3 data structures
+
 */
 namespace ID3 {
     /*
-        ID3v1 header (present at end of file)
-        total size = 128 bytes
+
     */
     struct ID3v1 {
         char header[3];
@@ -25,8 +24,7 @@ namespace ID3 {
     };
 
     /*
-        ID3v2 header (present at beginning of file)
-        total size = 10 bytes
+
     */
     struct ID3v2 {
         char identifier[3];
@@ -63,7 +61,7 @@ namespace ID3 {
         utility methods
     */
 
-    // method to determine if character could be part of an id3v2 tag
+    // method to determine if character could be apart of an id3v2 tag
     inline bool isValidChar(char c) {
         // either capital letter or number
         return ((c >= '0') && (c <= '9')) ||
@@ -159,7 +157,7 @@ namespace ID3 {
             "WPUB",
             "WXXX"
         };
-    
+
         // insert each tag
         for (std::string tag : frameTags) {
             ID3v2::frameTags.insert(tag);
