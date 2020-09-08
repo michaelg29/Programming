@@ -21,24 +21,6 @@ enum Color {
 	}
 }
 
-enum Direction {
-	N	(0, 1),
-	NE	(1, 1),
-	E	(1, 0),
-	SE	(1, -1),
-	S	(0, -1),
-	SW	(-1, -1),
-	W	(-1, 0),
-	NW	(-1, 1);
-	
-	public byte x;
-	public byte y;
-	Direction(int i, int j) {
-		this.x = (byte)i;
-		this.y = (byte)j;
-	}
-}
-
 public class ConnectFour {
 	private static final byte NO_ROWS = 6;
 	private static final byte NO_COLS = 7;
