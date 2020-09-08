@@ -29,17 +29,14 @@ enum Color {
 public class ConnectFour {
 	private static final byte NO_ROWS = 6;
 	private static final byte NO_COLS = 7;
-	private static final byte NO_DIRS = 8;
+	private static final byte NO_DIRS = 4;
 	
+	// only 4 directions to reduce redundancy
 	private static byte directions[][] = {
-			{  0,  1 },
-			{  1,  1 },
-			{  1,  0 },
-			{  1, -1 },
-			{  0, -1 },
-			{ -1, -1 },
-			{ -1,  0 },
-			{ -1,  1 }
+			{ -1,  1 }, // NW
+			{  0,  1 }, // N
+			{  1,  1 }, // NE
+			{  1,  0 }	// E		
 	};
 	
 	private Color board[][];
