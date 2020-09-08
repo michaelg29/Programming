@@ -5,9 +5,14 @@ import java.util.List;
 import java.util.Scanner;
 
 enum Color {
-	EMPTY,
-	RED,
-	YELLOW;
+	EMPTY	(0),
+	RED		(1),
+	YELLOW	(2);
+	
+	private byte value;
+	Color(int value) {
+		this.value = (byte)value;
+	}
 	
 	public char getCode() {
 		switch (this) {
