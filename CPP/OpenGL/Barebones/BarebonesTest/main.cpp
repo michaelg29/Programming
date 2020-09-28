@@ -200,16 +200,6 @@ void genVAO(VAO *vao)
 }
 
 // generate array containing vertices of circle
-
-/*
-
-
-    SKIP
-    SKIP
-    SKIP
-
-
-*/
 void gen2DCircleArrays(float *&vertices, unsigned int *&indices, unsigned int noTriangles, float radius = 0.5f)
 {
     vertices = new float[(noTriangles + 1) * 2];
