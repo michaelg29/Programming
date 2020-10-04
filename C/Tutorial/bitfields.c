@@ -29,6 +29,23 @@ typedef struct
     int y;
 } weirdDate;
 
+typedef unsigned char bool;
+#define true (bool)1
+#define false (bool)0
+
+typedef struct
+{
+    bool b0 : 1;
+    bool b1 : 1;
+    bool b2 : 1;
+    bool b3 : 1;
+    bool b4 : 1;
+    bool b5 : 1;
+    bool b6 : 1;
+    bool b7 : 1;
+    bool b8 : 1;
+} flags;
+
 /*
     force alignment
 */
@@ -91,6 +108,22 @@ int main()
 
     // ==========================
     // cannot have arrays in bitfields
+
+    // ======================
+    // flags
+    flags f = {true, true, false, true, true, false, true, true};
+
+#define flag(n) f.b##n
+
+    printf("%d is %s\n", 0, flag(0) ? "true" : "false"); // t
+    printf("%d is %s\n", 1, flag(1) ? "true" : "false"); // t
+    printf("%d is %s\n", 2, flag(2) ? "true" : "false"); // f
+    printf("%d is %s\n", 3, flag(3) ? "true" : "false"); // t
+    printf("%d is %s\n", 4, flag(4) ? "true" : "false"); // t
+    printf("%d is %s\n", 5, flag(5) ? "true" : "false"); // f
+    printf("%d is %s\n", 6, flag(6) ? "true" : "false"); // t
+    printf("%d is %s\n", 7, flag(7) ? "true" : "false"); // t
+    printf("%d is %s\n", 8, flag(8) ? "true" : "false"); // f because not defined
 
     return 0;
 }
