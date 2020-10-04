@@ -31,5 +31,15 @@ int main()
     printf("-DBL_MAX     :  %g\n", (double)-DBL_MAX);
     printf("Precision value: %d\n", FLT_DIG);
 
+    /*
+        ======================
+        casting
+
+        (typename)expression
+
+        integer promotion performed implicitly
+        int -> unsigned int -> long -> unsigned long -> long long -> unsigned long long -> float -> double -> long double
+    */
+
     return 0;
 }
