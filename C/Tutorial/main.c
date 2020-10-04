@@ -4,6 +4,14 @@
 int global_a, global_b;
 float global_f;
 
+#define SYSTEM_H "header.h"
+#include SYSTEM_H
+
+int test()
+{
+    return 4;
+}
+
 void print();
 
 int main()
@@ -26,6 +34,8 @@ int main()
     printf("%d %d %f\n", a, b, f);
 
     print();
+
+    printf("%d\n", test());
 
     return 0;
 }
