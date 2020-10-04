@@ -23,6 +23,35 @@
 #define MESSAGE "msg"
 #endif
 
+// use token pasting to create template
+#define new_scalar_type(name, type)        \
+    typedef struct                         \
+    {                                      \
+        type value;                        \
+    } name;                                \
+    inline name name##_(type v)            \
+    {                                      \
+        name t;                            \
+        t.value = v;                       \
+        return t;                          \
+    }                                      \
+    inline name add_##name(name a, name b) \
+    {                                      \
+        name t;                            \
+        t.value = a.value + b.value;       \
+        return t;                          \
+    }                                      \
+    inline name sub_##name(name a, name b) \
+    {                                      \
+        name t;                            \
+        t.value = a.value - b.value;       \
+        return t;                          \
+    }                                      \
+    inline type val_##name(name a)         \
+    {                                      \
+        return a.value;                    \
+    }
+
 int main()
 {
     // predefined macros
@@ -48,10 +77,39 @@ int main()
 
     message_for(Carole, Debra);
 
+    /*
+        ===========================
+        Token pasting (##) operator
+
+        concatenates non-whitespace characters around it
+        creates new tokens from identifiers, keywords (int, etc), literals, operators
+    */
+
 // token pasting - combines two arguments
-#define tokenpaster(n) printf("token" #n " = %d", token##n)
+#define tokenpaster(n) printf("token" #n " = %d\n", token##n)
     int token34 = 40;
-    tokenpaster(34);
+    tokenpaster(34); // gets token34 from memory
+
+#define increment(x) +## + u
+    int u = 2;
+    printf("\n%d\n", increment(u));
+
+    // creates new type called age with value int
+    new_scalar_type(age, int);
+
+    age a = age_(5);
+    age b = age_(2);
+    printf("%d\n", val_age(a));
+    printf("%d\n", val_age(add_age(a, b)));
+
+#define convert(from, to, conversion, from_type, to_type) \
+    to_type convert_##from##_to_##to(from_type f)         \
+    {                                                     \
+        return conversion;                                \
+    }
+
+    convert(f, c, (f - 32) * 5.0 / 9.0, float, float);
+    printf("%f F = %f C\n", 70.0f, convert_f_to_c(70.0f));
 
     return 0;
 }
