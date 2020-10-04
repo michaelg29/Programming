@@ -1,0 +1,2 @@
+This is writing from fprintf with 5
+cTest with fputs
