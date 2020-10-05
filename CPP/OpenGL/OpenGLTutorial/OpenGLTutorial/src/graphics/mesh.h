@@ -7,8 +7,6 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include <assimp/scene.h>
-
 #include "shader.h"
 #include "texture.h"
 #include "glmemory.hpp"
@@ -17,53 +15,76 @@
 
 #include "../algorithms/bounds.h"
 
-struct Vertex {
-	glm::vec3 pos;
-	glm::vec3 normal;
-	glm::vec2 texCoord;
+/*
+    structure storing values for each vertex
+*/
 
-	static std::vector<Vertex> genList(float* vertices, int noVertices);
+struct Vertex {
+    /*
+        vertex values
+    */
+    // position
+    glm::vec3 pos;
+    // normal vector
+    glm::vec3 normal;
+    // texture coordinate
+    glm::vec2 texCoord;
+
+    // generate list of vertices
+    static std::vector<Vertex> genList(float* vertices, int noVertices);
 };
+
+/*
+    class representing Mesh
+*/
 
 class Mesh {
 public:
-	// bounding region enclosing mesh
-	BoundingRegion br;
+    // Bounding region for mesh
+    BoundingRegion br;
 
-	// model lists
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-	
-	// textures
-	std::vector<Texture> textures;
+    // list of vertices
+    std::vector<Vertex> vertices;
+    // list of indices
+    std::vector<unsigned int> indices;
+    // vertex array object pointing to all data for the mesh
+    ArrayObject VAO;
 
-	// material values
-	aiColor4D diff;
-	aiColor4D spec;
+    // texture list
+    std::vector<Texture> textures;
+    // material diffuse value
+    aiColor4D diffuse;
+    // material specular value
+    aiColor4D specular;
 
-	// VAO for entire mesh
-	ArrayObject VAO;
+    /*
+        constructors
+    */
 
-	// default constructor 
-	Mesh();
+    // default
+    Mesh();
 
-	// initialize as textured object
-	Mesh(BoundingRegion br, std::vector<Texture> textures = {});
+    // initialize as textured object
+    Mesh(BoundingRegion br, std::vector<Texture> textures = {});
 
-	// initialize as material object
-	Mesh(BoundingRegion br, aiColor4D diff, aiColor4D spec);
+    // initialize as material object
+    Mesh(BoundingRegion br, aiColor4D diff, aiColor4D spec);
 
-	// load vertex and index data
-	void loadData(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+    // load vertex and index data
+    void loadData(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
 
-	// render number of instances
-	void render(Shader shader, unsigned int noInstances);
+    // render number of instances using shader
+    void render(Shader shader, unsigned int noInstances);
 
-	// cleanup (free vectors, cleanup VAO)
-	void cleanup();
+    // free up memory
+    void cleanup();
 
 private:
-	bool noTex;
+    // true if has only materials
+    bool noTex;
+
+    // setup data with buffers
+    void setup();
 };
 
 #endif

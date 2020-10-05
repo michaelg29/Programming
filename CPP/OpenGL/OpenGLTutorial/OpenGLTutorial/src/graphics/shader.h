@@ -8,40 +8,64 @@
 #include <sstream>
 #include <iostream>
 
+#include <assimp/scene.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <assimp/scene.h>
+/*
+    class to represent shader program
+*/
 
 class Shader {
 public:
-	// program ID
-	unsigned int id;
+    // program ID
+    unsigned int id;
 
-	// contructor
-	Shader();
-	Shader(const char* vertexShaderPath, const char* fragShaderPath);
+    /*
+        constructors
+    */
 
-	bool generateProgram(const char* vertexShaderPath, const char* fragShaderPath);
+    // default
+    Shader();
 
-	// activate shader
-	void activate();
+    // initialize with paths to vertex and fragment shaders
+    Shader(const char* vertexShaderPath, const char* fragShaderPath);
 
-	// utility functions
-	std::string loadShaderSrc(const char* filePath);
-	GLuint compileShader(const char* filePath, GLuint type);
+    /*
+        process functions
+    */
 
-	// uniform functions
-	void setBool(const std::string& name, bool value);
-	void setInt(const std::string& name, int value);
-	void setFloat(const std::string& name, float value);
-	void set3Float(const std::string& name, float v1, float v2, float v3);
-	void set3Float(const std::string& name, glm::vec3 vec3);
-	void set4Float(const std::string& name, float v1, float v2, float v3, float v4);
-	void set4Float(const std::string& name, glm::vec4 vec4);
-	void set4Float(const std::string& name, aiColor4D color);
-	void setMat4(const std::string& name, glm::mat4 val);
+    // generate using vertex and frag shaders
+    void generate(const char* vertexShaderPath, const char* fragShaderPath);
+
+    // activate shader
+    void activate();
+
+    /*
+        utility functions
+    */
+
+    // load string from file
+    std::string loadShaderSrc(const char* filePath);
+
+    // compile shader program
+    GLuint compileShader(const char* filePath, GLuint type);
+
+    /*
+        set uniform variables
+    */
+
+    void setBool(const std::string& name, bool value);
+    void setInt(const std::string& name, int value);
+    void setFloat(const std::string& name, float value);
+    void set3Float(const std::string& name, float v1, float v2, float v3);
+    void set3Float(const std::string& name, glm::vec3 v);
+    void set4Float(const std::string& name, float v1, float v2, float v3, float v4);
+    void set4Float(const std::string& name, aiColor4D color);
+    void set4Float(const std::string& name, glm::vec4 v);
+    void setMat4(const std::string& name, glm::mat4 val);
 };
 
 #endif

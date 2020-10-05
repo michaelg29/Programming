@@ -10,20 +10,21 @@
 #include <vector>
 
 #include "shader.h"
-#include "../scene.h"
 #include "glmemory.hpp"
+
+#include "../scene.h"
 
 class Cubemap {
 public:
 	Cubemap();
 
 	void loadTextures(std::string dir,
-		std::string right = "right.png",
-		std::string left = "left.png",
-		std::string top = "top.png",
-		std::string bottom = "bottom.png",
-		std::string front = "front.png",
-		std::string back = "back.png");
+		std::string right	= "right.png",
+		std::string left	= "left.png",
+		std::string top		= "top.png",
+		std::string bottom	= "bottom.png",
+		std::string front	= "front.png",
+		std::string back	= "back.png");
 
 	void init();
 

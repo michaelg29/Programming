@@ -15,88 +15,113 @@
 
 #include "../graphics/model.h"
 
-#include "../physics/rigidbody.h"
-
+// forward declaration
+class Model;
 class BoundingRegion;
 class Box;
 
+/*
+    namespace to tie together all classes and functions relating to octree
+*/
+
 namespace Octree {
-	/*
-		Active branch flags
-	*/
-	enum class Octant : unsigned char {
-		O1 = 0x01,	// = 0b00000001
-		O2 = 0x02,	// = 0b00000010
-		O3 = 0x04,	// = 0b00000100
-		O4 = 0x08,	// = 0b00001000
-		O5 = 0x10,	// = 0b00010000
-		O6 = 0x20,	// = 0b00100000
-		O7 = 0x40,	// = 0b01000000
-		O8 = 0x80	// = 0b10000000
-	};
+    /*
+        enum to represent octants
+    */
 
-	/*
-		Utility methods callbacks
-	*/
-	// calculate bounds of specified octant in bounded region and output
-	void calculateBounds(BoundingRegion &out, Octant octant, BoundingRegion region);
+    enum class Octant : unsigned char {
+        O1 = 0x01,	// = 0b00000001
+        O2 = 0x02,	// = 0b00000010
+        O3 = 0x04,	// = 0b00000100
+        O4 = 0x08,	// = 0b00001000
+        O5 = 0x10,	// = 0b00010000
+        O6 = 0x20,	// = 0b00100000
+        O7 = 0x40,	// = 0b01000000
+        O8 = 0x80	// = 0b10000000
+    };
 
-	/*
-		class to represent each node in the octree
-	*/
-	class node {
-	public:
-		node* parent; // pointer to parent
-		node* children[NO_CHILDREN]; // array of children
+    /*
+        utility methods callbacks
+    */
 
-		std::queue<BoundingRegion> queue; // queue of objects to be dynamically inserted
-		std::vector<BoundingRegion> objects; // list of objects in node
+    // calculate bounds of specified quadrant in bounding region
+    void calculateBounds(BoundingRegion &out, Octant octant, BoundingRegion parentRegion);
 
-		short maxLifespan = 8;
-		short currentLifespan = -1;
+    /*
+        class to represent each node in the octree
+    */
+    class node {
+    public:
+        // parent pointer
+        node* parent;
+        // array of children (8)
+        node* children[NO_CHILDREN];
 
-		unsigned char activeOctants; // switch for active octants
+        // switch for active octants
+        unsigned char activeOctants;
 
-		bool hasChildren = false; // if node has children
+        // if node has children
+        bool hasChildren = false;
 
-		bool treeReady = false; // if tree is ready
-		bool treeBuilt = false; // if tree is built
+        // if tree is ready
+        bool treeReady = false;
+        // if tree is built
+        bool treeBuilt = false;
 
-		BoundingRegion region; // region of bounds of cell (AABB)
+        // maximum possible lifespan
+        short maxLifespan = 8;
+        // current lifespace
+        short currentLifespan = -1;
 
-		// default constructor
-		node();
+        // list of objects in node
+        std::vector<BoundingRegion> objects;
+        // queue of objects to be dynamically inserted
+        std::queue<BoundingRegion> queue;
 
-		// initialize with bounds (no objects yet)
-		node(BoundingRegion bounds);
+        // region of bounds of cell (AABB)
+        BoundingRegion region;
 
-		// initialize with bounds and list of objects
-		node(BoundingRegion bounds, std::vector<BoundingRegion> objectList);
+        /*
+            constructors
+        */
 
-		// add to pending queue
-		void addToPending(RigidBody* instance, trie::Trie<Model*> models);
+        // default
+        node();
+        
+        // initialize with bounds (no objects yet)
+        node(BoundingRegion bounds);
 
-		// build tree (called during initialization)
-		void build();
+        // initialize with bounds and list of objects
+        node(BoundingRegion bounds, std::vector<BoundingRegion> objectList);
 
-		// update objects in tree (called during each iteration of main loop)
-		void update(Box &box);
+        /*
+            functionality
+        */
 
-		// process pending queue
-		void processPending();
+        // add instance to pending queue
+        void addToPending(RigidBody* instance, trie::Trie<Model*> models);
 
-		// dynamically insert object into node
-		bool insert(BoundingRegion obj);
+        // build tree (called during initialization)
+        void build();
 
-		// check collisions with all objects in node
-		void checkCollisionSelf(BoundingRegion obj);
+        // update objects in tree (called during each iteration of main loop)
+        void update(Box &box);
 
-		// check collisions with all objects in child nodes
-		void checkCollisionChildren(BoundingRegion obj);
+        // process pending queue
+        void processPending();
 
-		// destroy object (free memory)
-		void destroy();
-	};
+        // dynamically insert object into node
+        bool insert(BoundingRegion obj);
+
+        // check collisions with all objects in node
+        void checkCollisionsSelf(BoundingRegion obj);
+
+        // check collisions with all objects in child nodes
+        void checkCollisionsChildren(BoundingRegion obj);
+
+        // destroy object (free memory)
+        void destroy();
+    };
 }
 
 #endif

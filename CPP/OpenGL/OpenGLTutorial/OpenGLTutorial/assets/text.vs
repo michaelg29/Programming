@@ -1,5 +1,5 @@
 #version 330 core
-layout (location = 0) in vec4 vertex;
+layout (location = 0) in vec4 vertex; // posX, posY, texCoordX, texCoordY
 out vec2 TexCoord;
 
 uniform mat4 projection;
