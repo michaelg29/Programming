@@ -4,27 +4,44 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <stb/stb_image.h>
-
 #include <assimp/scene.h>
 
-#include <string>
+#include <stb/stb_image.h>
+
+/*
+    class to represent texture
+*/
 
 class Texture {
 public:
-	Texture();
-	Texture(std::string dir, std::string path, aiTextureType type);
+    /*
+        constructor
+    */
 
-	void generate();
-	void load();
+    // initialize with image path and type
+    Texture(std::string dir, std::string path, aiTextureType type);
 
-	void bind();
+    // generate texture id
+    void generate();
 
-	// texture object
-	unsigned int id;
-	aiTextureType type;
-	std::string dir;
-	std::string path;
+    // load texture from path
+    void load(bool flip = true);
+
+    // bind texture id
+    void bind();
+
+    /*
+        texture object values
+    */
+    
+    // texture id
+    unsigned int id;
+    // texture type
+    aiTextureType type;
+    // directory of image
+    std::string dir;
+    // name of image
+    std::string path;
 };
 
 #endif

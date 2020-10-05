@@ -1,35 +1,35 @@
 #version 330 core
 struct Material {
-    vec4 diffuse;
-    vec4 specular;
-    float shininess;
+	vec4 diffuse;
+	vec4 specular;
+	float shininess;
 };
+
+uniform int noTex;
 
 uniform sampler2D diffuse0;
 uniform sampler2D specular0;
-
-uniform int noTex;
 
 struct DirLight {
 	vec3 direction;
 
 	vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
+	vec4 diffuse;
+	vec4 specular;
 };
 uniform DirLight dirLight;
 
 #define MAX_POINT_LIGHTS 20
-struct PointLight {    
-    vec3 position;
-    
-    float k0;
-    float k1;
-    float k2;  
+struct PointLight {
+	vec3 position;
 
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+
+	float k0;
+	float k1;
+	float k2;
 };
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform int noPointLights;
@@ -38,29 +38,30 @@ uniform int noPointLights;
 struct SpotLight {
 	vec3 position;
 	vec3 direction;
+
 	float cutOff;
 	float outerCutOff;
 
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+
 	float k0;
-    float k1;
-    float k2; 
-  
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
+	float k1;
+	float k2;
 };
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform int noSpotLights;
 
 out vec4 FragColor;
 
-in vec2 TexCoord;
 in vec3 FragPos;
 in vec3 Normal;
-
-uniform vec3 viewPos;
+in vec2 TexCoord;
 
 uniform Material material;
+
+uniform vec3 viewPos;
 
 vec4 calcDirLight(vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap);
 vec4 calcPointLight(int idx, vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap);
@@ -71,18 +72,18 @@ void main() {
 	vec3 norm = normalize(Normal);
 	vec3 viewDir = normalize(viewPos - FragPos);
 
-	vec4 result;
-
 	vec4 diffMap;
 	vec4 specMap;
 
 	if (noTex == 1) {
-		diffMap = clamp(material.diffuse, 0, 1);
-		specMap = clamp(material.specular, 0, 1);
+		diffMap = material.diffuse;
+		specMap = material.specular;
 	} else {
-		diffMap = vec4(texture(diffuse0, TexCoord));
-		specMap = vec4(texture(specular0, TexCoord));
+		diffMap = texture(diffuse0, TexCoord);
+		specMap = texture(specular0, TexCoord);
 	}
+
+	vec4 result;
 
 	// directional
 	result = calcDirLight(norm, viewDir, diffMap, specMap);

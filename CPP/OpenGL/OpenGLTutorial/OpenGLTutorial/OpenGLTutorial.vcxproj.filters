@@ -16,23 +16,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="glfw3.dll" />
-    <None Include="assets\lamp.fs" />
-    <None Include="assets\object.fs" />
+    <None Include="src\graphics\texture.h" />
     <None Include="assets\object.vs" />
+    <None Include="assets\object.fs" />
+    <None Include="assets\lamp.fs" />
+    <None Include="assets\instanced\instanced.vs" />
+    <None Include="assets\instanced\box.vs" />
+    <None Include="assets\instanced\box.fs" />
     <None Include="assimp-vc142-mtd.dll" />
-    <None Include="assets\coord_system\object.vs" />
-    <None Include="assets\coord_system\object.fs" />
-    <None Include="assets\coord_system\object.gs" />
-    <None Include="assets\octree\octree.gs" />
-    <None Include="assets\octree\octree.fs" />
-    <None Include="assets\octree\octree.vs" />
-    <None Include="assets\instanced.vs" />
-    <None Include="assets\box.fs" />
-    <None Include="assets\box.vs" />
-    <None Include="assets\skybox\skybox.fs" />
-    <None Include="assets\skybox\skybox.vs" />
     <None Include="assets\text.fs" />
     <None Include="assets\text.vs" />
+    <None Include="assets\skybox\skybox.fs" />
+    <None Include="assets\skybox\skybox.vs" />
     <None Include="assets\skybox\sky.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -69,13 +64,16 @@
     <ClCompile Include="src\graphics\model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphics\material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\graphics\light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\physics\rigidbody.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\algorithms\octree.cpp">
+    <ClCompile Include="src\physics\environment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\algorithms\bounds.cpp">
@@ -84,10 +82,13 @@
     <ClCompile Include="src\scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\graphics\cubemap.cpp">
+    <ClCompile Include="src\algorithms\octree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics\text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics\cubemap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -107,16 +108,16 @@
     <ClInclude Include="src\graphics\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\texture.h">
+    <ClInclude Include="src\graphics\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphics\model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\models\cube.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphics\model.h">
+    <ClInclude Include="src\graphics\material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphics\models\lamp.hpp">
@@ -128,7 +129,7 @@
     <ClInclude Include="src\graphics\models\gun.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\models\coord_system.hpp">
+    <ClInclude Include="src\graphics\models\sphere.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\physics\rigidbody.h">
@@ -137,43 +138,34 @@
     <ClInclude Include="src\physics\environment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\models\sphere.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphics\models\modelArray.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\algorithms\octree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\models\box.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\algorithms\bounds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\algorithms\list.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphics\models\troll.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphics\glmemory.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\algorithms\states.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\algorithms\list.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\algorithms\octree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\algorithms\trie.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\cubemap.h">
+    <ClInclude Include="src\graphics\text.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphics\text.h">
+    <ClInclude Include="src\graphics\cubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -184,10 +176,10 @@
     <Image Include="assets\image2.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\container.png">
+    <Image Include="assets\flag.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\container_specular.png">
+    <Image Include="assets\flag_specular.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\skybox\back.png">
@@ -199,10 +191,13 @@
     <Image Include="assets\skybox\front.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\skybox\left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
     <Image Include="assets\skybox\right.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="assets\skybox\left.png">
+    <Image Include="assets\skybox\skybox_template.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\skybox\top.png">
