@@ -146,6 +146,7 @@
     <None Include="assets\text.fs" />
     <None Include="assets\text.vs" />
     <None Include="assimp-vc142-mtd.dll" />
+    <None Include="freetype.dll" />
     <None Include="glfw3.dll" />
     <None Include="src\graphics\texture.h" />
   </ItemGroup>

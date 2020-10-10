@@ -83,10 +83,10 @@ void main() {
 		specMap = texture(specular0, TexCoord);
 	}
 
-	vec4 result;
+	vec4 result = vec4(0.0);
 
 	// directional
-	result = calcDirLight(norm, viewDir, diffMap, specMap);
+	result += calcDirLight(norm, viewDir, diffMap, specMap);
 
 	// point lights
 	for (int i = 0; i < noPointLights; i++) {
@@ -102,36 +102,50 @@ void main() {
 }
 
 vec4 calcDirLight(vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap) {
+	// directional vectors
+	vec3 lightDir = normalize(-dirLight.direction);
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	vec3 reflectDir = reflect(-lightDir, norm);
+
 	// ambient
 	vec4 ambient = dirLight.ambient * diffMap;
 
 	// diffuse
-	vec3 lightDir = normalize(-dirLight.direction);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec4 diffuse = dirLight.diffuse * (diff * diffMap);
 
 	// specular
-	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess * 128);
-	vec4 specular = dirLight.specular * (spec * specMap);
+	vec4 specular = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (diff != 0) {
+		// if diffuse is 0, light is behind object relative to viewPos, so don't calculate specular
+		float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess * 128);
+		specular = dirLight.specular * (spec * specMap);
+	}
 
 	return vec4(ambient + diffuse + specular);
 }
 
 vec4 calcPointLight(int idx, vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap) {
+	// directional vectors
+	vec3 lightDir = normalize(pointLights[idx].position - FragPos);
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	vec3 reflectDir = reflect(-lightDir, norm);
+
 	// ambient
 	vec4 ambient = pointLights[idx].ambient * diffMap;
 
 	// diffuse
-	vec3 lightDir = normalize(pointLights[idx].position - FragPos);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec4 diffuse = pointLights[idx].diffuse * (diff * diffMap);
 
 	// specular
-	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess * 128);
-	vec4 specular = pointLights[idx].specular * (spec * specMap);
-
+	vec4 specular = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (diff != 0) {
+		// if diffuse is 0, light is behind object relative to viewPos, so don't calculate specular
+		float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess * 128);
+		specular = pointLights[idx].specular * (spec * specMap);
+	}
+	
 	// calculate attenuation
 	float dist = length(pointLights[idx].position - FragPos);
 	float attenuation = 1.0 / (pointLights[idx].k0 + pointLights[idx].k1 * dist + pointLights[idx].k2 * (dist * dist));
@@ -145,7 +159,9 @@ vec4 calcPointLight(int idx, vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap
 }
 
 vec4 calcSpotLight(int idx, vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap) {
+	// directional vectors
 	vec3 lightDir = normalize(spotLights[idx].position - FragPos);
+
 	float theta = dot(lightDir, normalize(-spotLights[idx].direction));
 
 	// ambient
@@ -155,14 +171,21 @@ vec4 calcSpotLight(int idx, vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap)
 		// if in cutoff, render light
 		// > because using cosines and not degrees
 
+		// directional vectors
+		vec3 halfwayDir = normalize(lightDir + viewDir);
+		vec3 reflectDir = reflect(-lightDir, norm);
+
 		// diffuse
 		float diff = max(dot(norm, lightDir), 0.0);
 		vec4 diffuse = spotLights[idx].diffuse * (diff * diffMap);
 
 		// specular
-		vec3 reflectDir = reflect(-lightDir, norm);
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess * 128);
-		vec4 specular = spotLights[idx].specular * (spec * specMap);
+		vec4 specular = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+		if (diff != 0) {
+			// if diffuse is 0, light is behind object relative to viewPos, so don't calculate specular
+			float spec = pow(max(dot(norm, halfwayDir), 0.0), material.shininess * 128);
+			specular = spotLights[idx].specular * (spec * specMap);
+		}
 
 		// calculate Intensity
 		float intensity = clamp((theta - spotLights[idx].outerCutOff) / (spotLights[idx].cutOff - spotLights[idx].outerCutOff), 0.0, 1.0);
