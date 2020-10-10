@@ -88,6 +88,9 @@ int main() {
 
     scene.registerModel(&sphere);
 
+    Cube cube(1);
+    scene.registerModel(&cube);
+
     Box box;
     box.init();
 
@@ -128,7 +131,7 @@ int main() {
         // add lamp to scene's light source
         scene.pointLights.push_back(&pointLights[i]);
         // activate lamp in scene
-        States::activate(&scene.activePointLights, i);
+        States::activateIndex(&scene.activePointLights, i);
     }
 
     // spot light
@@ -139,7 +142,18 @@ int main() {
         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f)
     };
     scene.spotLights.push_back(&spotLight);
-    scene.activeSpotLights = 1;	// 0b00000001
+    //scene.activeSpotLights = 1;	// 0b00000001
+
+    SpotLight spotLight2 = {
+        glm::vec3(10.0f, -2.5f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),
+        glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(20.0f)),
+        1.0f, 0.07f, 0.032f,
+        glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f)
+    };
+    scene.spotLights.push_back(&spotLight2);
+    States::activateIndex(&scene.activeSpotLights, 1);
+
+    scene.generateInstance(cube.id, glm::vec3(10.0f, 0.1f, 10.0f), 10.0f, glm::vec3(0.0f, -3.0f, 0.0f));
 
     // instantiate instances
     scene.initInstances();
@@ -187,10 +201,11 @@ int main() {
         }
 
         // render launch objects
+        scene.renderShader(shader);
         if (sphere.currentNoInstances > 0) {
-            scene.renderShader(shader);
             scene.renderInstances(sphere.id, shader, dt);
         }
+        scene.renderInstances(cube.id, shader, dt);
 
         // render lamps
         scene.renderShader(lampShader, false);
