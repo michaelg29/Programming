@@ -98,7 +98,10 @@ void main() {
 		result += calcSpotLight(i, norm, viewDir, diffMap, specMap);
 	}
 
-	FragColor = result;
+	// apply gamma
+	float gamma = 2.2;
+	FragColor.rgb = pow(result.rgb, vec3(1.0 / gamma));
+	FragColor.a = result.a;
 }
 
 vec4 calcDirLight(vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap) {
