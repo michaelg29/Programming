@@ -88,7 +88,7 @@ int main() {
 
     scene.registerModel(&sphere);
 
-    Cube cube(1);
+    Cube cube(10);
     scene.registerModel(&cube);
 
     Box box;
@@ -108,7 +108,7 @@ int main() {
         glm::vec3(0.7f,  0.2f,  2.0f),
         glm::vec3(2.3f, -3.3f, -4.0f),
         glm::vec3(-4.0f,  2.0f, -12.0f),
-        glm::vec3(0.0f,  0.0f, -3.0f)
+        glm::vec3(0.0f,  -2.0f, 8.0f)
     };
 
     glm::vec4 ambient = glm::vec4(0.05f, 0.05f, 0.05f, 1.0f);
@@ -138,22 +138,27 @@ int main() {
     SpotLight spotLight = {
         cam.cameraPos, cam.cameraFront,
         glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(20.0f)),
-        1.0f, 0.07f, 0.032f,
+        1.0f, 0.0014f, 0.000007f,
         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f)
     };
     scene.spotLights.push_back(&spotLight);
     //scene.activeSpotLights = 1;	// 0b00000001
 
-    SpotLight spotLight2 = {
-        glm::vec3(10.0f, -2.5f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f),
-        glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(20.0f)),
-        1.0f, 0.07f, 0.032f,
-        glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f)
-    };
-    scene.spotLights.push_back(&spotLight2);
-    States::activateIndex(&scene.activeSpotLights, 1);
-
     scene.generateInstance(cube.id, glm::vec3(10.0f, 0.1f, 10.0f), 10.0f, glm::vec3(0.0f, -3.0f, 0.0f));
+    glm::vec3 cubePositions[] = {
+        { 1.0f, 3.0f, -5.0f },
+        { -7.25f, 2.1f, 1.5f },
+        { -15.0f, 2.55f, 9.0f },
+        { 4.0f, -3.5f, 5.0f },
+        { 2.8f, 1.9f, -6.2f },
+        { 3.5f, 6.3f, -1.0f },
+        { -3.4f, 10.9f, -5.5f },
+        { 10.0f, -2.0f, 13.2f },
+        { 2.1f, 7.9f, -8.3f },
+    };
+    for (unsigned int i = 0; i < 9; i++) {
+        scene.generateInstance(cube.id, glm::vec3(0.5f), 1.0f, cubePositions[i]);
+    }
 
     // instantiate instances
     scene.initInstances();
@@ -212,8 +217,8 @@ int main() {
         scene.renderInstances(lamp.id, lampShader, dt);
 
         // render boxes
-        scene.renderShader(boxShader, false);
-        box.render(boxShader);
+        //scene.renderShader(boxShader, false);
+        //box.render(boxShader);
 
         // send new frame to window
         scene.newFrame(box);
