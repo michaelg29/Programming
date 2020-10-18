@@ -106,6 +106,14 @@ void main() {
 	}
 
 	FragColor = result;
+
+	// depth test
+	float near = 0.1;
+	float far = 100.0;
+	float z = gl_FragCoord.z * 2.0 - 1.0;
+	float linearDepth = (2.0 * near * far) / (z * (far - near) - (far + near));
+
+    FragColor.rgb *= (1 - (near + linearDepth) / (near - far));
 }
 
 vec4 calcDirLight(vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap) {
