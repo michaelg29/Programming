@@ -30,6 +30,8 @@
     <None Include="assets\skybox\skybox.vs" />
     <None Include="assets\skybox\sky.fs" />
     <None Include="freetype.dll" />
+    <None Include="assets\outline.fs" />
+    <None Include="assets\outline.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">

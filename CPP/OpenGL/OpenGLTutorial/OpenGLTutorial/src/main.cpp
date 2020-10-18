@@ -70,6 +70,7 @@ int main() {
     // SHADERS===============================
     Shader lampShader("assets/instanced/instanced.vs", "assets/lamp.fs");
     Shader shader("assets/instanced/instanced.vs", "assets/object.fs");
+    Shader stencilShader("assets/outline.vs", "assets/outline.fs");
     Shader boxShader("assets/instanced/box.vs", "assets/instanced/box.fs");
     Shader textShader("assets/text.vs", "assets/text.fs");
     //Shader skyboxShader("assets/skybox/skybox.vs", "assets/skybox/sky.fs");
@@ -198,6 +199,13 @@ int main() {
         //scene.renderText("comic", textShader, "Time: " + scene.variableLog["time"].dump(), 50.0f, 550.0f, glm::vec2(1.0f), glm::vec3(0.0f));
         //scene.renderText("comic", textShader, "FPS: " + scene.variableLog["fps"].dump(), 50.0f, 550.0f - 40.0f, glm::vec2(1.0f), glm::vec3(0.0f));
 
+        scene.renderShader(stencilShader, false);
+
+        // render lamps
+        scene.renderShader(lampShader, false);
+        scene.renderInstances(lamp.id, lampShader, dt);
+        
+        glStencilMask(0x00);
         // remove launch objects if too far
         for (int i = 0; i < sphere.currentNoInstances; i++) {
             if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
@@ -210,11 +218,19 @@ int main() {
         if (sphere.currentNoInstances > 0) {
             scene.renderInstances(sphere.id, shader, dt);
         }
+
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
         scene.renderInstances(cube.id, shader, dt);
 
-        // render lamps
-        scene.renderShader(lampShader, false);
-        scene.renderInstances(lamp.id, lampShader, dt);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+
+        scene.renderInstances(cube.id, stencilShader, dt);
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glEnable(GL_DEPTH_TEST);
 
         // render boxes
         //scene.renderShader(boxShader, false);
