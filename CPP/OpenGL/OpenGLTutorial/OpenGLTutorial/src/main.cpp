@@ -303,6 +303,5 @@ void processInput(double dt) {
     // toggle outlines
     if (Keyboard::keyWentDown(GLFW_KEY_O)) {
         scene.variableLog["dispStencils"] = !scene.variableLog["dispStencils"].val<bool>();
-        std::cout << scene.variableLog["dispStencils"].val<bool>() << std::endl;
     }
 }
