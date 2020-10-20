@@ -204,13 +204,16 @@ int main() {
         // render lamps
         scene.renderShader(lampShader, false);
         scene.renderInstances(lamp.id, lampShader, dt);
-        
-        glStencilMask(0x00);
+
         // remove launch objects if too far
         for (int i = 0; i < sphere.currentNoInstances; i++) {
             if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
                 scene.markForDeletion(sphere.instances[i]->instanceId);
             }
+        }
+
+        if (scene.variableLog["dispStencils"].val<bool>()) {
+            glStencilMask(0x00); // don't write to stencil buffer with other objects
         }
 
         // render launch objects
@@ -219,18 +222,26 @@ int main() {
             scene.renderInstances(sphere.id, shader, dt);
         }
 
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilMask(0xFF);
-        scene.renderInstances(cube.id, shader, dt);
+        if (scene.variableLog["dispStencils"].val<bool>()) {
+            // always write to stencil buffer with cubes
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glStencilMask(0xFF);
+            scene.renderInstances(cube.id, shader, dt);
 
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-        glDisable(GL_DEPTH_TEST);
+            glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+            glStencilMask(0x00);
+            glDisable(GL_DEPTH_TEST); // disable depth testing so outlines show up behind
 
-        scene.renderInstances(cube.id, stencilShader, dt);
-        glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glEnable(GL_DEPTH_TEST);
+            // draw outlines of cubes
+            scene.renderInstances(cube.id, stencilShader, dt);
+            glStencilMask(0xFF);
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glEnable(GL_DEPTH_TEST);
+        }
+        else {
+            // render cubes normally
+            scene.renderInstances(cube.id, shader, dt);
+        }
 
         // render boxes
         //scene.renderShader(boxShader, false);
@@ -287,5 +298,11 @@ void processInput(double dt) {
         if (Keyboard::keyWentDown(GLFW_KEY_1 + i)) {
             States::toggleIndex(&scene.activePointLights, i);
         }
+    }
+
+    // toggle outlines
+    if (Keyboard::keyWentDown(GLFW_KEY_O)) {
+        scene.variableLog["dispStencils"] = !scene.variableLog["dispStencils"].val<bool>();
+        std::cout << scene.variableLog["dispStencils"].val<bool>() << std::endl;
     }
 }

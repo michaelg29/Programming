@@ -136,6 +136,7 @@ bool Scene::init() {
     // setup lighting values
     variableLog["useBlinn"] = true;
     variableLog["useGamma"] = true;
+    variableLog["dispStencils"] = true;
 
     return true;
 }
