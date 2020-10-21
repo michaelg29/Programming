@@ -26,6 +26,7 @@
 #include "graphics/models/gun.hpp"
 #include "graphics/models/sphere.hpp"
 #include "graphics/models/box.hpp"
+#include "graphics/models/plane.hpp"
 
 #include "physics/environment.h"
 
@@ -73,6 +74,9 @@ int main() {
     Shader stencilShader("assets/outline.vs", "assets/outline.fs");
     Shader boxShader("assets/instanced/box.vs", "assets/instanced/box.fs");
     Shader textShader("assets/text.vs", "assets/text.fs");
+
+    Shader bufferShader("assets/buffer.vs", "assets/buffer.fs");
+
     //Shader skyboxShader("assets/skybox/skybox.vs", "assets/skybox/sky.fs");
     //skyboxShader.activate();
     //skyboxShader.set3Float("min", 0.047f, 0.016f, 0.239f);
@@ -94,6 +98,63 @@ int main() {
 
     Box box;
     box.init();
+
+    // setup plane to display texture
+
+    /*
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+    // create depth texture
+    unsigned int depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // attach depth texture as FBO's depth buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+    // shader configuration
+    // --------------------
+    debugDepthQuad.use();
+    debugDepthQuad.setInt("depthMap", 0);
+    */
+
+    // initialize FBO
+    const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+    GLuint fbo;
+    glGenFramebuffers(1, &fbo);
+
+    // initialize texture
+    Texture bufferTex("", "", aiTextureType_NONE);
+    bufferTex.setName("bufferTex");
+
+    // setup texture values
+    bufferTex.bind();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    // attach texture to FBO
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, bufferTex.id, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // rebind default depth buffer
+
+    Plane map(1);
+    map.init(bufferTex);
+    scene.registerModel(&map);
 
     // load all model data
     scene.loadModels();
@@ -161,6 +222,8 @@ int main() {
         scene.generateInstance(cube.id, glm::vec3(0.5f), 1.0f, cubePositions[i]);
     }
 
+    scene.generateInstance(map.id, glm::vec3(2.0f, 2.0f, 0.0f), 0.0f, glm::vec3(0.0f));
+
     // instantiate instances
     scene.initInstances();
 
@@ -199,7 +262,13 @@ int main() {
         //scene.renderText("comic", textShader, "Time: " + scene.variableLog["time"].dump(), 50.0f, 550.0f, glm::vec2(1.0f), glm::vec3(0.0f));
         //scene.renderText("comic", textShader, "FPS: " + scene.variableLog["fps"].dump(), 50.0f, 550.0f - 40.0f, glm::vec2(1.0f), glm::vec3(0.0f));
 
-        scene.renderShader(stencilShader, false);
+        /*
+            render depth of scene to texture
+        */
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+        glClear(GL_DEPTH_BUFFER_BIT);
 
         // render lamps
         scene.renderShader(lampShader, false);
@@ -222,6 +291,7 @@ int main() {
             scene.renderInstances(sphere.id, shader, dt);
         }
 
+        scene.renderShader(stencilShader, false);
         if (scene.variableLog["dispStencils"].val<bool>()) {
             // always write to stencil buffer with cubes
             glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -246,6 +316,20 @@ int main() {
         // render boxes
         //scene.renderShader(boxShader, false);
         //box.render(boxShader);
+
+        /*
+            render texture
+        */
+
+        // rebind default framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        glViewport(0, 0, 800, 600);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // render Depth map to quad for visual debugging
+        // ---------------------------------------------
+        scene.renderInstances(map.id, bufferShader, dt);
 
         // send new frame to window
         scene.newFrame(box);

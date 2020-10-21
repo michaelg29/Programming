@@ -56,3 +56,9 @@ void Texture::load(bool flip) {
 void Texture::bind() {
     glBindTexture(GL_TEXTURE_2D, id);
 }
+
+
+// set custom texture name
+void Texture::setName(std::string name) {
+    this->name = name;
+}

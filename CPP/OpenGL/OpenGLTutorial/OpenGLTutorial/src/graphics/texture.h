@@ -30,6 +30,9 @@ public:
     // bind texture id
     void bind();
 
+    // set custom texture name
+    void setName(std::string name);
+
     /*
         texture object values
     */
@@ -38,6 +41,8 @@ public:
     unsigned int id;
     // texture type
     aiTextureType type;
+    // texture name (custom)
+    std::string name;
     // directory of image
     std::string dir;
     // name of image
