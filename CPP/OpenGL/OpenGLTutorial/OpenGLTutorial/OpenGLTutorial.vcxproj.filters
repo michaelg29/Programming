@@ -32,6 +32,8 @@
     <None Include="freetype.dll" />
     <None Include="assets\outline.fs" />
     <None Include="assets\outline.vs" />
+    <None Include="assets\buffer.fs" />
+    <None Include="assets\buffer.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -171,20 +173,11 @@
     <ClInclude Include="src\graphics\cubemap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphics\models\plane.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\image1.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\image2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\flag.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\flag_specular.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="assets\skybox\back.png">
       <Filter>Resource Files</Filter>
     </Image>
@@ -204,6 +197,18 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\skybox\top.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\textures\flag.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\textures\flag_specular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\textures\image1.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\textures\image2.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

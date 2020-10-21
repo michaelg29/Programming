@@ -3,8 +3,6 @@
 unsigned int Scene::scrWidth = 0;
 unsigned int Scene::scrHeight = 0;
 
-
-
 /*
     callbacks
 */
@@ -106,7 +104,7 @@ bool Scene::init() {
 
     // stencil test
     glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    //glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // disable cursor
@@ -136,7 +134,7 @@ bool Scene::init() {
     // setup lighting values
     variableLog["useBlinn"] = true;
     variableLog["useGamma"] = true;
-    variableLog["dispStencils"] = true;
+    variableLog["dispStencils"] = false;
 
     return true;
 }
