@@ -104,7 +104,7 @@ bool Scene::init() {
 
     // stencil test
     glEnable(GL_STENCIL_TEST);
-    //glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    // keep fragments if either stencil or depth fails, replace if both pass (keep if behind)
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // disable cursor
