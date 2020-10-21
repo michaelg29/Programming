@@ -21,8 +21,10 @@ void main()
 {        
     //FragColor = vec4(vec3(texture(bufferTex, TexCoords).r), 1.0);
 
-    float depthValue = texture(bufferTex, TexCoords).r;
-    float linearDepth = linearizeDepth(depthValue);
-    FragColor = vec4(vec3((1 - (near + linearDepth) / (near - far))), 1.0); // perspective
+    //float depthValue = texture(bufferTex, TexCoords).r;
+    //float linearDepth = linearizeDepth(depthValue);
+    //FragColor = vec4(vec3((1 - (near + linearDepth) / (near - far))), 1.0); // perspective
     //FragColor = vec4(vec3(depthValue), 1.0); // orthographic
+
+    FragColor = vec4(texture(bufferTex, TexCoords).rgb, 1.0);
 }
