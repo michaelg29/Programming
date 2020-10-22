@@ -110,8 +110,8 @@ void main() {
 	// depth test
 	float near = 0.1;
 	float far = 100.0;
-	float z = gl_FragCoord.z * 2.0 - 1.0;
-	float linearDepth = (2.0 * near * far) / (z * (far - near) - (far + near));
+	float z = gl_FragCoord.z * 2.0 - 1.0; // transform to NDC [0, 1] => [-1, 1]
+	float linearDepth = (2.0 * near * far) / (z * (far - near) - (far + near)); // inverse projection matrix for z-coordinate
 
     FragColor.rgb *= (1 - (near + linearDepth) / (near - far));
 }
