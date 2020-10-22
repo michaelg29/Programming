@@ -18,6 +18,9 @@ public:
         constructor
     */
 
+    // initialize with name
+    Texture(std::string name);
+
     // initialize with image path and type
     Texture(std::string dir, std::string path, aiTextureType type);
 
