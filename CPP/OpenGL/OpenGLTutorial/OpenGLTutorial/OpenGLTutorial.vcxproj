@@ -149,6 +149,7 @@
     <None Include="assets\skybox\sky.fs" />
     <None Include="assets\text.fs" />
     <None Include="assets\text.vs" />
+    <None Include="assets\depth.fs" />
     <None Include="assimp-vc142-mtd.dll" />
     <None Include="freetype.dll" />
     <None Include="glfw3.dll" />
