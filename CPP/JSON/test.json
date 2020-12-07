@@ -1,0 +1,19 @@
+{
+    "answer": {
+        "everything": 42
+    },
+    "happy": true,
+    "list": [
+        1,
+        0,
+        2
+    ],
+    "name": "Niels",
+    "object": {
+        "currency": "USD",
+        "value": 42.99
+    },
+    "pi": 3.141,
+    "tes2": null,
+    "test": null
+}
