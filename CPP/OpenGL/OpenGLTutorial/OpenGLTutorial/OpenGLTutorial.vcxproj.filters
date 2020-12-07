@@ -34,6 +34,7 @@
     <None Include="assets\outline.vs" />
     <None Include="assets\buffer.fs" />
     <None Include="assets\buffer.vs" />
+    <None Include="assets\depth.fs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
