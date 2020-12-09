@@ -27,23 +27,23 @@ public:
 
 class FramebufferObject {
 public:
-	GLuint fbo;
+	GLuint val;
 	GLuint width;
 	GLuint height;
 	GLbitfield bitCombo;
 
 	FramebufferObject()
-		: fbo(0), width(0), height(0), bitCombo(0) {}
+		: val(0), width(0), height(0), bitCombo(0) {}
 
 	FramebufferObject(GLuint width, GLuint height, GLbitfield bits)
-		: fbo(0), width(width), height(height), bitCombo(bits) {}
+		: val(0), width(width), height(height), bitCombo(bits) {}
 
 	void generate() {
-		glGenFramebuffers(1, &fbo);
+		glGenFramebuffers(1, &val);
 	}
 
 	void bind() {
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, val);
 	}
 
 	void setViewport() {
