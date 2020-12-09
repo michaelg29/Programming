@@ -184,7 +184,7 @@
     <ClInclude Include="src\algorithms\states.hpp" />
     <ClInclude Include="src\algorithms\trie.hpp" />
     <ClInclude Include="src\graphics\cubemap.h" />
-    <ClInclude Include="src\graphics\glmemory.hpp" />
+    <ClInclude Include="src\graphics\vertexmemory.hpp" />
     <ClInclude Include="src\graphics\light.h" />
     <ClInclude Include="src\graphics\material.h" />
     <ClInclude Include="src\graphics\mesh.h" />
