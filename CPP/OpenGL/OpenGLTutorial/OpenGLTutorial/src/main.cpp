@@ -20,6 +20,7 @@
 #include "graphics/model.h"
 #include "graphics/light.h"
 #include "graphics/cubemap.h"
+#include "graphics/framememory.hpp"
 
 #include "graphics/models/cube.hpp"
 #include "graphics/models/lamp.hpp"
@@ -103,42 +104,63 @@ int main() {
 
     // initialize FBO
     const GLuint BUFFER_WIDTH = 800, BUFFER_HEIGHT = 600;
-    GLuint fbo;
-    glGenFramebuffers(1, &fbo);
+    FramebufferObject fbo(BUFFER_WIDTH, BUFFER_HEIGHT, GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    fbo.generate();
+    //GLuint fbo;
+    //glGenFramebuffers(1, &fbo);
 
     // initialize texture
+    
+
     Texture bufferTex("", "", aiTextureType_NONE);
     bufferTex.setName("bufferTex");
+    bufferTex.bind();
+    //bufferTex.allocate(GL_DEPTH_COMPONENT, BUFFER_WIDTH, BUFFER_HEIGHT, GL_FLOAT);
+    bufferTex.allocate(GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT, GL_UNSIGNED_BYTE);
+    Texture::setParams();
 
     // setup texture values
-    bufferTex.bind();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, BUFFER_WIDTH, BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    //bufferTex.bind();
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, BUFFER_WIDTH, BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // attach texture to FBO
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, bufferTex.id, 0);
+    fbo.bind();
+    //fbo.attachTexture(GL_DEPTH_ATTACHMENT, bufferTex);
+    fbo.attachTexture(GL_COLOR_ATTACHMENT0, bufferTex);
+
+    //glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, bufferTex.id, 0);
     //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferTex.id, 0);
 
     // renderbuffer to store depth and stencil unformatted
-    unsigned int rbo;
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    RenderbufferObject rbo;
+    rbo.generate();
+    rbo.bind();
+    //rbo.allocate(GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT);
+    //fbo.attachRBO(GL_COLOR_ATTACHMENT0, rbo);
+    rbo.allocate(GL_DEPTH24_STENCIL8, BUFFER_WIDTH, BUFFER_HEIGHT);
+    fbo.attachRBO(GL_DEPTH_STENCIL_ATTACHMENT, rbo);
+    
+    //unsigned int rbo;
+    //glGenRenderbuffers(1, &rbo);
+    //glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, BUFFER_WIDTH, BUFFER_HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
     //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
     
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
+    //glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT);
+    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
     
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0); // rebind default depth buffer
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0); // rebind default depth buffer
+    scene.defaultFBO.bind();
 
     Plane map(1);
     map.init(bufferTex);
@@ -253,10 +275,10 @@ int main() {
         /*
             render depth of scene to texture
         */
-        glViewport(0, 0, BUFFER_WIDTH, BUFFER_HEIGHT);
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        //glViewport(0, 0, BUFFER_WIDTH, BUFFER_HEIGHT);
+        //glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        //glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        fbo.activate();
 
         // render lamps
         scene.renderShader(lampShader, false);
@@ -280,26 +302,26 @@ int main() {
         }
 
         scene.renderShader(stencilShader, false);
-        if (scene.variableLog["dispStencils"].val<bool>()) {
-            // always write to stencil buffer with cubes
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            glStencilMask(0xFF); // always write to stencil buffer
-            scene.renderInstances(cube.id, shader, dt);
+        //if (scene.variableLog["dispStencils"].val<bool>()) {
+        //    // always write to stencil buffer with cubes
+        //    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        //    glStencilMask(0xFF); // always write to stencil buffer
+        //    scene.renderInstances(cube.id, shader, dt);
 
-            glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only render fragments if different than what stored
-            glStencilMask(0x00); // disable writing
-            glDisable(GL_DEPTH_TEST); // disable depth testing so outlines show up behind
+        //    glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only render fragments if different than what stored
+        //    glStencilMask(0x00); // disable writing
+        //    glDisable(GL_DEPTH_TEST); // disable depth testing so outlines show up behind
 
-            // draw outlines of cubes
-            scene.renderInstances(cube.id, stencilShader, dt);
-            glStencilMask(0xFF);
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            glEnable(GL_DEPTH_TEST);
-        }
-        else {
+        //    // draw outlines of cubes
+        //    scene.renderInstances(cube.id, stencilShader, dt);
+        //    glStencilMask(0xFF);
+        //    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        //    glEnable(GL_DEPTH_TEST);
+        //}
+        //else {
             // render cubes normally
             scene.renderInstances(cube.id, shader, dt);
-        }
+        //}
 
         // render boxes
         //scene.renderShader(boxShader, false);
@@ -310,10 +332,11 @@ int main() {
         */
 
         // rebind default framebuffer
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        glViewport(0, 0, 800, 600);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glViewport(0, 0, 800, 600);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        scene.defaultFBO.activate();
 
         // render Depth map to quad for visual debugging
         scene.renderInstances(map.id, bufferShader, dt);
