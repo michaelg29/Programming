@@ -32,13 +32,15 @@ public:
 
     void allocate(GLenum format, GLuint width, GLuint height, GLenum type);
 
-    static void setParams(GLenum texMinFilter = GL_NEAREST, GLenum texMagFilter = GL_NEAREST, GLenum wrapS = GL_REPEAT, GLenum wrapT = GL_REPEAT);
+    static void setParams(GLenum texMinFilter = GL_NEAREST,
+        GLenum texMagFilter = GL_NEAREST,
+        GLenum wrapS = GL_REPEAT,
+        GLenum wrapT = GL_REPEAT);
 
     // bind texture id
     void bind();
 
-    // set custom texture name
-    void setName(std::string name);
+    void cleanup();
 
     /*
         texture object values
@@ -48,7 +50,7 @@ public:
     unsigned int id;
     // texture type
     aiTextureType type;
-    // texture name (custom)
+    // name
     std::string name;
     // directory of image
     std::string dir;

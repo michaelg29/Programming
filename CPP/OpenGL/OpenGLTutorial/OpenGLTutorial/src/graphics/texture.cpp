@@ -6,7 +6,6 @@
     constructor
 */
 
-// initialize with name
 Texture::Texture(std::string name)
     : name(name), type(aiTextureType_NONE) {
     generate();
@@ -74,8 +73,6 @@ void Texture::bind() {
     glBindTexture(GL_TEXTURE_2D, id);
 }
 
-
-// set custom texture name
-void Texture::setName(std::string name) {
-    this->name = name;
+void Texture::cleanup() {
+    glDeleteTextures(1, &id);
 }

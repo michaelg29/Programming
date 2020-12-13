@@ -5,33 +5,33 @@
 
 class Plane : public Model {
 public:
-    Plane(unsigned int maxNoInstances)
-        : Model("plane", BoundTypes::AABB, maxNoInstances, CONST_INSTANCES) {}
+	Plane()
+		: Model("plane", BoundTypes::AABB, 1, CONST_INSTANCES) {}
 
-    void init(Texture tex) {
-        int noVertices = 4;
+	void init(Texture tex) {
+		int noVertices = 4;
 
-        float quadVertices[] = {
-            // position             normal                  texcoord
-             0.5f,  0.5f,  0.0f,    0.0f,  0.0f,  1.0f,     1.0f, 1.0f, // top right
-             0.5f, -0.5f,  0.0f,    0.0f,  0.0f,  1.0f,     1.0f, 0.0f, // top left
-            -0.5f, -0.5f,  0.0f,    0.0f,  0.0f,  1.0f,     0.0f, 0.0f, // bottom left
-            -0.5f,  0.5f,  0.0f,    0.0f,  0.0f,  1.0f,     0.0f, 1.0f  // bottom right
-        };
+		float quadVertices[] = {
+			// position				normal				texcoord
+			 0.5f,  0.5f,  0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f, // top right
+			-0.5f,  0.5f,  0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f, // top left
+			-0.5f, -0.5f,  0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // bottom left
+			 0.5f, -0.5f,  0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f  // bottom right
+		};
 
-        std::vector<unsigned int> indices = {
-            0, 1, 3,
-            1, 2, 3
-        };
+		std::vector<unsigned int> indices = {
+			0, 1, 3,
+			1, 2, 3
+		};
 
-        BoundingRegion br(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
+		BoundingRegion br(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
 
-        Mesh ret(br, { tex });
-        ret.loadData(Vertex::genList(quadVertices, noVertices), indices, true);
+		Mesh ret(br, { tex });
+		ret.loadData(Vertex::genList(quadVertices, noVertices), indices, true);
 
-        meshes.push_back(ret);
-        boundingRegions.push_back(br);
-    }
+		meshes.push_back(ret);
+		boundingRegions.push_back(br);
+	}
 };
 
 #endif

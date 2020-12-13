@@ -65,7 +65,7 @@ void Mesh::loadData(std::vector<Vertex> _vertices, std::vector<unsigned int> _in
     VAO["VBO"].generate();
     VAO["VBO"].bind();
 
-    int size = this->vertices.size();
+    unsigned int size = this->vertices.size();
     if (pad && size) {
         size++;
     }
@@ -134,6 +134,10 @@ void Mesh::render(Shader shader, unsigned int noInstances) {
 // free up memory
 void Mesh::cleanup() {
     VAO.cleanup();
+
+    for (Texture t : textures) {
+        t.cleanup();
+    }
 }
 
 // setup data with buffers

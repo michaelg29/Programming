@@ -3,6 +3,8 @@
 unsigned int Scene::scrWidth = 0;
 unsigned int Scene::scrHeight = 0;
 
+
+
 /*
     callbacks
 */
@@ -97,15 +99,14 @@ bool Scene::init() {
 
     // depth testing
     glEnable(GL_DEPTH_TEST); // doesn't show vertices not visible to camera (back of object)
-    glDepthFunc(GL_LESS);
 
     // blending for text textures
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // stencil test
+    // stencil testing
     glEnable(GL_STENCIL_TEST);
-    // keep fragments if either stencil or depth fails, replace if both pass (keep if behind)
+    // keep fragments if either stencil or depth fails, replace if both pass
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // disable cursor
@@ -135,7 +136,7 @@ bool Scene::init() {
     // setup lighting values
     variableLog["useBlinn"] = true;
     variableLog["useGamma"] = true;
-    variableLog["dispStencils"] = false;
+    variableLog["dispOutline"] = false;
 
     return true;
 }
@@ -196,7 +197,7 @@ void Scene::processInput(float dt) {
         );
         textProjection = glm::ortho(0.0f, (float)scrWidth, 0.0f, (float)scrHeight);
 
-        // set pos at end
+        // set pos
         cameraPos = cameras[activeCamera]->cameraPos;
 
         // update blinn parameter if necessary
@@ -208,6 +209,11 @@ void Scene::processInput(float dt) {
         if (Keyboard::keyWentDown(GLFW_KEY_G)) {
             variableLog["useGamma"] = !variableLog["useGamma"].val<bool>();
         }
+
+        // update outline parameter if necessary
+        if (Keyboard::keyWentDown(GLFW_KEY_O)) {
+            variableLog["dispOutline"] = !variableLog["dispOutline"].val<bool>();
+        }
     }
 }
 
@@ -216,7 +222,7 @@ void Scene::update() {
     // set background color
     glClearColor(bg[0], bg[1], bg[2], bg[4]);
     // clear occupied bits
-    defaultFBO.activate();
+    defaultFBO.clear();
 }
 
 // update screen after frame

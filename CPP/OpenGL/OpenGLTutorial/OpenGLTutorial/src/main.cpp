@@ -72,12 +72,12 @@ int main() {
     // SHADERS===============================
     Shader lampShader("assets/instanced/instanced.vs", "assets/lamp.fs");
     Shader shader("assets/instanced/instanced.vs", "assets/object.fs");
-    Shader stencilShader("assets/outline.vs", "assets/outline.fs");
     Shader boxShader("assets/instanced/box.vs", "assets/instanced/box.fs");
-    Shader textShader("assets/text.vs", "assets/text.fs");
-
+    
+    Shader outlineShader("assets/outline.vs", "assets/outline.fs");
     Shader bufferShader("assets/buffer.vs", "assets/buffer.fs");
-
+    
+    //Shader textShader("assets/text.vs", "assets/text.fs");
     //Shader skyboxShader("assets/skybox/skybox.vs", "assets/skybox/sky.fs");
     //skyboxShader.activate();
     //skyboxShader.set3Float("min", 0.047f, 0.016f, 0.239f);
@@ -100,69 +100,28 @@ int main() {
     Box box;
     box.init();
 
-    // setup plane to display texture
-
-    // initialize FBO
+    // FBO
     const GLuint BUFFER_WIDTH = 800, BUFFER_HEIGHT = 600;
     FramebufferObject fbo(BUFFER_WIDTH, BUFFER_HEIGHT, GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     fbo.generate();
-    //GLuint fbo;
-    //glGenFramebuffers(1, &fbo);
+    fbo.bind();
 
-    // initialize texture
-    
-
-    Texture bufferTex("", "", aiTextureType_NONE);
-    bufferTex.setName("bufferTex");
+    Texture bufferTex("bufferTex");
     bufferTex.bind();
-    //bufferTex.allocate(GL_DEPTH_COMPONENT, BUFFER_WIDTH, BUFFER_HEIGHT, GL_FLOAT);
-    bufferTex.allocate(GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT, GL_UNSIGNED_BYTE);
+    bufferTex.allocate(GL_RGBA, BUFFER_WIDTH, BUFFER_HEIGHT, GL_UNSIGNED_BYTE);
     Texture::setParams();
 
-    // setup texture values
-    //bufferTex.bind();
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, BUFFER_WIDTH, BUFFER_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // attach texture to FBO
-    fbo.bind();
-    //fbo.attachTexture(GL_DEPTH_ATTACHMENT, bufferTex);
     fbo.attachTexture(GL_COLOR_ATTACHMENT0, bufferTex);
+    fbo.allocateAndAttachRBO(GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH24_STENCIL8);
 
-    //glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, bufferTex.id, 0);
-    //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferTex.id, 0);
-
-    // renderbuffer to store depth and stencil unformatted
-    RenderbufferObject rbo;
-    rbo.generate();
-    rbo.bind();
-    //rbo.allocate(GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT);
-    //fbo.attachRBO(GL_COLOR_ATTACHMENT0, rbo);
-    rbo.allocate(GL_DEPTH24_STENCIL8, BUFFER_WIDTH, BUFFER_HEIGHT);
-    fbo.attachRBO(GL_DEPTH_STENCIL_ATTACHMENT, rbo);
-    
-    //unsigned int rbo;
-    //glGenRenderbuffers(1, &rbo);
-    //glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, BUFFER_WIDTH, BUFFER_HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
-    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo); // now actually attach it
-    
-    //glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, BUFFER_WIDTH, BUFFER_HEIGHT);
-    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo);
-    
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
+        std::cout << "ERROR with framebuffer" << std::endl;
     }
 
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0); // rebind default depth buffer
-    scene.defaultFBO.bind();
+    scene.defaultFBO.bind(); // rebind default framebuffer
 
-    Plane map(1);
+    // setup plane to display texture
+    Plane map;
     map.init(bufferTex);
     scene.registerModel(&map);
 
@@ -180,7 +139,7 @@ int main() {
         glm::vec3(0.7f,  0.2f,  2.0f),
         glm::vec3(2.3f, -3.3f, -4.0f),
         glm::vec3(-4.0f,  2.0f, -12.0f),
-        glm::vec3(0.0f,  -2.0f, 8.0f)
+        glm::vec3(0.0f,  0.0f, -3.0f)
     };
 
     glm::vec4 ambient = glm::vec4(0.05f, 0.05f, 0.05f, 1.0f);
@@ -214,9 +173,9 @@ int main() {
         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f)
     };
     scene.spotLights.push_back(&spotLight);
-    //scene.activeSpotLights = 1;	// 0b00000001
+    scene.activeSpotLights = 1;	// 0b00000001
 
-    scene.generateInstance(cube.id, glm::vec3(10.0f, 0.1f, 10.0f), 10.0f, glm::vec3(0.0f, -3.0f, 0.0f));
+    scene.generateInstance(cube.id, glm::vec3(20.0f, 0.1f, 20.0f), 100.0f, glm::vec3(0.0f, -3.0f, 0.0f));
     glm::vec3 cubePositions[] = {
         { 1.0f, 3.0f, -5.0f },
         { -7.25f, 2.1f, 1.5f },
@@ -226,12 +185,13 @@ int main() {
         { 3.5f, 6.3f, -1.0f },
         { -3.4f, 10.9f, -5.5f },
         { 10.0f, -2.0f, 13.2f },
-        { 2.1f, 7.9f, -8.3f },
+        { 2.1f, 7.9f, -8.3f }
     };
     for (unsigned int i = 0; i < 9; i++) {
         scene.generateInstance(cube.id, glm::vec3(0.5f), 1.0f, cubePositions[i]);
     }
 
+    // instantiate texture quad
     scene.generateInstance(map.id, glm::vec3(2.0f, 2.0f, 0.0f), 0.0f, glm::vec3(0.0f));
 
     // instantiate instances
@@ -263,6 +223,11 @@ int main() {
         // process input
         processInput(dt);
 
+        /*
+            render scene to the custom framebuffer
+        */
+        fbo.activate();
+
         // render skybox
         //skyboxShader.activate();
         //skyboxShader.setFloat("time", scene.variableLog["time"].val<float>());
@@ -271,14 +236,6 @@ int main() {
         //scene.renderText("comic", textShader, "Hello, OpenGL!", 50.0f, 50.0f, glm::vec2(1.0f), glm::vec3(0.5f, 0.6f, 1.0f));
         //scene.renderText("comic", textShader, "Time: " + scene.variableLog["time"].dump(), 50.0f, 550.0f, glm::vec2(1.0f), glm::vec3(0.0f));
         //scene.renderText("comic", textShader, "FPS: " + scene.variableLog["fps"].dump(), 50.0f, 550.0f - 40.0f, glm::vec2(1.0f), glm::vec3(0.0f));
-
-        /*
-            render depth of scene to texture
-        */
-        //glViewport(0, 0, BUFFER_WIDTH, BUFFER_HEIGHT);
-        //glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-        //glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        fbo.activate();
 
         // render lamps
         scene.renderShader(lampShader, false);
@@ -291,8 +248,8 @@ int main() {
             }
         }
 
-        if (scene.variableLog["dispStencils"].val<bool>()) {
-            glStencilMask(0x00); // don't write to stencil buffer with other objects
+        if (scene.variableLog["dispOutline"].val<bool>()) {
+            glStencilMask(0x00); // disable writing to stencil buffer for spheres 
         }
 
         // render launch objects
@@ -300,28 +257,30 @@ int main() {
         if (sphere.currentNoInstances > 0) {
             scene.renderInstances(sphere.id, shader, dt);
         }
+        
+        if (scene.variableLog["dispOutline"].val<bool>()) {
+            // always write to stencil buffer with cubes
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glStencilMask(0xFF); // always write to buffer
+            scene.renderInstances(cube.id, shader, dt);
 
-        scene.renderShader(stencilShader, false);
-        //if (scene.variableLog["dispStencils"].val<bool>()) {
-        //    // always write to stencil buffer with cubes
-        //    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        //    glStencilMask(0xFF); // always write to stencil buffer
-        //    scene.renderInstances(cube.id, shader, dt);
+            glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // render fragments if different than what is stored
+            glStencilMask(0x00); // disable writing
+            glDisable(GL_DEPTH_TEST); // disable depth test so outlines are displayed behind
 
-        //    glStencilFunc(GL_NOTEQUAL, 1, 0xFF); // only render fragments if different than what stored
-        //    glStencilMask(0x00); // disable writing
-        //    glDisable(GL_DEPTH_TEST); // disable depth testing so outlines show up behind
+            // draw outlines of the cubes
+            scene.renderShader(outlineShader, false);
+            scene.renderInstances(cube.id, outlineShader, dt);
 
-        //    // draw outlines of cubes
-        //    scene.renderInstances(cube.id, stencilShader, dt);
-        //    glStencilMask(0xFF);
-        //    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        //    glEnable(GL_DEPTH_TEST);
-        //}
-        //else {
+            // reset values
+            glStencilFunc(GL_ALWAYS, 1, 0xFF); // every fragment written to stencil buffer
+            glStencilMask(0xFF); // write always
+            glEnable(GL_DEPTH_TEST); // re-enable depth testing
+        }
+        else {
             // render cubes normally
             scene.renderInstances(cube.id, shader, dt);
-        //}
+        }
 
         // render boxes
         //scene.renderShader(boxShader, false);
@@ -332,13 +291,9 @@ int main() {
         */
 
         // rebind default framebuffer
-        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        //glViewport(0, 0, 800, 600);
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         scene.defaultFBO.activate();
 
-        // render Depth map to quad for visual debugging
+        // render quad
         scene.renderInstances(map.id, bufferShader, dt);
 
         // send new frame to window
@@ -350,15 +305,16 @@ int main() {
 
     // clean up objects
     //skybox.cleanup();
+    fbo.cleanup();
     scene.cleanup();
     return 0;
 }
 
 void launchItem(float dt) {
-    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.25f), 1.0f, cam.cameraPos);
+    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.1f), 1.0f, cam.cameraPos);
     if (rb) {
         // instance generated successfully
-        rb->transferEnergy(100.0f, cam.cameraFront);
+        rb->transferEnergy(50.0f, cam.cameraFront);
         rb->applyAcceleration(Environment::gravitationalAcceleration);
     }
 }
@@ -392,10 +348,5 @@ void processInput(double dt) {
         if (Keyboard::keyWentDown(GLFW_KEY_1 + i)) {
             States::toggleIndex(&scene.activePointLights, i);
         }
-    }
-
-    // toggle outlines
-    if (Keyboard::keyWentDown(GLFW_KEY_O)) {
-        scene.variableLog["dispStencils"] = !scene.variableLog["dispStencils"].val<bool>();
     }
 }
