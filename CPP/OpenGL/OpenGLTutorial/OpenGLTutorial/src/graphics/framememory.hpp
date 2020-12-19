@@ -45,6 +45,14 @@ public:
 	FramebufferObject(GLuint width, GLuint height, GLbitfield bitCombo)
 		: val(0), width(width), height(height), bitCombo(bitCombo) {}
 
+	void disableDrawBuffer() {
+		glDrawBuffer(GL_NONE);
+	}
+
+	void disableReadBuffer() {
+		glReadBuffer(GL_NONE);
+	}
+
 	void generate() {
 		glGenFramebuffers(1, &val);
 	}

@@ -107,6 +107,9 @@ public:
     // set uniform shader varaibles (lighting, etc)
     void renderShader(Shader shader, bool applyLighting = true);
 
+    // render scene from directional light
+    void renderDirLightShader(Shader shader);
+
     // render specified model's instances
     void renderInstances(std::string modelId, Shader shader, float dt);
 
