@@ -8,7 +8,7 @@
 class Cube : public Model {
 public:
     Cube(unsigned int maxNoInstances)
-        : Model("cube", BoundTypes::AABB, maxNoInstances, CONST_INSTANCES | NO_TEX) {}
+        : Model("cube", BoundTypes::AABB, maxNoInstances, CONST_INSTANCES/* | NO_TEX*/) {}
 
     void init() {
         int noVertices = 36;
@@ -62,11 +62,6 @@ public:
         for (unsigned int i = 0; i < noVertices; i++) {
             indices[i] = i;
         }
-
-        /*Texture tex("assets/flag.png", "material.diffuse");
-        tex.load();
-        Texture tex_specular("assets/flag_specular.png", "material.specular");
-        tex_specular.load();*/
 
         BoundingRegion br(glm::vec3(-0.5f), glm::vec3(0.5f));
 
