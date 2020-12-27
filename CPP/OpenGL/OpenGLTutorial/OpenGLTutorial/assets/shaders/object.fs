@@ -122,7 +122,7 @@ void main() {
 	FragColor = result;
 }
 
-float calcDirLightShadow() {
+float calcDirLightShadow(vec3 norm, vec3 lightDir) {
 	vec4 fragPosLightSpace = dirLight.lightSpaceMatrix * vec4(FragPos, 1.0);
 
 	// perspective divide (transform to NDC)
@@ -131,6 +131,10 @@ float calcDirLightShadow() {
 	// NDC to depth range
 	projCoords = projCoords * 0.5 + 0.5; // [-1, 1] => [0, 1]
 
+	if (projCoords.z > 1.0) {
+		return 0.0;
+	}
+
 	// get closest depth in depth buffer
 	float closestDepth = texture(dirLight.depthBuffer, projCoords.xy).r;
 
@@ -138,7 +142,19 @@ float calcDirLightShadow() {
 	float currentDepth = projCoords.z;
 
 	// if greater than (closer), return 1, else return 0
-	return currentDepth > closestDepth ? 1.0 : 0.0;
+	float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
+	//return currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(dirLight.depthBuffer, 0);
+	for (int x = -1; x <= 1; x++) {
+		for (int y = -1; y <= 1; y++) {
+			float pcfDepth = texture(dirLight.depthBuffer, projCoords.xy + vec2(x, y) * texelSize).r;
+			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+		}
+	}
+
+	return shadow / 9.0;
 }
 
 vec4 calcDirLight(vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap) {
@@ -171,7 +187,7 @@ vec4 calcDirLight(vec3 norm, vec3 viewDir, vec4 diffMap, vec4 specMap) {
 		specular = dirLight.specular * (spec * specMap);
 	}
 
-	float shadow = calcDirLightShadow();
+	float shadow = calcDirLightShadow(norm, lightDir);
 
 	return vec4(ambient + (1.0 - shadow) * (diffuse + specular));
 }
