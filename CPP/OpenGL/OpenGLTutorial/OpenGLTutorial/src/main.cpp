@@ -217,8 +217,6 @@ int main() {
 
         // render to normal shader
         scene.defaultFBO.activate();
-        //scene.renderShader(planeShader);
-        //scene.renderInstances(plane.id, planeShader, dt);
         scene.renderShader(shader);
         renderScene(shader);
 
