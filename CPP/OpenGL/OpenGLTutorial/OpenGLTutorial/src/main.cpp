@@ -77,7 +77,9 @@ int main() {
     Shader shader("assets/shaders/instanced/instanced.vs", "assets/shaders/object.fs");
     //Shader boxShader("assets/shaders/instanced/box.vs", "assets/shaders/instanced/box.fs");
     Shader planeShader("assets/shaders/buffer.vs", "assets/shaders/buffer.fs");
+
     Shader directionalShadowShader("assets/shaders/shadows/directionalshadow.vs", "assets/shaders/shadows/shadow.fs");
+    Shader spotShadowShader("assets/shaders/shadows/spotshadow.vs", "assets/shaders/shadows/shadow.fs");
 
     glm::vec3 min(-10.0f, -10.0f, 1.0f), max(10.0f, 10.0f, 7.0f);
     DirLight dirLight(glm::vec3(-0.2f, -0.9f, -0.2f),
@@ -107,14 +109,9 @@ int main() {
 
     // LIGHTS==============================
 
-    
-
     // directional light
-    
     scene.dirLight = &dirLight;
-
-
-
+    
     // point lights
     glm::vec3 pointLightPositions[] = {
         glm::vec3(0.7f,  0.2f,  2.0f),
@@ -147,14 +144,16 @@ int main() {
     }
 
     // spot light
-    SpotLight spotLight = {
-        cam.cameraPos, cam.cameraFront,
+    SpotLight spotLight(
+        //glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),
+        cam.cameraPos, cam.cameraFront, cam.cameraUp,
         glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(20.0f)),
         1.0f, 0.0014f, 0.000007f,
-        glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f)
-    };
-    //scene.spotLights.push_back(&spotLight);
-    //scene.activeSpotLights = 1;	// 0b00000001
+        glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f),
+        0.1f, 100.0f);
+
+    scene.spotLights.push_back(&spotLight);
+    scene.activeSpotLights = 1;	// 0b00000001
 
     scene.generateInstance(cube.id, glm::vec3(20.0f, 0.1f, 20.0f), 100.0f, glm::vec3(0.0f, -3.0f, 0.0f));
     glm::vec3 cubePositions[] = {
@@ -165,8 +164,8 @@ int main() {
         { 2.8f, 1.9f, -6.2f },
         { 3.5f, 6.3f, -1.0f },
         { -3.4f, 10.9f, -5.5f },
-        { 10.0f, -2.0f, 13.2f },
-        { 2.1f, 7.9f, -8.3f }
+        { 1.0f, 5.0f, 0.0f },
+        { 0.0f, 12.0f, 0.0f }
     };
     for (unsigned int i = 0; i < 9; i++) {
         scene.generateInstance(cube.id, glm::vec3(0.5f), 1.0f, cubePositions[i]);
@@ -214,6 +213,15 @@ int main() {
         dirLight.shadowFBO.activate();
         scene.renderDirLightShader(directionalShadowShader);
         renderScene(directionalShadowShader);
+
+        // render spot lights for shadow
+        for (unsigned int i = 0, len = scene.spotLights.size(); i < len; i++) {
+            if (States::isIndexActive(&scene.activeSpotLights, i)) {
+                scene.spotLights[i]->shadowFBO.activate();
+                scene.renderSpotLightShader(spotShadowShader, i);
+                renderScene(spotShadowShader);
+            }
+        }
 
         // render to normal shader
         scene.defaultFBO.activate();
@@ -264,8 +272,10 @@ void processInput(double dt) {
 
     // update flash light
     if (States::isIndexActive(&scene.activeSpotLights, 0)) {
-        //scene.spotLights[0]->position = scene.getActiveCamera()->cameraPos;
-        //scene.spotLights[0]->direction = scene.getActiveCamera()->cameraFront;
+        scene.spotLights[0]->position = scene.getActiveCamera()->cameraPos;
+        scene.spotLights[0]->direction = scene.getActiveCamera()->cameraFront;
+        scene.spotLights[0]->up = scene.getActiveCamera()->cameraUp;
+        scene.spotLights[0]->updateMatrices();
     }
 
     if (Keyboard::keyWentDown(GLFW_KEY_L)) {

@@ -274,7 +274,7 @@ void Scene::renderShader(Shader shader, bool applyLighting) {
         for (unsigned int i = 0; i < noLights; i++) {
             if (States::isIndexActive(&activeSpotLights, i)) {
                 // i'th spot light active
-                spotLights[i]->render(shader, noActiveLights);
+                spotLights[i]->render(shader, noActiveLights, textureIdx--);
                 noActiveLights++;
             }
         }
@@ -289,6 +289,12 @@ void Scene::renderShader(Shader shader, bool applyLighting) {
 void Scene::renderDirLightShader(Shader shader) {
     shader.activate();
     shader.setMat4("lightSpaceMatrix", dirLight->lightSpaceMatrix);
+}
+
+// render scene from specified spot light
+void Scene::renderSpotLightShader(Shader shader, unsigned int idx) {
+    shader.activate();
+    shader.setMat4("lightSpaceMatrix", spotLights[idx]->lightSpaceMatrix);
 }
 
 // render specified model's instances
