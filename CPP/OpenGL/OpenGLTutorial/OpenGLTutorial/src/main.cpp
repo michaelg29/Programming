@@ -78,8 +78,7 @@ int main() {
     //Shader boxShader("assets/shaders/instanced/box.vs", "assets/shaders/instanced/box.fs");
     Shader planeShader("assets/shaders/buffer.vs", "assets/shaders/buffer.fs");
 
-    Shader directionalShadowShader("assets/shaders/shadows/directionalshadow.vs", "assets/shaders/shadows/shadow.fs");
-    Shader spotShadowShader("assets/shaders/shadows/spotshadow.vs", "assets/shaders/shadows/shadow.fs");
+    Shader shadowShader("assets/shaders/shadows/shadow.vs", "assets/shaders/shadows/shadow.fs");
 
     glm::vec3 min(-10.0f, -10.0f, 1.0f), max(10.0f, 10.0f, 7.0f);
     DirLight dirLight(glm::vec3(-0.2f, -0.9f, -0.2f),
@@ -145,8 +144,8 @@ int main() {
 
     // spot light
     SpotLight spotLight(
-        //glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),
-        cam.cameraPos, cam.cameraFront, cam.cameraUp,
+        glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),
+        //cam.cameraPos, cam.cameraFront, cam.cameraUp,
         glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(20.0f)),
         1.0f, 0.0014f, 0.000007f,
         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f),
@@ -211,15 +210,15 @@ int main() {
 
         // render directional light for shadow
         dirLight.shadowFBO.activate();
-        scene.renderDirLightShader(directionalShadowShader);
-        renderScene(directionalShadowShader);
+        scene.renderDirLightShader(shadowShader);
+        renderScene(shadowShader);
 
         // render spot lights for shadow
         for (unsigned int i = 0, len = scene.spotLights.size(); i < len; i++) {
             if (States::isIndexActive(&scene.activeSpotLights, i)) {
                 scene.spotLights[i]->shadowFBO.activate();
-                scene.renderSpotLightShader(spotShadowShader, i);
-                renderScene(spotShadowShader);
+                scene.renderSpotLightShader(shadowShader, i);
+                renderScene(shadowShader);
             }
         }
 
@@ -272,10 +271,10 @@ void processInput(double dt) {
 
     // update flash light
     if (States::isIndexActive(&scene.activeSpotLights, 0)) {
-        scene.spotLights[0]->position = scene.getActiveCamera()->cameraPos;
-        scene.spotLights[0]->direction = scene.getActiveCamera()->cameraFront;
-        scene.spotLights[0]->up = scene.getActiveCamera()->cameraUp;
-        scene.spotLights[0]->updateMatrices();
+        //scene.spotLights[0]->position = scene.getActiveCamera()->cameraPos;
+        //scene.spotLights[0]->direction = scene.getActiveCamera()->cameraFront;
+        //scene.spotLights[0]->up = scene.getActiveCamera()->cameraUp;
+        //scene.spotLights[0]->updateMatrices();
     }
 
     if (Keyboard::keyWentDown(GLFW_KEY_L)) {
