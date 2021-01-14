@@ -110,6 +110,9 @@ public:
     // render scene from directional light
     void renderDirLightShader(Shader shader);
 
+    // render scene from specified point light
+    void renderPointLightShader(Shader shader, unsigned int idx);
+
     // render scene from specified spot light
     void renderSpotLightShader(Shader shader, unsigned int idx);
 

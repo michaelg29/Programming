@@ -79,13 +79,9 @@ int main() {
     Shader planeShader("assets/shaders/buffer.vs", "assets/shaders/buffer.fs");
 
     Shader shadowShader("assets/shaders/shadows/shadow.vs", "assets/shaders/shadows/shadow.fs");
-
-    glm::vec3 min(-10.0f, -10.0f, 1.0f), max(10.0f, 10.0f, 7.0f);
-    DirLight dirLight(glm::vec3(-0.2f, -0.9f, -0.2f),
-        glm::vec4(0.1f, 0.1f, 0.1f, 1.0f),
-        glm::vec4(0.6f, 0.6f, 0.6f, 1.0f),
-        glm::vec4(0.7f, 0.7f, 0.7f, 1.0f),
-        BoundingRegion(min, max));
+    Shader pointShadowShader("assets/shaders/shadows/pointShadow.vs",
+        "assets/shaders/shadows/pointShadow.fs",
+        "assets/shaders/shadows/pointShadow.gs");
 
     // MODELS==============================
     scene.registerModel(&lamp);
@@ -93,10 +89,6 @@ int main() {
     scene.registerModel(&sphere);
 
     scene.registerModel(&cube);
-
-    Plane plane;
-    plane.init(dirLight.shadowFBO.textures[0]);
-    scene.registerModel(&plane);
 
     Box box;
     box.init();
@@ -109,11 +101,18 @@ int main() {
     // LIGHTS==============================
 
     // directional light
+    glm::vec3 min(-10.0f, -10.0f, 1.0f), max(10.0f, 10.0f, 7.0f);
+    DirLight dirLight(glm::vec3(-0.2f, -0.9f, -0.2f),
+        glm::vec4(0.1f, 0.1f, 0.1f, 1.0f),
+        glm::vec4(0.6f, 0.6f, 0.6f, 1.0f),
+        glm::vec4(0.7f, 0.7f, 0.7f, 1.0f),
+        BoundingRegion(min, max));
     scene.dirLight = &dirLight;
     
     // point lights
     glm::vec3 pointLightPositions[] = {
-        glm::vec3(0.7f,  0.2f,  2.0f),
+        //glm::vec3(0.7f,  0.2f,  2.0f),
+        glm::vec3(0.0f, 15.0f, 0.0f),
         glm::vec3(2.3f, -3.3f, -4.0f),
         glm::vec3(-4.0f,  2.0f, -12.0f),
         glm::vec3(0.0f,  0.0f, -3.0f)
@@ -129,17 +128,18 @@ int main() {
     PointLight pointLights[4];
 
     for (unsigned int i = 0; i < 4; i++) {
-        pointLights[i] = {
+        pointLights[i] = PointLight(
             pointLightPositions[i],
             k0, k1, k2,
-            ambient, diffuse, specular
-        };
+            ambient, diffuse, specular,
+            0.5f, 50.0f
+        );
         // create physical model for each lamp
-        //scene.generateInstance(lamp.id, glm::vec3(0.25f), 0.25f, pointLightPositions[i]);
+        scene.generateInstance(lamp.id, glm::vec3(0.25f), 0.25f, pointLightPositions[i]);
         // add lamp to scene's light source
-        //pointLights.push_back(&pointLights[i]);
+        scene.pointLights.push_back(&pointLights[i]);
         // activate lamp in scene
-        //States::activateIndex(&scene.activePointLights, i);
+        States::activateIndex(&scene.activePointLights, i);
     }
 
     // spot light
@@ -170,8 +170,6 @@ int main() {
         scene.generateInstance(cube.id, glm::vec3(0.5f), 1.0f, cubePositions[i]);
     }
 
-    scene.generateInstance(plane.id, glm::vec3(2.0f, 2.0f, 0.0f), 0.0f, glm::vec3(0.0f));
-
     // instantiate instances
     scene.initInstances();
 
@@ -197,10 +195,6 @@ int main() {
         // process input
         processInput(dt);
 
-        // render lamps
-        //scene.renderShader(lampShader, false);
-        //scene.renderInstances(lamp.id, lampShader, dt);
-
         // remove launch objects if too far
         for (int i = 0; i < sphere.currentNoInstances; i++) {
             if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
@@ -213,14 +207,23 @@ int main() {
         scene.renderDirLightShader(shadowShader);
         renderScene(shadowShader);
 
+        // render point lights for shadow
+        for (unsigned int i = 0, len = scene.pointLights.size(); i < len; i++) {
+            if (States::isIndexActive(&scene.activePointLights, i)) {
+                scene.pointLights[i]->shadowFBO.activate();
+                scene.renderPointLightShader(pointShadowShader, i);
+                renderScene(pointShadowShader);
+            }
+        }
+
         // render spot lights for shadow
-        for (unsigned int i = 0, len = scene.spotLights.size(); i < len; i++) {
+        /*for (unsigned int i = 0, len = scene.spotLights.size(); i < len; i++) {
             if (States::isIndexActive(&scene.activeSpotLights, i)) {
                 scene.spotLights[i]->shadowFBO.activate();
                 scene.renderSpotLightShader(shadowShader, i);
                 renderScene(shadowShader);
             }
-        }
+        }*/
 
         // render to normal shader
         scene.defaultFBO.activate();
@@ -249,13 +252,16 @@ void renderScene(Shader shader) {
     }
 
     scene.renderInstances(cube.id, shader, dt);
+
+    // render lamps
+    scene.renderInstances(lamp.id, shader, dt);
 }
 
 void launchItem(float dt) {
-    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.1f), 1.0f, cam.cameraPos);
+    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.75f), 1.0f, cam.cameraPos);
     if (rb) {
         // instance generated successfully
-        rb->transferEnergy(50.0f, cam.cameraFront);
+        rb->transferEnergy(30.0f, cam.cameraFront);
         rb->applyAcceleration(Environment::gravitationalAcceleration);
     }
 }
@@ -289,7 +295,7 @@ void processInput(double dt) {
     // determine if each lamp should be toggled
     for (int i = 0; i < 4; i++) {
         if (Keyboard::keyWentDown(GLFW_KEY_1 + i)) {
-            //States::toggleIndex(&scene.activePointLights, i);
+            States::toggleIndex(&scene.activePointLights, i);
         }
     }
 }
