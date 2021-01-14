@@ -31,14 +31,14 @@ public:
     Shader();
 
     // initialize with paths to vertex and fragment shaders
-    Shader(const char* vertexShaderPath, const char* fragShaderPath);
+    Shader(const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
 
     /*
         process functions
     */
 
     // generate using vertex and frag shaders
-    void generate(const char* vertexShaderPath, const char* fragShaderPath);
+    void generate(const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
 
     // activate shader
     void activate();
