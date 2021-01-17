@@ -6,6 +6,9 @@
 #ifndef BIGINT_H
 #define BIGINT_H
 
+#define BASE 10000000
+#define NO_BASE_DIGITS 7
+
 /**
  * structure representing an integer
  * each character in the array corresponds to one digit in base 10
@@ -15,7 +18,7 @@ typedef struct
     bool sign;             // the sign of the number (true if 0 or positive, false if negative)
     unsigned int capacity; // number of slots in the array
     unsigned int noDigits; // number of used slots in the array
-    char *digits;          // array of the digits in reverse order; digits[i] = 10^i component
+    int *digits;           // array of the digits in reverse order; digits[i] = base^i component
 } bigint;
 
 extern const bigint BIGINT_ZERO; // zero integer
@@ -26,6 +29,12 @@ extern const bigint BIGINT_ZERO; // zero integer
  * @return the integer
  */
 bigint allocateBigint(unsigned int capacity);
+
+/**
+ * free memory
+ * @param i the integer to be freed
+ */
+void freeBigint(bigint *i);
 
 /**
  * convert string to a big integer by parsing each digit
