@@ -35,3 +35,33 @@ void printUintArray(unsigned int *arr, unsigned int noElements)
     }
     printf("]\n");
 }
+
+void divMod(unsigned int num, unsigned int divisor, unsigned int *quotient, unsigned int *remainder)
+{
+    *quotient = 0;
+
+    while (num >= divisor)
+    {
+        // subtract one multiple
+        num -= divisor;
+
+        // add one to the quotient
+        (*quotient)++;
+    }
+
+    // the rest is the remainder
+    *remainder = num;
+}
+
+unsigned int numDigits(unsigned int val, unsigned int base)
+{
+    unsigned int ret = 0;
+
+    while (val)
+    {
+        ret++;
+        val /= base;
+    }
+
+    return ret;
+}

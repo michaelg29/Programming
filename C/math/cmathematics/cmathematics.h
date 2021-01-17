@@ -37,4 +37,8 @@ bool containsUint(unsigned int *arr, unsigned int noElements, unsigned int targe
  */
 void printUintArray(unsigned int *arr, unsigned int noElements);
 
+void divMod(unsigned int num, unsigned int divisor, unsigned int *quotient, unsigned int *remainder);
+
+unsigned int numDigits(unsigned int val, unsigned int base);
+
 #endif

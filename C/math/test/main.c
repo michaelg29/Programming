@@ -9,17 +9,13 @@ int main()
 {
     printf("Hello, world!\n");
 
-    mat m = matrix(3, 3,
-                   1.0, 2.0, 3.0,
-                   0.0, 4.0, 5.0,
-                   1.0, 0.0, 6.0);
+    bigint i = strToBigint("123456789780");
+    bigint i2 = strToBigint("123456789780");
 
-    printMat(m);
-
-    mat inv = inverseMat(&m);
-    printMat(matScalarMultiplication(inv, 22.0f));
-
-    printMat(matScalarMultiplication(inverseMatRREF(&m), 22.0f));
+    printf("%s + %s = %s\n",
+           bigintPtrToString(&i),
+           bigintPtrToString(&i2),
+           bigintToString(addBigint(i, i2)));
 
     return 0;
 }
