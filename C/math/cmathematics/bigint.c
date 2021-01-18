@@ -156,13 +156,7 @@ bigint newBigint(int i)
 bigint newPositiveBigint(unsigned int i)
 {
     // get number of digits
-    unsigned int copy = i;
-    unsigned int noDigits = 0;
-    while (copy > 0)
-    {
-        noDigits++;
-        copy /= BASE;
-    }
+    unsigned int noDigits = numDigits(i, BASE);
 
     bigint ret = allocateBigint(noDigits);
     ret.noDigits = noDigits;
@@ -220,8 +214,7 @@ char *bigintPtrToString(bigint *i)
     // highest magnitude digits will be the first characters in the string
     bool highestMagnitudeDigit = true;
     int strDigit;
-    int digitIdx = i->noDigits;
-    for (;
+    for (int digitIdx = i->noDigits;
          digitIdx; // digitIdx != 0
          digitIdx--)
     {
