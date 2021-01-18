@@ -6,8 +6,8 @@
 #ifndef BIGINT_H
 #define BIGINT_H
 
-#define BASE 10000000
-#define NO_BASE_DIGITS 7
+#define BASE 1000000000
+#define NO_BASE_DIGITS 9
 
 /**
  * structure representing an integer
