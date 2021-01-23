@@ -78,9 +78,10 @@ int main() {
     //Shader boxShader("assets/shaders/instanced/box.vs", "assets/shaders/instanced/box.fs");
     Shader planeShader("assets/shaders/buffer.vs", "assets/shaders/buffer.fs");
 
-    Shader shadowShader("assets/shaders/shadows/shadow.vs", "assets/shaders/shadows/shadow.fs");
+    Shader dirShadowShader("assets/shaders/shadows/dirSpotShadow.vs", "assets/shaders/shadows/dirShadow.fs");
+    Shader spotShadowShader("assets/shaders/shadows/dirSpotShadow.vs", "assets/shaders/shadows/pointSpotShadow.fs");
     Shader pointShadowShader("assets/shaders/shadows/pointShadow.vs",
-        "assets/shaders/shadows/pointShadow.fs",
+        "assets/shaders/shadows/pointSpotShadow.fs",
         "assets/shaders/shadows/pointShadow.gs");
 
     // MODELS==============================
@@ -204,8 +205,8 @@ int main() {
 
         // render directional light for shadow
         dirLight.shadowFBO.activate();
-        scene.renderDirLightShader(shadowShader);
-        renderScene(shadowShader);
+        scene.renderDirLightShader(dirShadowShader);
+        renderScene(dirShadowShader);
 
         // render point lights for shadow
         for (unsigned int i = 0, len = scene.pointLights.size(); i < len; i++) {
@@ -217,13 +218,13 @@ int main() {
         }
 
         // render spot lights for shadow
-        /*for (unsigned int i = 0, len = scene.spotLights.size(); i < len; i++) {
+        for (unsigned int i = 0, len = scene.spotLights.size(); i < len; i++) {
             if (States::isIndexActive(&scene.activeSpotLights, i)) {
                 scene.spotLights[i]->shadowFBO.activate();
-                scene.renderSpotLightShader(shadowShader, i);
-                renderScene(shadowShader);
+                scene.renderSpotLightShader(spotShadowShader, i);
+                renderScene(spotShadowShader);
             }
-        }*/
+        }
 
         // render to normal shader
         scene.defaultFBO.activate();
@@ -284,7 +285,7 @@ void processInput(double dt) {
     }
 
     if (Keyboard::keyWentDown(GLFW_KEY_L)) {
-        //States::toggleIndex(&scene.activeSpotLights, 0); // toggle spot light
+        States::toggleIndex(&scene.activeSpotLights, 0); // toggle spot light
     }
 
     // launch sphere

@@ -4,8 +4,9 @@
 DirLight::DirLight() {}
 
 DirLight::DirLight(glm::vec3 direction, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular, BoundingRegion shadowRegion)
-    : direction(direction), ambient(ambient), diffuse(diffuse), specular(specular),
-    shadowFBO(2048, 2048, GL_DEPTH_BUFFER_BIT), br(br) {
+    : direction(direction),
+    ambient(ambient), diffuse(diffuse), specular(specular),
+    shadowFBO(1024, 1024, GL_DEPTH_BUFFER_BIT), br(br) {
     br = BoundingRegion(glm::vec3(-10.0f, -10.0f, 0.5f), glm::vec3(10.0f, 10.0f, 50.0f));
     
     shadowFBO.generate();
@@ -80,7 +81,7 @@ PointLight::PointLight(glm::vec3 position,
     k0(k0), k1(k1), k2(k2),
     ambient(ambient), diffuse(diffuse), specular(specular),
     nearPlane(nearPlane), farPlane(farPlane),
-    shadowFBO(2048, 2048, GL_DEPTH_BUFFER_BIT) {
+    shadowFBO(1024, 1024, GL_DEPTH_BUFFER_BIT) {
     shadowFBO.generate();
 
     shadowFBO.bind();
@@ -146,7 +147,7 @@ SpotLight::SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 up,
     k0(k0), k1(k1), k2(k2),
     ambient(ambient), diffuse(diffuse), specular(specular),
     nearPlane(nearPlane), farPlane(farPlane),
-    shadowFBO(2048, 2048, GL_DEPTH_BUFFER_BIT) {
+    shadowFBO(1024, 1024, GL_DEPTH_BUFFER_BIT) {
     shadowFBO.generate();
 
     shadowFBO.bind();
