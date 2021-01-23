@@ -311,6 +311,12 @@ void Scene::renderPointLightShader(Shader shader, unsigned int idx) {
 void Scene::renderSpotLightShader(Shader shader, unsigned int idx) {
     shader.activate();
     shader.setMat4("lightSpaceMatrix", spotLights[idx]->lightSpaceMatrix);
+
+    // light position
+    shader.set3Float("lightPos", spotLights[idx]->position);
+
+    // far plane
+    shader.setFloat("farPlane", spotLights[idx]->farPlane);
 }
 
 // render specified model's instances
