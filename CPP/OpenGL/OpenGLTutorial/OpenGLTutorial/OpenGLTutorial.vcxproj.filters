@@ -186,6 +186,9 @@
     <ClInclude Include="src\graphics\framememory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphics\models\brickwall.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\skybox\back.png">
@@ -219,6 +222,15 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\textures\image2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\textures\brickwall_diffuse.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\textures\brickwall_normal.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\textures\brickwall_specular.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
