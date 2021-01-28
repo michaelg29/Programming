@@ -191,6 +191,7 @@
     <ClInclude Include="src\algorithms\trie.hpp" />
     <ClInclude Include="src\graphics\cubemap.h" />
     <ClInclude Include="src\graphics\framememory.hpp" />
+    <ClInclude Include="src\graphics\models\brickwall.hpp" />
     <ClInclude Include="src\graphics\vertexmemory.hpp" />
     <ClInclude Include="src\graphics\light.h" />
     <ClInclude Include="src\graphics\material.h" />
@@ -213,6 +214,9 @@
     <ClInclude Include="src\scene.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="assets\textures\brickwall_diffuse.jpg" />
+    <Image Include="assets\textures\brickwall_normal.jpg" />
+    <Image Include="assets\textures\brickwall_specular.jpg" />
     <Image Include="assets\textures\flag.png" />
     <Image Include="assets\textures\flag_specular.png" />
     <Image Include="assets\textures\image1.jpg" />
