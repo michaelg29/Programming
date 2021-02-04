@@ -136,6 +136,7 @@
   <ItemGroup>
     <None Include="assets\shaders\buffer.fs" />
     <None Include="assets\shaders\buffer.vs" />
+    <None Include="assets\shaders\defaultHead.gh" />
     <None Include="assets\shaders\outline.vs" />
     <None Include="assets\shaders\outline.fs" />
     <None Include="assets\shaders\instanced\box.vs" />

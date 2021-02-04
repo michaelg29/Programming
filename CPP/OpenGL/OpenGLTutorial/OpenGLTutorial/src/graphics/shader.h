@@ -20,6 +20,8 @@
 
 class Shader {
 public:
+
+
     // program ID
     unsigned int id;
 
@@ -31,14 +33,14 @@ public:
     Shader();
 
     // initialize with paths to vertex and fragment shaders
-    Shader(const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
+    Shader(bool useDefaultHead, const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
 
     /*
         process functions
     */
 
     // generate using vertex and frag shaders
-    void generate(const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
+    void generate(bool useDefaultHead, const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
 
     // activate shader
     void activate();
@@ -47,11 +49,8 @@ public:
         utility functions
     */
 
-    // load string from file
-    std::string loadShaderSrc(const char* filePath);
-
     // compile shader program
-    GLuint compileShader(const char* filePath, GLuint type);
+    GLuint compileShader(bool useDefaultHead, const char* filePath, GLuint type);
 
     /*
         set uniform variables
@@ -66,6 +65,22 @@ public:
     void set4Float(const std::string& name, aiColor4D color);
     void set4Float(const std::string& name, glm::vec4 v);
     void setMat4(const std::string& name, glm::mat4 val);
+
+    /*
+        static
+    */
+
+    // stream containing default headers
+    static std::stringstream defaultHeaders;
+
+    // load into default header
+    static void loadIntoDefault(const char* filepath);
+
+    // clear default header buffer (after shader compilation)
+    static void clearDefault();
+
+    // load string from file
+    static std::string loadShaderSrc(bool includeDefault, const char* filePath);
 };
 
 #endif
