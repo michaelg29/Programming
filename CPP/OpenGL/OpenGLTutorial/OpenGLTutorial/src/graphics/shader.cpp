@@ -104,7 +104,7 @@ GLuint Shader::compileShader(const char* filePath, GLuint type) {
     glGetShaderiv(ret, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(ret, 512, NULL, infoLog);
-        std::cout << "Error with shader comp.:" << std::endl << infoLog << std::endl;
+        std::cout << "Error with shader comp. (" << filePath << "):" << std::endl << infoLog << std::endl;
     }
 
     return ret;
