@@ -6,7 +6,7 @@
 std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
     std::vector<Vertex> ret(noVertices);
 
-    int stride = sizeof(Vertex) / sizeof(float);
+    int stride = 8;
 
     for (int i = 0; i < noVertices; i++) {
         ret[i].pos = glm::vec3(
@@ -25,9 +25,57 @@ std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
             vertices[i * stride + 6],
             vertices[i * stride + 7]
         );
+
+        ret[i].tangent = glm::vec3(0.0f);
+        ret[i].bitangent = glm::vec3(0.0f);
     }
 
     return ret;
+}
+
+// calculate tangent and bitangent vectors for each face
+void Vertex::calcTanBiTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>& indices) {
+    // iterate through indices and calculate vectors for each face
+    for (unsigned int i = 0, len = indices.size(); i < len; i += 3) {
+        Vertex v1 = list[indices[i + 0]];
+        Vertex v2 = list[indices[i + 1]];
+        Vertex v3 = list[indices[i + 2]];
+
+        // calculate edges
+        glm::vec3 edge1 = v2.pos - v1.pos;
+        glm::vec3 edge2 = v2.pos - v1.pos;
+
+        // calculate UVs
+        glm::vec2 deltaUV1 = v2.texCoord - v1.texCoord;
+        glm::vec2 deltaUV2 = v3.texCoord - v1.texCoord;
+
+        // use inverse of matrix to determine tangent and bitangent
+        /*
+            | E_1x E_1y E_1z |   | dU_1 dV_1 | * | T_x T_y T_z |
+            | E_2x E_2y E_2z | = | dU_2 dV_2 |   | B_x B_y B_z |
+        */
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        glm::vec3 tangent = {
+            f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x),
+            f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
+            f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z)
+        };
+
+        glm::vec3 bitangent = {
+            f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x),
+            f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y),
+            f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z)
+        };
+
+        list[indices[i + 0]].tangent = tangent;
+        list[indices[i + 1]].tangent = tangent;
+        list[indices[i + 2]].tangent = tangent;
+        
+        list[indices[i + 0]].bitangent = bitangent;
+        list[indices[i + 1]].bitangent = bitangent;
+        list[indices[i + 2]].bitangent = bitangent;
+    }
 }
 
 /*
@@ -75,11 +123,15 @@ void Mesh::loadData(std::vector<Vertex> _vertices, std::vector<unsigned int> _in
     // set the vertex attribute pointers
     VAO["VBO"].bind();
     // vertex Positions
-    VAO["VBO"].setAttPointer<GLfloat>(0, 3, GL_FLOAT, 8, 0);
+    VAO["VBO"].setAttPointer<GLfloat>(0, 3, GL_FLOAT, 14, 0);
     // normal ray
-    VAO["VBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 8, 3);
+    VAO["VBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 14, 3);
     // vertex texture coords
-    VAO["VBO"].setAttPointer<GLfloat>(2, 3, GL_FLOAT, 8, 6);
+    VAO["VBO"].setAttPointer<GLfloat>(2, 2, GL_FLOAT, 14, 6);
+    // tangent vectors
+    VAO["VBO"].setAttPointer<GLfloat>(3, 3, GL_FLOAT, 14, 8);
+    // bitangent vectors
+    VAO["VBO"].setAttPointer<GLfloat>(4, 3, GL_FLOAT, 14, 11);
 
     VAO["VBO"].clear();
 
@@ -147,37 +199,4 @@ void Mesh::cleanup() {
     for (Texture t : textures) {
         t.cleanup();
     }
-}
-
-// setup data with buffers
-void Mesh::setup() {
-    // create buffers/arrays
-    
-    // bind VAO
-    VAO.generate();
-    VAO.bind();
-
-    // generate/set EBO
-    VAO["EBO"] = BufferObject(GL_ELEMENT_ARRAY_BUFFER);
-    VAO["EBO"].generate();
-    VAO["EBO"].bind();
-    VAO["EBO"].setData<GLuint>(indices.size(), &indices[0], GL_STATIC_DRAW);
-
-    // generate/set VBO
-    VAO["VBO"] = BufferObject(GL_ARRAY_BUFFER);
-    VAO["VBO"].generate();
-    VAO["VBO"].bind();
-    VAO["VBO"].setData<Vertex>(vertices.size(), &vertices[0], GL_STATIC_DRAW);
-
-    // set vertex attrib pointers
-    // vertex positions
-    VAO["VBO"].setAttPointer<GLfloat>(0, 3, GL_FLOAT, 8, 0);
-    // normal ray
-    VAO["VBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 8, 3);
-    // texture coordinates
-    VAO["VBO"].setAttPointer<GLfloat>(2, 2, GL_FLOAT, 8, 6);
-
-    VAO["VBO"].clear();
-
-    ArrayObject::clear();
 }
