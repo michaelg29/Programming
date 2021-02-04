@@ -163,10 +163,10 @@ void Model::initInstances() {
         // set vertex attrib pointers
         // positions
         posVBO.bind();
-        posVBO.setAttPointer<glm::vec3>(3, 3, GL_FLOAT, 1, 0, 1);
+        posVBO.setAttPointer<glm::vec3>(5, 3, GL_FLOAT, 1, 0, 1);
         // size
         sizeVBO.bind();
-        sizeVBO.setAttPointer<glm::vec3>(4, 3, GL_FLOAT, 1, 0, 1);
+        sizeVBO.setAttPointer<glm::vec3>(6, 3, GL_FLOAT, 1, 0, 1);
 
         ArrayObject::clear();
     }
