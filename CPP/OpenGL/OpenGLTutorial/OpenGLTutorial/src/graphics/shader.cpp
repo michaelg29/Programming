@@ -156,8 +156,10 @@ std::string Shader::loadShaderSrc(bool includeDefault, const char* filePath) {
         buf << Shader::defaultHeaders.str();
     }
 
+    std::string fullPath = Shader::defaultDirectory + '/' + filePath;
+
     // open file
-    file.open(filePath);
+    file.open(fullPath.c_str());
 
     if (file.is_open()) {
         // read buffer
