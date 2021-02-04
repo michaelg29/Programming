@@ -75,13 +75,17 @@ int main() {
     scene.activeCamera = 0;
 
     // SHADERS===============================
-    Shader shader("assets/shaders/instanced/instanced.vs", "assets/shaders/object.fs");
+    Shader::loadIntoDefault("assets/shaders/defaultHead.gh");
 
-    Shader dirShadowShader("assets/shaders/shadows/dirSpotShadow.vs", "assets/shaders/shadows/dirShadow.fs");
-    Shader spotShadowShader("assets/shaders/shadows/dirSpotShadow.vs", "assets/shaders/shadows/pointSpotShadow.fs");
-    Shader pointShadowShader("assets/shaders/shadows/pointShadow.vs",
+    Shader shader(true, "assets/shaders/instanced/instanced.vs", "assets/shaders/object.fs");
+
+    Shader dirShadowShader(false, "assets/shaders/shadows/dirSpotShadow.vs", "assets/shaders/shadows/dirShadow.fs");
+    Shader spotShadowShader(false, "assets/shaders/shadows/dirSpotShadow.vs", "assets/shaders/shadows/pointSpotShadow.fs");
+    Shader pointShadowShader(false, "assets/shaders/shadows/pointShadow.vs",
         "assets/shaders/shadows/pointSpotShadow.fs",
         "assets/shaders/shadows/pointShadow.gs");
+
+    Shader::clearDefault();
 
     // MODELS==============================
     scene.registerModel(&lamp);

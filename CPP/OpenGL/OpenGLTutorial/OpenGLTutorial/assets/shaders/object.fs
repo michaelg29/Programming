@@ -1,4 +1,3 @@
-#version 330 core
 struct Material {
 	vec4 diffuse;
 	vec4 specular;
@@ -12,7 +11,7 @@ uniform sampler2D diffuse0;
 uniform sampler2D specular0;
 uniform sampler2D normal0;
 
-struct DirLight {
+/*struct DirLight {
 	vec3 direction;
 
 	vec4 ambient;
@@ -21,11 +20,11 @@ struct DirLight {
 
 	sampler2D depthBuffer;
 	mat4 lightSpaceMatrix;
-};
+};*/
 uniform DirLight dirLight;
 
 #define MAX_POINT_LIGHTS 20
-struct PointLight {
+/*struct PointLight {
 	vec3 position;
 
 	vec4 ambient;
@@ -39,12 +38,12 @@ struct PointLight {
 	float farPlane;
 
 	samplerCube depthBuffer;
-};
+};*/
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 uniform int noPointLights;
 
 #define MAX_SPOT_LIGHTS 5
-struct SpotLight {
+/*struct SpotLight {
 	vec3 position;
 	vec3 direction;
 
@@ -64,7 +63,7 @@ struct SpotLight {
 
 	sampler2D depthBuffer;
 	mat4 lightSpaceMatrix;
-};
+};*/
 uniform SpotLight spotLights[MAX_SPOT_LIGHTS];
 uniform int noSpotLights;
 
