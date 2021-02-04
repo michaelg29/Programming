@@ -58,6 +58,8 @@ double lastFrame = 0.0f; // time of last frame
 Lamp lamp(4);
 Brickwall wall;
 
+std::string Shader::defaultDirectory = "assets/shaders";
+
 int main() {
     std::cout << "Hello, OpenGL!" << std::endl;
 
@@ -75,15 +77,15 @@ int main() {
     scene.activeCamera = 0;
 
     // SHADERS===============================
-    Shader::loadIntoDefault("assets/shaders/defaultHead.gh");
+    Shader::loadIntoDefault("defaultHead.gh");
 
-    Shader shader(true, "assets/shaders/instanced/instanced.vs", "assets/shaders/object.fs");
+    Shader shader(true, "instanced/instanced.vs", "object.fs");
 
-    Shader dirShadowShader(false, "assets/shaders/shadows/dirSpotShadow.vs", "assets/shaders/shadows/dirShadow.fs");
-    Shader spotShadowShader(false, "assets/shaders/shadows/dirSpotShadow.vs", "assets/shaders/shadows/pointSpotShadow.fs");
-    Shader pointShadowShader(false, "assets/shaders/shadows/pointShadow.vs",
-        "assets/shaders/shadows/pointSpotShadow.fs",
-        "assets/shaders/shadows/pointShadow.gs");
+    Shader dirShadowShader(false, "shadows/dirSpotShadow.vs", "shadows/dirShadow.fs");
+    Shader spotShadowShader(false, "shadows/dirSpotShadow.vs", "shadows/pointSpotShadow.fs");
+    Shader pointShadowShader(false, "shadows/pointShadow.vs",
+        "shadows/pointSpotShadow.fs",
+        "shadows/pointShadow.gs");
 
     Shader::clearDefault();
 

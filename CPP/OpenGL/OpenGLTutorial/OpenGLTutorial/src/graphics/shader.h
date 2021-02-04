@@ -73,6 +73,9 @@ public:
     // stream containing default headers
     static std::stringstream defaultHeaders;
 
+    // default directory
+    static std::string defaultDirectory;
+
     // load into default header
     static void loadIntoDefault(const char* filepath);
 
