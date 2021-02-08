@@ -40,11 +40,10 @@ void Model::loadModel(std::string path) {
 }
 
 // render instance(s)
-void Model::render(Shader shader, float dt, Scene* scene, bool setModel) {
-    if (setModel) {
-        // set base model matrix
-        shader.setMat4("model", glm::mat4(1.0f));
-    }
+void Model::render(Shader shader, float dt, Scene* scene, glm::mat4 model) {
+    // set base model matrix
+    shader.setMat4("model", model);
+    shader.setMat3("normalModel", glm::transpose(glm::inverse(glm::mat3(model))));
 
     if (!States::isActive(&switches, CONST_INSTANCES)) {
         // dynamic instances - update VBO data
