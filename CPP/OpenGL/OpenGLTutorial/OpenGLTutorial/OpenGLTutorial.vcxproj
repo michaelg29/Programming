@@ -193,6 +193,7 @@
     <ClInclude Include="src\graphics\cubemap.h" />
     <ClInclude Include="src\graphics\framememory.hpp" />
     <ClInclude Include="src\graphics\models\brickwall.hpp" />
+    <ClInclude Include="src\graphics\uniformmemory.hpp" />
     <ClInclude Include="src\graphics\vertexmemory.hpp" />
     <ClInclude Include="src\graphics\light.h" />
     <ClInclude Include="src\graphics\material.h" />
