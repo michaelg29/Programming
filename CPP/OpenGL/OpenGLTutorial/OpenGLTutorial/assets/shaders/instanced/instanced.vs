@@ -6,22 +6,45 @@ layout (location = 4) in vec3 aBitangent;
 layout (location = 5) in vec3 aOffset;
 layout (location = 6) in vec3 aSize;
 
+#define MAX_POINT_LIGHTS 20
+#define MAX_SPOT_LIGHTS 5
+
 out VS_OUT {
-	vec3 FragPos;
-	vec3 Normal;
-	vec2 TexCoord;
+    vec3 FragPos;
+    vec3 Normal;
+    vec2 TexCoord;
+
+    vec3 ViewPos;
+
+    TangentLightData lightData;
 } vs_out;
 
+layout (std140) uniform Matrices {
+    mat4 model2[3];
+};
+
 uniform mat4 model;
+uniform mat3 normalModel;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform vec3 viewPos;
+
 void main() {
-	vec3 pos = aPos * aSize + aOffset;
+    vec3 pos = aPos * aSize + aOffset;
 
-	vs_out.FragPos = vec3(model * vec4(pos, 1.0));
-	vs_out.Normal = mat3(transpose(inverse(model))) * aNormal;
+    vs_out.FragPos = vec3(model * model2[2] * vec4(pos, 1.0));
+    vs_out.Normal = normalModel * aNormal;
 
-	gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
-	vs_out.TexCoord = aTexCoord;
+    vec3 T = normalize(normalModel * aTangent);
+    vec3 B = normalize(normalModel * aBitangent);
+    vec3 N = normalize(normalModel * aNormal);
+    mat3 TBNinv = transpose(mat3(T, B, N)); // orthogonal matrix => transpose = inverse
+
+    gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
+    vs_out.TexCoord = aTexCoord;
+
+    // transform lights to tangent space
+    vs_out.FragPos = TBNinv * vs_out.FragPos;
+    vs_out.ViewPos = TBNinv * viewPos;
 }

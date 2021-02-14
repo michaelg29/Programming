@@ -21,6 +21,7 @@
 #include "graphics/light.h"
 #include "graphics/cubemap.h"
 #include "graphics/framememory.hpp"
+#include "graphics/uniformmemory.hpp"
 
 #include "graphics/models/cube.hpp"
 #include "graphics/models/lamp.hpp"
@@ -60,6 +61,10 @@ Brickwall wall;
 
 std::string Shader::defaultDirectory = "assets/shaders";
 
+struct Color {
+    float color[3];
+};
+
 int main() {
     std::cout << "Hello, OpenGL!" << std::endl;
 
@@ -88,6 +93,80 @@ int main() {
         "shadows/pointShadow.gs");
 
     Shader::clearDefault();
+
+    UBO::UBO ubo(0);
+    /*ubo.addElement(UBO::newArray(3, UBO::newStruct({
+            UBO::Type::SCALAR,
+            UBO::Type::VEC3
+            //UBO::Type::SCALAR
+        })));*/
+
+    ubo.addElement(UBO::newColMatArray(3, 4, 4));
+
+    ubo.attachToShader(shader, "Colors");
+
+    //unsigned int blockIdx = glGetUniformBlockIndex(shader.id, "Colors");
+    //glUniformBlockBinding(shader.id, blockIdx, 0);
+
+    ubo.generate();
+    ubo.bind();
+    ubo.initNullData(GL_STATIC_DRAW);
+    ubo.clear();
+
+    /*unsigned int uboColors;
+    glGenBuffers(1, &uboColors);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboColors);
+    glBufferData(GL_UNIFORM_BUFFER, 6 * sizeof(glm::vec4), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);*/
+
+    ubo.bindRange(0);
+
+    //glBindBufferRange(GL_UNIFORM_BUFFER, 0, uboColors, 0, 6 * sizeof(glm::vec4));
+
+    /*Color colors[3] = {
+        { { 1.0f, 0.0f, 0.0f } },
+        { { 0.0f, 1.0f, 0.0f } },
+        { { 0.0f, 0.0f, 1.0f } }
+    };
+
+    ubo.bind();
+    //glBindBuffer(GL_UNIFORM_BUFFER, uboColors);
+
+    // vec2 size; vec3 color;
+    /*glBufferSubData(GL_UNIFORM_BUFFER, (4 + 0 * 8) * sizeof(float), sizeof(Color), colors + 0);
+    glBufferSubData(GL_UNIFORM_BUFFER, (4 + 1 * 8) * sizeof(float), sizeof(Color), colors + 1);
+    glBufferSubData(GL_UNIFORM_BUFFER, (4 + 2 * 8) * sizeof(float), sizeof(Color), colors + 2);*/
+
+    // vec3 color; vec2 size
+    /*glBufferSubData(GL_UNIFORM_BUFFER, (0 * 8) * sizeof(float), sizeof(Color), colors + 0);
+    glBufferSubData(GL_UNIFORM_BUFFER, (1 * 8) * sizeof(float), sizeof(Color), colors + 1);
+    glBufferSubData(GL_UNIFORM_BUFFER, (2 * 8) * sizeof(float), sizeof(Color), colors + 2);*/
+
+    // float val; vec3 color;
+    /*glBufferSubData(GL_UNIFORM_BUFFER, (4 + 0 * 8) * sizeof(float), sizeof(Color), colors + 0);
+    glBufferSubData(GL_UNIFORM_BUFFER, (4 + 1 * 8) * sizeof(float), sizeof(Color), colors + 1);
+    glBufferSubData(GL_UNIFORM_BUFFER, (4 + 2 * 8) * sizeof(float), sizeof(Color), colors + 2);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);*/
+
+    ubo.startWrite();
+    
+    /*ubo.advanceCursor(1);
+    ubo.writeElement<Color>(colors + 0);
+    ubo.advanceCursor(1);
+    ubo.writeElement<Color>(colors + 1);
+    ubo.advanceCursor(1);
+    ubo.writeElement<Color>(colors + 2);*/
+    
+    ubo.advanceArray(2 * 4);
+    glm::mat4x4 m = glm::translate(glm::mat4x4(1.0f), { 3.0f, 0.0f, -5.0f });
+    ubo.writeArray<glm::mat4, glm::vec4>(&m, 4);
+    
+    /*ubo.writeElement<glm::vec4>(&m[0]);
+    ubo.writeElement<glm::vec4>(&m[1]);
+    ubo.writeElement<glm::vec4>(&m[2]);
+    ubo.writeElement<glm::vec4>(&m[3]);*/
+
+    ubo.clear();
 
     // MODELS==============================
     scene.registerModel(&lamp);
