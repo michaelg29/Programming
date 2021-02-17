@@ -5,477 +5,400 @@
 #include <GLFW/glfw3.h>
 
 #include <vector>
+#include <string>
 
 #include "vertexmemory.hpp"
 #include "shader.h"
 
-#define N 4
+#define N 4 // word size
 
-namespace UBO
-{
-    enum class Type : unsigned char
-    {
-        SCALAR = 0,
-        VEC2 = 1,
-        VEC3 = 2,
-        VEC4 = 3,
-        ARRAY = 4,
-        STRUCT = 5,
-        INVALID = 6
-    };
+namespace UBO {
+	enum class Type : unsigned char {
+		SCALAR = 0,
+		VEC2,
+		VEC3,
+		VEC4,
+		ARRAY,
+		STRUCT,
+		INVALID
+	};
 
-    // round val up to next multiple of 2^n
-    unsigned int roundUpPow2(unsigned int val, unsigned char n)
-    {
-        unsigned int pow2n = 0b1 << n;
-        unsigned int divisor = pow2n - 1; // = 0b0111...111 (n 1s)
+	// round up val to the next multiple of 2^n
+	unsigned int roundUpPow2(unsigned int val, unsigned char n) {
+		unsigned int pow2n = 0b1 << n; // = 1 * 2^n = 2^n
+		unsigned int divisor = pow2n - 1; // = 0b0111...111 (n 1s)
 
-        // last n bits = remainder of val / 2^n
-        // add (2^n - rem) to get to the next multiple of 2^n
-        unsigned int rem = val & divisor;
-        if (rem)
-        {
-            val += pow2n - rem;
-        }
+		// last n bits = remainder of val / 2^n
+		// add (2^n - rem) to get to the next multiple of 2^n
+		unsigned int rem = val & divisor;
+		if (rem) {
+			val += pow2n - rem;
+		}
 
-        return val;
-    }
+		return val;
+	}
 
-    typedef struct Element
-    {
-    public:
-        Type type;
-        unsigned char length;
-        unsigned int baseAlign;
-        std::vector<Element> list; // for struct (list of elements), or array (first element is type)
+	typedef struct Element {
+		Type type;
+		unsigned int baseAlign;
+		unsigned int length; // length of the array or num elements in structure
+		std::vector<Element> list; // for struct (list of sub-elements), or array (1st slot is the type)
 
-        unsigned int alignPow2()
-        {
-            switch (baseAlign)
-            {
-            case 2:
-                return 1;
-            case 4:
-                return 2;
-            case 8:
-                return 3;
-            case 16:
-                return 4;
-            default:
-                return 0;
-            };
-        }
+		std::string typeStr() {
+			switch (type) {
+			case Type::SCALAR: return "scalar";
+			case Type::VEC2: return "vec2";
+			case Type::VEC3: return "vec3";
+			case Type::VEC4: return "vec4";
+			case Type::ARRAY: return "array<" + list[0].typeStr() + ">";
+			case Type::STRUCT: return "struct";
+			default: return "invalid";
+			};
+		}
 
-        GLuint calcSize()
-        {
-            switch (type)
-            {
-            case Type::ARRAY:
-            case Type::STRUCT:
-                return calcPaddedSize();
-            case Type::SCALAR:
-                return N;
-            case Type::VEC2:
-                return 2 * N;
-            case Type::VEC3:
-                return 3 * N;
-            case Type::VEC4:
-                return 4 * N;
-            default:
-                return 0;
-            };
-        }
+		unsigned int alignPow2() {
+			switch (baseAlign) {
+			case 2: return 1;
+			case 4: return 2;
+			case 8: return 3;
+			case 16: return 4;
+			default: return 0;
+			};
+		}
 
-        GLuint calcPaddedSize()
-        {
-            unsigned int offset = 0;
+		unsigned int calcSize() {
+			switch (type) {
+			case Type::SCALAR:
+				return N;
+			case Type::VEC2:
+				return 2 * N;
+			case Type::VEC3:
+				return 3 * N;
+			case Type::VEC4:
+				return 4 * N;
+			case Type::ARRAY:
+			case Type::STRUCT:
+				return calcPaddedSize();
+			default:
+				return 0;
+			};
+		}
 
-            switch (type)
-            {
-            case Type::ARRAY:
-                return length * roundUpPow2(list[0].calcPaddedSize(), alignPow2());
-            case Type::STRUCT:
-                for (Element e : list)
-                {
-                    offset = roundUpPow2(offset, e.alignPow2());
-                    offset += e.calcSize();
-                }
-                return offset;
-            case Type::SCALAR:
-                return N;
-            case Type::VEC2:
-                return 2 * N;
-            case Type::VEC3:
-                return 3 * N;
-            case Type::VEC4:
-                return 4 * N;
-            default:
-                return baseAlign;
-            };
-        }
+		unsigned int calcPaddedSize() {
+			unsigned int offset = 0;
 
-        std::string typeStr()
-        {
-            switch (type)
-            {
-            case Type::SCALAR:
-                return "scalar";
-            case Type::VEC2:
-                return "vec2";
-            case Type::VEC3:
-                return "vec3";
-            case Type::VEC4:
-                return "vec4";
-            case Type::ARRAY:
-                return "array<" + list[0].typeStr() + ">";
-            case Type::STRUCT:
-                return "struct";
-            default:
-                return "invalid";
-            }
-        }
+			switch (type) {
+			case Type::ARRAY:
+				return length * roundUpPow2(list[0].calcSize(), alignPow2());
+			case Type::STRUCT:
+				for (Element e : list) {
+					offset = roundUpPow2(offset, e.alignPow2());
+					offset += e.calcSize();
+				}
+				return offset;
+			case Type::SCALAR:
+			case Type::VEC2:
+			case Type::VEC3:
+			case Type::VEC4:
+			default:
+				return calcSize();
+			};
+		}
 
-        Element(Type type = Type::SCALAR)
-            : type(type), length(0), list(0), baseAlign(0)
-        {
+		Element(Type type = Type::SCALAR)
+			: type(type), length(0), list(0) {
+			switch (type) {
+			case Type::SCALAR:
+				baseAlign = N; break;
+			case Type::VEC2:
+				baseAlign = 2 * N; break;
+			case Type::VEC3:
+			case Type::VEC4:
+				baseAlign = 4 * N; break;
+			default:
+				baseAlign = 0; break;
+			};
+		}
+	} Element;
 
-            switch (type)
-            {
-            case Type::SCALAR:
-                baseAlign = N;
-                break;
-            case Type::VEC2:
-                baseAlign = 2 * N;
-                break;
-            case Type::VEC3:
-            case Type::VEC4:
-                baseAlign = 4 * N;
-                break;
-            default:
-                baseAlign = 0;
-                break;
-            }
-        }
-    } Element;
+	Element newScalar() {
+		return Element();
+	}
 
-    Element newScalar()
-    {
-        return Element(Type::SCALAR);
-    }
+	Element newVec(unsigned char dim) {
+		switch (dim) {
+		case 2: return Type::VEC2;
+		case 3: return Type::VEC3;
+		case 4:
+		default:
+			return Type::VEC4;
+		};
+	}
 
-    Element newVec(unsigned char dim)
-    {
-        switch (dim)
-        {
-        case 2:
-            return Type::VEC2;
-        case 3:
-            return Type::VEC3;
-        case 4:
-        default:
-            return Type::VEC4;
-        };
-    }
+	Element newArray(unsigned int length, Element arrElement) {
+		Element ret(Type::ARRAY);
+		ret.length = length;
+		ret.list = { arrElement };
+		ret.list.shrink_to_fit();
 
-    Element newArray(unsigned char length, Element arrElement)
-    {
-        Element ret(Type::ARRAY);
-        ret.length = length;
-        ret.list = std::vector<Element>(1);
-        ret.list[0] = arrElement;
-        if (arrElement.type == Type::STRUCT)
-        {
-            ret.baseAlign = arrElement.baseAlign;
-        }
-        else
-        {
-            ret.baseAlign = roundUpPow2(arrElement.baseAlign, 4);
-        }
+		ret.baseAlign = arrElement.type == Type::STRUCT ?
+			arrElement.baseAlign :
+			roundUpPow2(arrElement.baseAlign, 4);
 
-        return ret;
-    }
+		return ret;
+	}
 
-    Element newColMat(unsigned char cols, unsigned char rows)
-    {
-        return newArray(cols, newVec(rows));
-    }
+	Element newColMat(unsigned char cols, unsigned char rows) {
+		return newArray(cols, newVec(rows));
+	}
 
-    Element newColMatArray(unsigned char noMatrices, unsigned char cols, unsigned char rows)
-    {
-        return newArray(noMatrices * cols, newVec(rows));
-    }
+	Element newColMatArray(unsigned int noMatrices, unsigned char cols, unsigned char rows) {
+		return newArray(noMatrices * cols, newVec(rows));
+	}
 
-    Element newRowMat(unsigned char rows, unsigned char cols)
-    {
-        return newArray(rows, newVec(cols));
-    }
+	Element newRowMat(unsigned char rows, unsigned char cols) {
+		return newArray(rows, newVec(cols));
+	}
 
-    Element newRowMatArray(unsigned char noMatrices, unsigned char rows, unsigned char cols)
-    {
-        return newArray(noMatrices * rows, newVec(cols));
-    }
+	Element newRowMatArray(unsigned int noMatrices, unsigned char rows, unsigned char cols) {
+		return newArray(noMatrices * rows, newVec(cols));
+	}
 
-    Element newStruct(std::vector<Element> elements)
-    {
-        Element ret(Type::STRUCT);
-        ret.list.insert(ret.list.end(), elements.begin(), elements.end());
-        ret.length = ret.list.size();
+	Element newStruct(std::vector<Element> subelements) {
+		Element ret(Type::STRUCT);
+		ret.list.insert(ret.list.end(), subelements.begin(), subelements.end());
+		ret.length = ret.list.size();
 
-        // base alignment is the largest base alignment
-        if (elements.size())
-        {
-            for (Element e : elements)
-            {
-                if (e.baseAlign > ret.baseAlign)
-                {
-                    ret.baseAlign = e.baseAlign;
-                }
-            }
-        }
+		// base alignment is largest of its subelements
+		if (subelements.size()) {
+			for (Element e : subelements) {
+				if (e.baseAlign > ret.baseAlign) {
+					ret.baseAlign = e.baseAlign;
+				}
+			}
 
-        ret.baseAlign = roundUpPow2(ret.baseAlign, 4);
+			ret.baseAlign = roundUpPow2(ret.baseAlign, 4);
+		}
 
-        return ret;
-    }
+		return ret;
+	}
 
-    class UBO : public BufferObject
-    {
-    public:
-        Element block;
-        GLuint bindingPos;
-        unsigned int calculatedSize;
+	class UBO : public BufferObject {
+	public:
+		Element block; // root element of the UBO (struct)
+		unsigned int calculatedSize;
+		GLuint bindingPos;
 
-        UBO(GLuint bindingPos)
-            : BufferObject(GL_UNIFORM_BUFFER), block(newStruct({})), calculatedSize(0), bindingPos(bindingPos) {}
+		UBO(GLuint bindingPos)
+			: BufferObject(GL_UNIFORM_BUFFER),
+			block(newStruct({})),
+			calculatedSize(0),
+			bindingPos(bindingPos) {}
 
-        void attachToShader(Shader shader, std::string name)
-        {
-            GLuint blockIdx = glGetUniformBlockIndex(shader.id, name.c_str());
-            glUniformBlockBinding(shader.id, blockIdx, bindingPos);
-        }
+		UBO(GLuint bindingPos, std::vector<Element> elements)
+			: BufferObject(GL_UNIFORM_BUFFER),
+			block(newStruct(elements)),
+			calculatedSize(0),
+			bindingPos(bindingPos) {}
 
-        void initNullData(GLenum usage)
-        {
-            if (!calculatedSize)
-            {
-                calculatedSize = calcSize();
-            }
-            glBufferData(type, calculatedSize, NULL, usage);
-        }
+		void attachToShader(Shader shader, std::string name) {
+			GLuint blockIdx = glGetUniformBlockIndex(shader.id, name.c_str());
+			glUniformBlockBinding(shader.id, blockIdx, bindingPos);
+		}
 
-        void bindRange(GLuint index, GLuint offset = 0)
-        {
-            if (!calculatedSize)
-            {
-                calculatedSize = calcSize();
-            }
-            glBindBufferRange(type, index, val, offset, calculatedSize);
-        }
+		void initNullData(GLenum usage) {
+			if (!calculatedSize) {
+				calculatedSize = calcSize();
+			}
+			glBufferData(type, calculatedSize, NULL, usage);
+		}
 
-        GLuint calcSize()
-        {
-            return block.calcPaddedSize();
-        }
+		void bindRange(GLuint offset = 0) {
+			if (!calculatedSize) {
+				calculatedSize = calcSize();
+			}
+			glBindBufferRange(type, bindingPos, val, offset, calculatedSize);
+		}
 
-        void addElement(Element element)
-        {
-            block.list.push_back(element);
-            if (element.baseAlign > block.baseAlign)
-            {
-                block.baseAlign = element.baseAlign;
-            }
-            block.length++;
-        }
+		unsigned int calcSize() {
+			return block.calcPaddedSize();
+		}
 
-        GLuint offset;
-        GLuint poppedOffset;
-        std::vector<std::pair<unsigned short, Element *>> indexStack; // stack to keep track of nested indices
-        int currentDepth;
+		void addElement(Element element) {
+			block.list.push_back(element);
+			if (element.baseAlign > block.baseAlign) {
+				block.baseAlign = element.baseAlign;
+			}
+			block.length++;
+		}
 
-        void startWrite()
-        {
-            offset = 0;
-            poppedOffset = 0;
-            currentDepth = 0;
-            indexStack.clear();
-            indexStack.push_back({0, &block});
-        }
+		// iteration variables
+		GLuint offset;
+		GLuint poppedOffset;
+		std::vector<std::pair<unsigned int, Element*>> indexStack; // stack to keep track of the nested indices
+		int currentDepth; // current size of the stack - 1
 
-        Element getNextElement()
-        {
-            // highest level struct popped
-            if (currentDepth < 0)
-            {
-                return Type::INVALID;
-            }
+		// initialize iterator
+		void startWrite() {
+			currentDepth = 0;
+			offset = 0;
+			poppedOffset = 0;
+			indexStack.clear();
+			indexStack.push_back({ 0, &block });
+		}
 
-            // get current deepest array/struct (last element in the stack)
-            Element *currentElement = indexStack[currentDepth].second;
+		// next element in iteration
+		Element getNextElement() {
+			// highest level struct popped, stack is empty
+			if (currentDepth < 0) {
+				return Type::INVALID;
+			}
 
-            // get the element at the specified index within that iterable
-            if (currentElement->type == Type::STRUCT)
-            {
-                currentElement = &currentElement->list[indexStack[currentDepth].first];
-            }
-            else
-            { // array
-                currentElement = &currentElement->list[0];
-            }
+			// get current deepest array/struct (last element in the stack)
+			Element* currentElement = indexStack[currentDepth].second;
 
-            // traverse down to deepest array/struct
-            while (currentElement->type == Type::STRUCT || currentElement->type == Type::ARRAY)
-            {
-                currentDepth++;
-                indexStack.push_back({0, currentElement});
-                currentElement = &currentElement->list[0];
-            }
+			// get the element at the specified index within that iterable
+			if (currentElement->type == Type::STRUCT) {
+				currentElement = &currentElement->list[indexStack[currentDepth].first];
+			}
+			else { // array
+				currentElement = &currentElement->list[0];
+			}
 
-            // pop from stack if necessary
-            poppedOffset = roundUpPow2(offset, currentElement->alignPow2()) + currentElement->calcSize();
-            if (!pop())
-            {
-                // no items popped
-                poppedOffset = 0;
-            }
+			// traverse down to deepest array/struct
+			while (currentElement->type == Type::STRUCT || currentElement->type == Type::ARRAY) {
+				currentDepth++;
+				indexStack.push_back({ 0, currentElement });
+				currentElement = &currentElement->list[0];
+			}
 
-            return *currentElement;
-        }
+			// now have current element (not an iterable)
+			// pop from stack if necessary
+			poppedOffset = roundUpPow2(offset, currentElement->alignPow2()) + currentElement->calcSize();
+			if (!pop()) {
+				// no items popped
+				poppedOffset = 0;
+			}
 
-        bool pop()
-        {
-            bool popped = false;
+			return *currentElement;
+		}
 
-            for (int i = currentDepth; i >= 0; i--)
-            {
-                int advancedIdx = ++indexStack[i].first;
-                if (advancedIdx >= indexStack[i].second->length)
-                {
-                    // iterated through entire list or stack
-                    // pop
-                    poppedOffset = roundUpPow2(poppedOffset, indexStack[i].second->alignPow2());
-                    indexStack.erase(indexStack.begin() + i);
-                    currentDepth--;
-                    popped = true;
-                }
-                else
-                {
-                    break;
-                }
-            }
+		bool pop() {
+			bool popped = false;
 
-            return popped;
-        }
+			for (int i = currentDepth; i >= 0; i--) {
+				int advancedIdx = ++indexStack[i].first; // move cursor forward in the iterable
+				if (advancedIdx >= indexStack[i].second->length) {
+					// iterated through entire array or struct
+					// pop iterable from the stack
+					poppedOffset = roundUpPow2(poppedOffset, indexStack[i].second->alignPow2());
+					indexStack.erase(indexStack.begin() + i);
+					popped = true;
+					currentDepth--;
+				}
+				else {
+					break;
+				}
+			}
 
-        template <typename T>
-        void writeElement(T *data)
-        {
-            Element element = getNextElement();
-            offset = roundUpPow2(offset, element.alignPow2());
+			return popped;
+		}
 
-            glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(T), data);
+		template<typename T>
+		void writeElement(T* data) {
+			Element element = getNextElement();
+			//std::cout << element.typeStr() << "--" << element.baseAlign << "--" << offset << "--";
+			offset = roundUpPow2(offset, element.alignPow2());
+			//std::cout << offset << std::endl;
 
-            if (poppedOffset)
-            {
-                offset = poppedOffset;
-            }
-            else
-            {
-                offset += element.calcSize();
-            }
-        }
+			glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(T), data);
 
-        template <typename T>
-        void writeArray(T *first, unsigned int n)
-        {
-            for (int i = 0; i < n; i++)
-            {
-                writeElement<T>(&first[i]);
-            }
-        }
+			if (poppedOffset) {
+				offset = poppedOffset;
+			}
+			else {
+				offset += element.calcSize();
+			}
+		}
 
-        template <typename T, typename V>
-        void writeArrayContainer(T *container, unsigned int n)
-        {
-            for (int i = 0; i < n; i++)
-            {
-                writeElement<V>(&container->operator[](i));
-            }
-        }
+		template<typename T>
+		void writeArray(T* first, unsigned int n) {
+			for (int i = 0; i < n; i++) {
+				writeElement<T>(&first[i]);
+			}
+		}
 
-        void advanceCursor(unsigned int n)
-        {
-            // write number of elements
-            for (int i = 0; i < n; i++)
-            {
-                Element element = getNextElement();
-                offset = roundUpPow2(offset, element.alignPow2());
-                if (poppedOffset)
-                {
-                    offset = poppedOffset;
-                }
-                else
-                {
-                    offset += element.calcSize();
-                }
-            }
-        }
+		template<typename T, typename V>
+		void writeArrayContainer(T* container, unsigned int n) {
+			for (int i = 0; i < n; i++) {
+				writeElement<V>(&container->operator[](i)); // container[i] translates to container + i
+			}
+		}
 
-        void advanceArray(unsigned int noElements)
-        {
-            if (currentDepth < 0)
-            {
-                return;
-            }
+		void advanceCursor(unsigned int n) {
+			// skip number of elements
+			for (int i = 0; i < n; i++) {
+				Element element = getNextElement();
+				offset = roundUpPow2(offset, element.alignPow2());
+				if (poppedOffset) {
+					offset = poppedOffset;
+				}
+				else {
+					offset += element.calcSize();
+				}
+			}
+		}
 
-            Element *currentElement = indexStack[currentDepth].second;
+		void advanceArray(unsigned int noElements) {
+			if (currentDepth < 0) {
+				return;
+			}
 
-            // get the element at the specified index within that iterable
-            if (currentElement->type == Type::STRUCT)
-            {
-                currentElement = &currentElement->list[indexStack[currentDepth].first];
+			Element* currentElement = indexStack[currentDepth].second;
 
-                unsigned int depthAddition = 0;
-                std::vector<std::pair<unsigned short, Element *>> stackAddition;
+			// get the next array
+			if (currentElement->type == Type::STRUCT) {
+				currentElement = &currentElement->list[indexStack[currentDepth].first];
 
-                // go to next array
-                while (currentElement->type == Type::STRUCT)
-                {
-                    depthAddition++;
-                    stackAddition.push_back({0, currentElement});
-                    currentElement = &currentElement->list[0];
-                }
+				unsigned int depthAddition = 0;
+				std::vector<std::pair<unsigned int, Element*>> stackAddition;
 
-                if (currentElement->type != Type::ARRAY)
-                {
-                    // did not find an array
-                    return;
-                }
+				// go to next array
+				while (currentElement->type == Type::STRUCT) {
+					depthAddition++;
+					stackAddition.push_back({ 0, currentElement });
+					currentElement = &currentElement->list[0];
+				}
 
-                // found array, apply changes to global stack
-                currentDepth += depthAddition + 1; // + 1 for next array
-                indexStack.insert(indexStack.end(), stackAddition.begin(), stackAddition.end());
-                indexStack.push_back({0, currentElement}); // add array
-            }
+				if (currentElement->type != Type::ARRAY) {
+					// did not find an array (reached primitive)
+					return;
+				}
 
-            // at an array, advance number of elements
-            unsigned int finalIdx = indexStack[currentDepth].first + noElements;
-            unsigned int advanceCount = noElements;
-            if (finalIdx >= indexStack[currentDepth].second->length)
-            {
-                // advance to end of array
-                advanceCount = indexStack[currentDepth].second->length - indexStack[currentDepth].first;
-            }
+				// found array, apply changes
+				currentDepth += depthAddition + 1; // + 1 for the array
+				indexStack.insert(indexStack.end(), stackAddition.begin(), stackAddition.end());
+				indexStack.push_back({ 0, currentElement }); // push array to stack
+			}
 
-            offset += advanceCount * roundUpPow2(currentElement->list[0].calcPaddedSize(), currentElement->alignPow2());
-            // pop from stack if necessary
-            poppedOffset = offset;
-            if (!pop())
-            {
-                // no items popped
-                offset = poppedOffset;
-            }
-        }
-    };
-}; // namespace UBO
+			// at an array, advance number of elements
+			unsigned int finalIdx = indexStack[currentDepth].first + noElements;
+			unsigned int advanceCount = noElements;
+			if (finalIdx >= indexStack[currentDepth].second->length) {
+				// advance to the end of array
+				advanceCount = indexStack[currentDepth].second->length - indexStack[currentDepth].first;
+			}
+
+			offset += advanceCount * roundUpPow2(currentElement->list[0].calcSize(), currentElement->alignPow2());
+
+			// pop from stack
+			poppedOffset = offset;
+			if (pop()) {
+				// no items popped
+				offset = poppedOffset;
+			}
+		}
+	};
+};
 
 #endif
