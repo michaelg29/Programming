@@ -24,7 +24,8 @@ void Model::loadModel(std::string path) {
     // use ASSIMP to read file
     Assimp::Importer import;
     // triangulate = group indices in triangles, flip = flip textures on load
-    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = import.ReadFile(path,
+        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
     // if no errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -264,6 +265,13 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             vertex.texCoord = glm::vec2(0.0f);
         }
 
+        // tangent vectors
+        vertex.tangent = {
+            mesh->mTangents[i].x,
+            mesh->mTangents[i].y,
+            mesh->mTangents[i].z
+        };
+
         vertices.push_back(vertex);
     }
 
@@ -333,6 +341,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             // 2. specular maps
             std::vector<Texture> specularMaps = loadTextures(material, aiTextureType_SPECULAR);
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            // 3. normal maps
+            std::vector<Texture> normalMaps = loadTextures(material, aiTextureType_NORMALS);
+            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
             ret = Mesh(br, textures);
         }
