@@ -71,7 +71,7 @@ public:
         aiColor4D spec(m.specular.r, m.specular.g, m.specular.b, 1.0f);
 
         std::vector<Vertex> vertexList = Vertex::genList(vertices, noVertices);
-        Vertex::calcTanBiTanVectors(vertexList, indices);
+        Vertex::calcTanVectors(vertexList, indices);
 
         Mesh ret(br, diff, spec);
         ret.loadData(vertexList, indices);
