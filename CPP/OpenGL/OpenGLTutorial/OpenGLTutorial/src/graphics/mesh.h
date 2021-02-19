@@ -32,13 +32,13 @@ struct Vertex {
     // tangent vector
     glm::vec3 tangent;
     // bitangent vector
-    glm::vec3 bitangent;
+    //glm::vec3 bitangent;
 
     // generate list of vertices (only position, normal, texCoord)
     static std::vector<Vertex> genList(float* vertices, int noVertices);
 
-    // calculate tangent and bitangent vectors for each face
-    static void calcTanBiTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>& indices);
+    // calculate tangent vectors for each face
+    static void calcTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>& indices);
 };
 
 /*

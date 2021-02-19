@@ -40,14 +40,14 @@ std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
         );
 
         ret[i].tangent = glm::vec3(0.0f);
-        ret[i].bitangent = glm::vec3(0.0f);
+        //ret[i].bitangent = glm::vec3(0.0f);
     }
 
     return ret;
 }
 
 // calculate tangent and bitangent vectors for each face
-void Vertex::calcTanBiTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>& indices) {
+void Vertex::calcTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>& indices) {
     unsigned char* count = (unsigned char*)malloc(list.size() * sizeof(unsigned char));
     for (unsigned int i = 0, len = list.size(); i < len; i++) {
         count[i] = 0;
@@ -89,9 +89,9 @@ void Vertex::calcTanBiTanVectors(std::vector<Vertex>& list, std::vector<unsigned
         averageVectors(list[indices[i + 1]].tangent, tangent, count[indices[i + 1]]);
         averageVectors(list[indices[i + 2]].tangent, tangent, count[indices[i + 2]]);
         
-        averageVectors(list[indices[i + 0]].bitangent, bitangent, count[indices[i + 0]]++);
-        averageVectors(list[indices[i + 1]].bitangent, bitangent, count[indices[i + 1]]++);
-        averageVectors(list[indices[i + 2]].bitangent, bitangent, count[indices[i + 2]]++);
+        //averageVectors(list[indices[i + 0]].bitangent, bitangent, count[indices[i + 0]]++);
+        //averageVectors(list[indices[i + 1]].bitangent, bitangent, count[indices[i + 1]]++);
+        //averageVectors(list[indices[i + 2]].bitangent, bitangent, count[indices[i + 2]]++);
     }
 }
 
@@ -140,15 +140,15 @@ void Mesh::loadData(std::vector<Vertex> _vertices, std::vector<unsigned int> _in
     // set the vertex attribute pointers
     VAO["VBO"].bind();
     // vertex Positions
-    VAO["VBO"].setAttPointer<GLfloat>(0, 3, GL_FLOAT, 14, 0);
+    VAO["VBO"].setAttPointer<GLfloat>(0, 3, GL_FLOAT, 11, 0);
     // normal ray
-    VAO["VBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 14, 3);
+    VAO["VBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 11, 3);
     // vertex texture coords
-    VAO["VBO"].setAttPointer<GLfloat>(2, 2, GL_FLOAT, 14, 6);
+    VAO["VBO"].setAttPointer<GLfloat>(2, 2, GL_FLOAT, 11, 6);
     // tangent vectors
-    VAO["VBO"].setAttPointer<GLfloat>(3, 3, GL_FLOAT, 14, 8);
+    VAO["VBO"].setAttPointer<GLfloat>(3, 3, GL_FLOAT, 11, 8);
     // bitangent vectors
-    VAO["VBO"].setAttPointer<GLfloat>(4, 3, GL_FLOAT, 14, 11);
+    //VAO["VBO"].setAttPointer<GLfloat>(4, 3, GL_FLOAT, 14, 11);
 
     VAO["VBO"].clear();
 
