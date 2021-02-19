@@ -2,6 +2,19 @@
 
 #include <iostream>
 
+void averageVectors(glm::vec3& baseTan, glm::vec3 addition, unsigned char existingContributions) {
+    if (!existingContributions) {
+        baseTan = addition;
+    }
+    else {
+        float f = 1 / ((float)existingContributions + 1);
+
+        baseTan *= (float)(existingContributions)*f;
+
+        baseTan += addition * f;
+    }
+}
+
 // generate list of vertices
 std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
     std::vector<Vertex> ret(noVertices);
@@ -35,6 +48,10 @@ std::vector<Vertex> Vertex::genList(float* vertices, int noVertices) {
 
 // calculate tangent and bitangent vectors for each face
 void Vertex::calcTanBiTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>& indices) {
+    unsigned char* count = (unsigned char*)malloc(list.size() * sizeof(unsigned char));
+    for (unsigned int i = 0, len = list.size(); i < len; i++) {
+        count[i] = 0;
+    }
     // iterate through indices and calculate vectors for each face
     for (unsigned int i = 0, len = indices.size(); i < len; i += 3) {
         Vertex v1 = list[indices[i + 0]];
@@ -43,7 +60,7 @@ void Vertex::calcTanBiTanVectors(std::vector<Vertex>& list, std::vector<unsigned
 
         // calculate edges
         glm::vec3 edge1 = v2.pos - v1.pos;
-        glm::vec3 edge2 = v2.pos - v1.pos;
+        glm::vec3 edge2 = v3.pos - v1.pos;
 
         // calculate UVs
         glm::vec2 deltaUV1 = v2.texCoord - v1.texCoord;
@@ -54,27 +71,27 @@ void Vertex::calcTanBiTanVectors(std::vector<Vertex>& list, std::vector<unsigned
             | E_1x E_1y E_1z |   | dU_1 dV_1 | * | T_x T_y T_z |
             | E_2x E_2y E_2z | = | dU_2 dV_2 |   | B_x B_y B_z |
         */
-        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+        float det = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
         glm::vec3 tangent = {
-            f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x),
-            f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
-            f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z)
+            det* (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x),
+            det * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y),
+            det * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z)
         };
 
         glm::vec3 bitangent = {
-            f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x),
-            f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y),
-            f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z)
+            det * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x),
+            det * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y),
+            det * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z)
         };
 
-        list[indices[i + 0]].tangent = tangent;
-        list[indices[i + 1]].tangent = tangent;
-        list[indices[i + 2]].tangent = tangent;
+        averageVectors(list[indices[i + 0]].tangent, tangent, count[indices[i + 0]]);
+        averageVectors(list[indices[i + 1]].tangent, tangent, count[indices[i + 1]]);
+        averageVectors(list[indices[i + 2]].tangent, tangent, count[indices[i + 2]]);
         
-        list[indices[i + 0]].bitangent = bitangent;
-        list[indices[i + 1]].bitangent = bitangent;
-        list[indices[i + 2]].bitangent = bitangent;
+        averageVectors(list[indices[i + 0]].bitangent, bitangent, count[indices[i + 0]]++);
+        averageVectors(list[indices[i + 1]].bitangent, bitangent, count[indices[i + 1]]++);
+        averageVectors(list[indices[i + 2]].bitangent, bitangent, count[indices[i + 2]]++);
     }
 }
 
