@@ -12,7 +12,6 @@ uniform sampler2D diffuse0;
 uniform sampler2D specular0;
 uniform sampler2D normal0;
 
-// UPDATE UNIFORM CALL
 uniform sampler2D dirLightBuffer;
 uniform samplerCube pointLightBuffers[MAX_POINT_LIGHTS];
 uniform sampler2D spotLightBuffers[MAX_SPOT_LIGHTS];
