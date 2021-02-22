@@ -9,13 +9,16 @@ int main()
 {
     printf("Hello, world!\n");
 
-    bigint i = strToBigint("123456789780");
-    bigint i2 = strToBigint("123456789780");
+    bigint b1 = strToBigint("999999999999"); // 12
+    bigint b2 = strToBigint("99999999999");  // 11
 
-    printf("%s + %s = %s\n",
-           bigintPtrToString(&i),
-           bigintPtrToString(&i2),
-           bigintToString(addBigint(i, i2)));
+    bigint b3 = multiplyBigint(b1, b2);
+
+    printf("%s * %s = %s\n", bigintToString(b1), bigintToString(b2), bigintToString(b3));
+
+    freeBigint(&b1);
+    freeBigint(&b2);
+    freeBigint(&b3);
 
     return 0;
 }
