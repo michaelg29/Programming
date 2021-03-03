@@ -1,8 +1,13 @@
 #include "bigint.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
-const bigint BIGINT_ZERO = {true, 0, 0, NULL};
+int arrOne[1] = {1};
+
+const bigint BIGINT_ZERO = {true, 0, 0, NULL};       // zero
+const bigint BIGINT_ONE = {true, 1, 1, arrOne};      // one
+const bigint BIGINT_NEG_ONE = {false, 1, 1, arrOne}; // negative one
 
 /**
  * allocate memory for the integer
@@ -12,11 +17,51 @@ const bigint BIGINT_ZERO = {true, 0, 0, NULL};
 bigint allocateBigint(unsigned int capacity)
 {
     bigint ret;
+
     ret.capacity = capacity;
     ret.noDigits = 0;
     ret.sign = true;
     // allocate array
     ret.digits = malloc(capacity * sizeof(int));
+
+    return ret;
+}
+
+/**
+ * allocate memory for the integer and set all the digits to 0
+ * @param capacity the initial size of the array
+ * @return the integer
+ */
+bigint allocateZeroBigint(unsigned int capacity)
+{
+    bigint ret = allocateBigint(capacity);
+
+    for (unsigned int i = 0; i < capacity; i++)
+    {
+        ret.digits[i] = 0;
+    }
+
+    return ret;
+}
+
+/**
+ * copy integer array to a big integer
+ * @param arr the pointer to the first integer in the array
+ * @param n the number of digits
+ * @param sign the sign
+ */
+bigint copyIntArr(int *arr, unsigned int n, bool sign)
+{
+    bigint ret = allocateBigint(n);
+    ret.noDigits = n;
+    ret.sign = sign;
+
+    // copy digits
+    for (unsigned int i = 0; i < n; i++)
+    {
+        ret.digits[i] = arr[i];
+    }
+
     return ret;
 }
 
@@ -592,10 +637,6 @@ bigint subtractBigint(bigint i1, bigint i2)
  */
 bigint multiplyBigint(bigint i1, bigint i2)
 {
-}
-
-bigint longMultiplyBigint(bigint i1, bigint i2)
-{
     // if either are zero, the product will be zero
     if (!compareBigint(i1, BIGINT_ZERO) ||
         !compareBigint(i2, BIGINT_ZERO))
@@ -603,47 +644,145 @@ bigint longMultiplyBigint(bigint i1, bigint i2)
         return BIGINT_ZERO;
     }
 
+    // if either number is 1, copy the other digits over and keep the sign
+    // if either number is -1, copy the other digits over and reverse the sign
+
+    char i1Comparison_p1 = compareBigint(i1, BIGINT_ONE);
+    char i1Comparison_n1 = compareBigint(i1, BIGINT_NEG_ONE);
+    if (!(i1Comparison_p1 && i1Comparison_n1))
+    {
+        bigint ret = allocateBigint(i2.noDigits);
+        ret.noDigits = i2.noDigits;
+        ret.sign = i1Comparison_p1 ? i2.sign : -i2.sign;
+
+        // copy digits over
+        for (unsigned int i = 0; i < ret.noDigits; i++)
+        {
+            ret.digits[i] = i2.digits[i];
+        }
+        return ret;
+    }
+
+    char i2Comparison_p1 = compareBigint(i2, BIGINT_ONE);
+    char i2Comparison_n1 = compareBigint(i2, BIGINT_NEG_ONE);
+    if (!(i2Comparison_p1 && i2Comparison_n1))
+    {
+        bigint ret = allocateBigint(i1.noDigits);
+        ret.noDigits = i1.noDigits;
+        ret.sign = i2Comparison_p1 ? i1.sign : -i1.sign;
+
+        // copy digits over
+        for (unsigned int i = 0; i < ret.noDigits; i++)
+        {
+            ret.digits[i] = i1.digits[i];
+        }
+        return ret;
+    }
+
+    // get maximum and minimum number of digits
+    unsigned int maxNoDigits, minNoDigits;
+    if (i1.noDigits > i2.noDigits)
+    {
+        maxNoDigits = i1.noDigits;
+        minNoDigits = i2.noDigits;
+    }
+    else
+    {
+        maxNoDigits = i2.noDigits;
+        minNoDigits = i1.noDigits;
+    }
+
+    /*
+        long multiplication: O(n * m)
+        karatsuba multiplication: O(n^(lg 3)) ~= O(n^(1.585)) ~= O(n^1.5)
+
+        So, use long multiplication when:
+            n * m <= n^1.5
+                m <= n^0.5 = sqrt(n)
+
+        determine which multiplication algorithm to use
+        long multiplication
+        - if under the threshold
+        - if the smaller number of digits is less than or equal to the square root of the larger number of digits
+        karatsuba (otherwise)
+        - if above the threshold
+    */
+
+    if (maxNoDigits < KARATSUBA_THRESHOLD ||
+        minNoDigits <= sqrt(maxNoDigits))
+    {
+        // perform long multiplication
+        return longMultiplyBigint(i1, i2);
+    }
+    else
+    {
+        // perform karatsuba multiplication
+        return karatsubaMultiplyBigint(i1, i2);
+    }
+}
+
+bigint longMultiplyBigint(bigint i1, bigint i2)
+{
     // if both have same sign, result is positive (exclusive NOR)
     bool sign = !(i1.sign ^ i2.sign);
 
+    unsigned int noDigits;
+    bigint ret = copyIntArr(
+        longMultiplyIntArr(i1.digits, 0, i1.noDigits, i2.digits, 0, i2.noDigits, &noDigits),
+        noDigits,
+        sign);
+
+    // remove leading zeros
+    trimBigint(&ret);
+
+    return ret;
+}
+
+int *longMultiplyIntArr(int *i1, unsigned int i1i, unsigned int i1f, int *i2, unsigned int i2i, unsigned int i2f, unsigned int *outSize)
+{
     // maximum number of digits is the sum of numbers of digits
-    unsigned int noDigits = i1.noDigits + i2.noDigits;
+    unsigned int i1range = i1f - i1i;
+    unsigned int i2range = i2f - i2i;
+    unsigned int noDigits = (i1f - i1i) + (i2f - i2i);
 
     // allocate
-    bigint ret = allocateBigint(noDigits);
-    ret.noDigits = noDigits;
+    int *ret = malloc(noDigits * sizeof(int));
+    if (!ret)
+    {
+        *outSize = 0;
+        return NULL;
+    }
 
     // set all to 0
-    for (unsigned int i = 0; i < ret.noDigits; i++)
+    for (unsigned int i = 0; i < noDigits; i++)
     {
-        ret.digits[i] = 0;
+        ret[i] = 0;
     }
 
     // for each digit of i1
-    for (unsigned int i = 0; i < i1.noDigits; i++)
+    for (unsigned int i = 0; i < i1range; i++)
     {
         int carry = 0;
 
         // for each digit of i2
-        for (unsigned int j = 0; j < i2.noDigits; j++)
+        for (unsigned int j = 0; j < i2range; j++)
         {
             // get product (account for overflow)
             // prod[0] = addition to digit[i + j]
             // prod[1] = addition to carry
-            bigint prod = multiplyIntInt(i1.digits[i], i2.digits[j]);
-
+            bigint prod = multiplyIntInt(i1[i1i + i], i2[i2i + j]);
             // assign to digit[i + j]
             if (prod.noDigits > 0)
             {
-                ret.digits[i + j] += prod.digits[0];
+                ret[i + j] += prod.digits[0];
             }
-            ret.digits[i + j] += carry;
+            ret[i + j] += carry;
 
             // determine carry for next digit
-            if (ret.digits[i + j] >= BASE)
+            if (ret[i + j] >= BASE)
             {
                 carry = 1;
-                ret.digits[i + j] -= BASE;
+                ret[i + j] -= BASE;
             }
             else
             {
@@ -661,9 +800,35 @@ bigint longMultiplyBigint(bigint i1, bigint i2)
         // deal with leftover carry
         if (carry)
         {
-            ret.digits[i + i2.noDigits] += carry;
+            ret[i + i2range] += carry;
         }
     }
+
+    *outSize = noDigits;
+    return ret;
+}
+
+bigint karatsubaMultiplyBigint(bigint i1, bigint i2)
+{
+    // if both have same sign, result is positive (exclusive NOR)
+    bool sign = !(i1.sign ^ i2.sign);
+
+    // determine next power of 2
+    unsigned int maxNoDigits = MAX(i1.noDigits, i2.noDigits);
+    unsigned int nextPow2 = 1;
+
+    while (nextPow2 < maxNoDigits)
+    {
+        // multiply by 2
+        nextPow2 <<= 1;
+    }
+
+    unsigned int noDigits = i1.noDigits + i2.noDigits;
+
+    bigint ret = copyIntArr(
+        karatsubaMultiplyIntArr(i1.digits, i1.noDigits, i2.digits, i2.noDigits, 0, nextPow2, &noDigits),
+        noDigits,
+        sign);
 
     // remove leading zeros
     trimBigint(&ret);
@@ -671,36 +836,127 @@ bigint longMultiplyBigint(bigint i1, bigint i2)
     return ret;
 }
 
-bigint karatsubaMultiplyBigint(bigint i1, bigint i2)
+int *karatsubaMultiplyIntArr(int *i1, unsigned int i1Size, int *i2, unsigned int i2Size, unsigned int idxi, unsigned int idxf, unsigned int *outSize)
 {
-    // if either are zero, the product will be zero
-    if (!compareBigint(i1, BIGINT_ZERO) ||
-        !compareBigint(i2, BIGINT_ZERO))
+    unsigned int range = idxf - idxi;
+    unsigned int noDigits = range << 1; // multiply range by two
+    // allocate return array
+    int *ret = malloc(noDigits * sizeof(int));
+
+    // if either index out of bounds, return array of zeros
+    if (idxi >= i1Size || idxi >= i2Size)
     {
-        return BIGINT_ZERO;
+        for (unsigned int i = 0; i < noDigits; i++)
+        {
+            ret[i] = 0;
+        }
+        return ret;
     }
 
-    // if both have same sign, result is positive (exclusive NOR)
-    bool sign = !(i1.sign ^ i2.sign);
-
-    // maximum number of digits is the sum of numbers of digits
-    unsigned int noDigits = i1.noDigits + i2.noDigits;
-
-    // allocate
-    bigint ret = allocateBigint(noDigits);
-    ret.noDigits = noDigits;
-
-    // set all to 0
-    for (unsigned int i = 0; i < ret.noDigits; i++)
+    // do elementary multiplication if low amount of digits
+    if (idxf - idxi <= KARATSUBA_THRESHOLD)
     {
-        ret.digits[i] = 0;
+        int *ret = longMultiplyIntArr(i1, idxi, MIN(i1Size, idxf), i2, idxi, MIN(i2Size, idxf), outSize);
+        return ret;
     }
 
-    karatsubaDirect(&i1, &i2, &ret, 0, noDigits - 1);
+    // allocate memory for sum of terms
+    unsigned int sumTermSize = range >> 1; // divide range by 2
+    int *i1sum = malloc(sumTermSize * sizeof(int));
+    int *i2sum = malloc(sumTermSize * sizeof(int));
 
+    unsigned int leftIdx = idxi;
+    unsigned int rightIdx = idxi + sumTermSize;
+    bool c1 = false;
+    bool c2 = false;
+
+    // insert numbers for sum of terms
+    for (int i = 0; i < sumTermSize; i++, leftIdx++, rightIdx++)
+    {
+        i1sum[i] = c1;
+        c1 = false;
+        if (leftIdx < i1Size)
+            i1sum[i] += i1[leftIdx];
+        if (rightIdx < i1Size)
+            i1sum[i] += i1[rightIdx];
+        if (i1sum[i] >= BASE)
+        {
+            c1 = true;
+            i1sum[i] -= BASE;
+        }
+
+        i2sum[i] = c2;
+        c2 = false;
+        if (leftIdx < i2Size)
+            i2sum[i] += i2[leftIdx];
+        if (rightIdx < i2Size)
+            i2sum[i] += i2[rightIdx];
+        if (i2sum[i] >= BASE)
+        {
+            c2 = true;
+            i2sum[i] -= BASE;
+        }
+    }
+
+    // do recursive calls
+    unsigned int eSize, fSize, gSize;
+    int *e = karatsubaMultiplyIntArr(i1, i1Size, i2, i2Size, idxi + sumTermSize, idxf, &eSize);
+    int *f = karatsubaMultiplyIntArr(i1, i1Size, i2, i2Size, idxi, idxi + sumTermSize, &fSize);
+    int *g = karatsubaMultiplyIntArr(i1sum, sumTermSize, i2sum, sumTermSize, 0, sumTermSize, &gSize);
+
+    // attain middle term through subtraction
+    /*
+        g = (x0 + x1) * (y0 + y1) = x0y0 + x0y1 + x1y0 + x1y1
+        => x0y1 + x1y0 = (x0y0 + x0y1 + x1y0 + x1y1) - x0y0 - x1y1 = (x0 + x1) * (y0 + y1) - e - f
+    */
+
+    int carry = 0;
+    for (unsigned int i = 0; i < gSize; i++)
+    {
+        g[i] -= ((i < eSize) ? e[i] : 0) +
+                ((i < fSize) ? f[i] : 0);
+        if (carry)
+        {
+            g[i] += carry;
+        }
+
+        carry = 0;
+        while (g[i] < 0)
+        {
+            carry--;
+            g[i] += BASE;
+        }
+    }
+
+    // insert digits into the result
+    for (int i = 0; i < range; i++) // low term
+    {
+        ret[i] = (i < fSize) ? f[i] : 0;
+    }
+    for (int i = 0; i < range; i++) // high term
+    {
+        ret[i + range] = (i < eSize) ? e[i] : 0;
+    }
+    carry = false;
+    for (int i = 0; i < range; i++) // middle term (increment)
+    {
+        ret[i + sumTermSize] += (i < gSize) ? g[i] : 0;
+        if (carry)
+        {
+            ret[i + sumTermSize]++;
+        }
+        carry = false;
+        if (ret[i + sumTermSize] >= BASE)
+        {
+            carry = true;
+            ret[i + sumTermSize] -= BASE;
+        }
+    }
+    if (carry)
+    {
+        ret[noDigits - sumTermSize]++;
+    }
+
+    *outSize = noDigits;
     return ret;
-}
-
-void karatsubaDirect(bigint *i1, bigint *i2, bigint *out, unsigned int first, unsigned int last)
-{
 }

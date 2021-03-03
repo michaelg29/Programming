@@ -1,13 +1,13 @@
 #include <stdarg.h>
-#include <stdio.h>
 
 #include "cmathematics.h"
 
 #ifndef BIGINT_H
 #define BIGINT_H
 
-#define BASE 1000000000  // base used to represent each digit in the big integer
-#define NO_BASE_DIGITS 9 // number of base 10 digits the base uses
+#define BASE 1000000000       // base used to represent each digit in the big integer
+#define NO_BASE_DIGITS 9      // number of base 10 digits the base uses
+#define KARATSUBA_THRESHOLD 2 // threshold between performing long multiplication and karatsuba multiplication
 
 /**
  * structure representing an integer
@@ -21,7 +21,9 @@ typedef struct
     int *digits;           // array of the digits in reverse order; digits[i] = BASE^i component
 } bigint;
 
-extern const bigint BIGINT_ZERO; // zero integer
+extern const bigint BIGINT_ZERO;    // zero integer
+extern const bigint BIGINT_ONE;     // one
+extern const bigint BIGINT_NEG_ONE; // negative one
 
 /**
  * allocate memory for the integer
@@ -29,6 +31,21 @@ extern const bigint BIGINT_ZERO; // zero integer
  * @return the integer
  */
 bigint allocateBigint(unsigned int capacity);
+
+/**
+ * allocate memory for the integer and set all the digits to 0
+ * @param capacity the initial size of the array
+ * @return the integer
+ */
+bigint allocateZeroBigint(unsigned int capacity);
+
+/**
+ * copy integer array to a big integer
+ * @param arr the pointer to the first integer in the array
+ * @param n the number of digits
+ * @param sign the sign
+ */
+bigint copyIntArr(int *arr, unsigned int n, bool sign);
 
 /**
  * free the memory of a big integer
@@ -166,8 +183,10 @@ bigint multiplyBigint(bigint i1, bigint i2);
 
 bigint longMultiplyBigint(bigint i1, bigint i2);
 
+int *longMultiplyIntArr(int *i1, unsigned int i1i, unsigned int i1f, int *i2, unsigned int i2i, unsigned int i2f, unsigned int *outSize);
+
 bigint karatsubaMultiplyBigint(bigint i1, bigint i2);
 
-void karatsubaDirect(bigint *i1, bigint *i2);
+int *karatsubaMultiplyIntArr(int *i1, unsigned int i1Size, int *i2, unsigned int i2Size, unsigned int idxi, unsigned int idxf, unsigned int *outSize);
 
 #endif
