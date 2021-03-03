@@ -10,7 +10,7 @@ int main()
     printf("Hello, world!\n");
 
     bigint b1 = strToBigint("293187123947883712964819237");
-    bigint b2 = strToBigint("123987040123875132908741");
+    bigint b2 = strToBigint("1239878741");
 
     bigint b3 = multiplyBigint(b1, b2);
 
