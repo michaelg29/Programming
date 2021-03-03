@@ -882,10 +882,11 @@ int *karatsubaMultiplyIntArr(int *i1, unsigned int i1Size, int *i2, unsigned int
     }
 
     // do recursive calls
-    unsigned int eSize, fSize, gSize;
-    int *e = karatsubaMultiplyIntArr(i1, i1Size, i2, i2Size, idxi + sumTermSize, idxf, &eSize);
-    int *f = karatsubaMultiplyIntArr(i1, i1Size, i2, i2Size, idxi, idxi + sumTermSize, &fSize);
-    int *g = karatsubaMultiplyIntArr(i1sum, sumTermSize, i2sum, sumTermSize, 0, sumTermSize, &gSize);
+    //unsigned int eSize, fSize, gSize;
+    unsigned int hiSize, loSize, mdSize;
+    int *hi = karatsubaMultiplyIntArr(i1, i1Size, i2, i2Size, idxi + sumTermSize, idxf, &hiSize);       // e
+    int *lo = karatsubaMultiplyIntArr(i1, i1Size, i2, i2Size, idxi, idxi + sumTermSize, &loSize);       // f
+    int *md = karatsubaMultiplyIntArr(i1sum, sumTermSize, i2sum, sumTermSize, 0, sumTermSize, &mdSize); // g
 
     // attain middle term through subtraction
     /*
@@ -894,36 +895,36 @@ int *karatsubaMultiplyIntArr(int *i1, unsigned int i1Size, int *i2, unsigned int
     */
 
     int carry = 0;
-    for (unsigned int i = 0; i < gSize; i++)
+    for (unsigned int i = 0; i < mdSize; i++)
     {
-        g[i] -= ((i < eSize) ? e[i] : 0) +
-                ((i < fSize) ? f[i] : 0);
+        md[i] -= ((i < hiSize) ? hi[i] : 0) +
+                 ((i < loSize) ? lo[i] : 0);
         if (carry)
         {
-            g[i] += carry;
+            md[i] += carry;
         }
 
         carry = 0;
-        while (g[i] < 0)
+        while (md[i] < 0)
         {
             carry--;
-            g[i] += BASE;
+            md[i] += BASE;
         }
     }
 
     // insert digits into the result
     for (int i = 0; i < range; i++) // low term
     {
-        ret[i] = (i < fSize) ? f[i] : 0;
+        ret[i] = (i < loSize) ? lo[i] : 0;
     }
     for (int i = 0; i < range; i++) // high term
     {
-        ret[i + range] = (i < eSize) ? e[i] : 0;
+        ret[i + range] = (i < hiSize) ? hi[i] : 0;
     }
     carry = false;
     for (int i = 0; i < range; i++) // middle term (increment)
     {
-        ret[i + sumTermSize] += (i < gSize) ? g[i] : 0;
+        ret[i + sumTermSize] += (i < mdSize) ? md[i] : 0;
         if (carry)
         {
             ret[i + sumTermSize]++;
