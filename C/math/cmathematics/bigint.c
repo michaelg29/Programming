@@ -39,11 +39,13 @@ bigint copyIntArr(int *arr, unsigned int n, bool sign)
     ret.noDigits = n;
     ret.sign = sign;
 
+    memcpy(ret.digits, arr, n * sizeof(int));
+
     // copy digits
-    for (unsigned int i = 0; i < n; i++)
+    /*for (unsigned int i = 0; i < n; i++)
     {
         ret.digits[i] = arr[i];
-    }
+    }*/
 
     return ret;
 }
@@ -634,32 +636,18 @@ bigint multiplyBigint(bigint i1, bigint i2)
     char i1Comparison_n1 = compareBigint(i1, BIGINT_NEG_ONE);
     if (!(i1Comparison_p1 && i1Comparison_n1))
     {
-        bigint ret = allocateBigint(i2.noDigits);
-        ret.noDigits = i2.noDigits;
-        ret.sign = i1Comparison_p1 ? i2.sign : -i2.sign;
-
-        // copy digits over
-        for (unsigned int i = 0; i < ret.noDigits; i++)
-        {
-            ret.digits[i] = i2.digits[i];
-        }
-        return ret;
+        // i1 is either 1 or -1
+        // if i1 is 1, copy i2 sign; if i1 is -1, reverse i2 sign
+        return copyIntArr(i2.digits, i2.noDigits, !i1Comparison_p1 ? i2.sign : !i2.sign);
     }
 
     char i2Comparison_p1 = compareBigint(i2, BIGINT_ONE);
     char i2Comparison_n1 = compareBigint(i2, BIGINT_NEG_ONE);
     if (!(i2Comparison_p1 && i2Comparison_n1))
     {
-        bigint ret = allocateBigint(i1.noDigits);
-        ret.noDigits = i1.noDigits;
-        ret.sign = i2Comparison_p1 ? i1.sign : -i1.sign;
-
-        // copy digits over
-        for (unsigned int i = 0; i < ret.noDigits; i++)
-        {
-            ret.digits[i] = i1.digits[i];
-        }
-        return ret;
+        // i1 is either 1 or -1
+        // if i2 is 1, copy i1 sign; if i1 is -1, reverse i1 sign
+        return copyIntArr(i1.digits, i1.noDigits, !i2Comparison_p1 ? i1.sign : !i1.sign);
     }
 
     // get maximum and minimum number of digits
