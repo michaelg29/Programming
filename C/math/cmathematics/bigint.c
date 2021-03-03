@@ -28,23 +28,6 @@ bigint allocateBigint(unsigned int capacity)
 }
 
 /**
- * allocate memory for the integer and set all the digits to 0
- * @param capacity the initial size of the array
- * @return the integer
- */
-bigint allocateZeroBigint(unsigned int capacity)
-{
-    bigint ret = allocateBigint(capacity);
-
-    for (unsigned int i = 0; i < capacity; i++)
-    {
-        ret.digits[i] = 0;
-    }
-
-    return ret;
-}
-
-/**
  * copy integer array to a big integer
  * @param arr the pointer to the first integer in the array
  * @param n the number of digits

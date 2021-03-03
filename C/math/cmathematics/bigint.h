@@ -33,13 +33,6 @@ extern const bigint BIGINT_NEG_ONE; // negative one
 bigint allocateBigint(unsigned int capacity);
 
 /**
- * allocate memory for the integer and set all the digits to 0
- * @param capacity the initial size of the array
- * @return the integer
- */
-bigint allocateZeroBigint(unsigned int capacity);
-
-/**
  * copy integer array to a big integer
  * @param arr the pointer to the first integer in the array
  * @param n the number of digits
