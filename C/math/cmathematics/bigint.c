@@ -698,13 +698,15 @@ bigint longMultiplyBigint(bigint i1, bigint i2)
     bool sign = !(i1.sign ^ i2.sign);
 
     unsigned int noDigits;
-    bigint ret = copyIntArr(
-        longMultiplyIntArr(i1.digits, 0, i1.noDigits, i2.digits, 0, i2.noDigits, &noDigits),
-        noDigits,
-        sign);
+
+    int *retArr = longMultiplyIntArr(i1.digits, 0, i1.noDigits, i2.digits, 0, i2.noDigits, &noDigits);
+
+    bigint ret = copyIntArr(retArr, noDigits, sign);
 
     // remove leading zeros
     trimBigint(&ret);
+
+    free(retArr);
 
     return ret;
 }
@@ -796,33 +798,31 @@ bigint karatsubaMultiplyBigint(bigint i1, bigint i2)
 
     unsigned int noDigits = i1.noDigits + i2.noDigits;
 
-    bigint ret = copyIntArr(
-        karatsubaMultiplyIntArr(i1.digits, i1.noDigits, i2.digits, i2.noDigits, 0, nextPow2, &noDigits),
-        noDigits,
-        sign);
+    int *retArr = karatsubaMultiplyIntArr(i1.digits, i1.noDigits, i2.digits, i2.noDigits, 0, nextPow2, &noDigits);
+
+    bigint ret = copyIntArr(retArr, noDigits, sign);
 
     // remove leading zeros
     trimBigint(&ret);
+
+    free(retArr);
 
     return ret;
 }
 
 int *karatsubaMultiplyIntArr(int *i1, unsigned int i1Size, int *i2, unsigned int i2Size, unsigned int idxi, unsigned int idxf, unsigned int *outSize)
 {
+    // if either index out of bounds, return array of zeros
+    if (idxi >= i1Size || idxi >= i2Size)
+    {
+        *outSize = 0;
+        return NULL;
+    }
+
     unsigned int range = idxf - idxi;
     unsigned int noDigits = range << 1; // multiply range by two
     // allocate return array
     int *ret = malloc(noDigits * sizeof(int));
-
-    // if either index out of bounds, return array of zeros
-    if (idxi >= i1Size || idxi >= i2Size)
-    {
-        for (unsigned int i = 0; i < noDigits; i++)
-        {
-            ret[i] = 0;
-        }
-        return ret;
-    }
 
     // do elementary multiplication if low amount of digits
     if (idxf - idxi <= KARATSUBA_THRESHOLD)
@@ -850,11 +850,6 @@ int *karatsubaMultiplyIntArr(int *i1, unsigned int i1Size, int *i2, unsigned int
             i1sum[i] += i1[leftIdx];
         if (rightIdx < i1Size)
             i1sum[i] += i1[rightIdx];
-        if (i1sum[i] >= BASE)
-        {
-            c1 = true;
-            i1sum[i] -= BASE;
-        }
 
         i2sum[i] = c2;
         c2 = false;
@@ -862,10 +857,21 @@ int *karatsubaMultiplyIntArr(int *i1, unsigned int i1Size, int *i2, unsigned int
             i2sum[i] += i2[leftIdx];
         if (rightIdx < i2Size)
             i2sum[i] += i2[rightIdx];
-        if (i2sum[i] >= BASE)
+
+        if (i < sumTermSize - 1)
         {
-            c2 = true;
-            i2sum[i] -= BASE;
+            // only consider carry if not last digit
+            if (i1sum[i] >= BASE)
+            {
+                c1 = true;
+                i1sum[i] -= BASE;
+            }
+
+            if (i2sum[i] >= BASE)
+            {
+                c2 = true;
+                i2sum[i] -= BASE;
+            }
         }
     }
 
@@ -928,6 +934,12 @@ int *karatsubaMultiplyIntArr(int *i1, unsigned int i1Size, int *i2, unsigned int
     {
         ret[noDigits - sumTermSize]++;
     }
+
+    free(lo);
+    free(md);
+    free(hi);
+    free(i1sum);
+    free(i2sum);
 
     *outSize = noDigits;
     return ret;
