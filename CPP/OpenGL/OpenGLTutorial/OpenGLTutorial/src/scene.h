@@ -30,6 +30,7 @@
 #include "algorithms/states.hpp"
 #include "algorithms/trie.hpp"
 #include "algorithms/octree.h"
+#include "algorithms/avl.h"
 
 // forward declarations
 namespace Octree {
@@ -46,8 +47,10 @@ class Model;
 class Scene {
 public:
     // tries to store models/instances
-    trie::Trie<Model*> models;
-    trie::Trie<RigidBody*> instances;
+    //trie::Trie<Model*> models;
+    //trie::Trie<RigidBody*> instances;
+    avl* models;    // tree mapping string keys to model class pointers
+    avl* instances; // tree mapping string keys to rigid body class pointers
 
     // list of instances that should be deleted
     std::vector<RigidBody*> instancesToDelete;
@@ -60,7 +63,8 @@ public:
 
     // freetype library
     FT_Library ft;
-    trie::Trie<TextRenderer> fonts;
+    //trie::Trie<TextRenderer> fonts;
+    avl* fonts; // tree mapping string keys to Text renderer class pointers
 
     FramebufferObject defaultFBO;
 
@@ -90,6 +94,9 @@ public:
 
     // to be called after constructor
     bool init();
+
+    // register a font family
+    bool registerFont(TextRenderer* tr, std::string name, std::string path);
 
     // to be called after instances have been generated/registered
     void prepare(Box &box, std::vector<Shader> shaders);
