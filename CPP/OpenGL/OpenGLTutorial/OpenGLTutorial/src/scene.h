@@ -62,10 +62,8 @@ public:
     FT_Library ft;
     trie::Trie<TextRenderer> fonts;
 
-    // default framebuffer to render to
     FramebufferObject defaultFBO;
 
-    // UBO to pass lighting values to the shader
     UBO::UBO lightUBO;
 
     /*
@@ -112,13 +110,13 @@ public:
     // set uniform shader varaibles (lighting, etc)
     void renderShader(Shader shader, bool applyLighting = true);
 
-    // render scene from directional light
+    // set uniform shader variables for directional light render
     void renderDirLightShader(Shader shader);
 
-    // render scene from specified point light
+    // set uniform shader variables for point light render
     void renderPointLightShader(Shader shader, unsigned int idx);
 
-    // render scene from specified spot light
+    // set uniform shader variables for spot light render
     void renderSpotLightShader(Shader shader, unsigned int idx);
 
     // render specified model's instances

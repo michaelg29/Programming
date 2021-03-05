@@ -20,8 +20,6 @@
 
 class Shader {
 public:
-
-
     // program ID
     unsigned int id;
 
@@ -32,15 +30,21 @@ public:
     // default
     Shader();
 
-    // initialize with paths to vertex and fragment shaders
-    Shader(bool useDefaultHead, const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
+    // initialize with paths to vertex, fragment, and optional geometry shaders
+    Shader(bool includeDefaultHeader,
+        const char* vertexShaderPath, 
+        const char* fragShaderPath, 
+        const char* geoShaderPath = nullptr);
 
     /*
         process functions
     */
 
-    // generate using vertex and frag shaders
-    void generate(bool useDefaultHead, const char* vertexShaderPath, const char* fragShaderPath, const char* geoShaderPath = nullptr);
+    // generate using vertex, frag, and optional geometry shaders
+    void generate(bool includeDefaultHeader,
+        const char* vertexShaderPath, 
+        const char* fragShaderPath, 
+        const char* geoShaderPath = nullptr);
 
     // activate shader
     void activate();
@@ -50,7 +54,7 @@ public:
     */
 
     // compile shader program
-    GLuint compileShader(bool useDefaultHead, const char* filePath, GLuint type);
+    GLuint compileShader(bool includeDefaultHeader, const char* filePath, GLuint type);
 
     /*
         set uniform variables
@@ -64,27 +68,26 @@ public:
     void set4Float(const std::string& name, float v1, float v2, float v3, float v4);
     void set4Float(const std::string& name, aiColor4D color);
     void set4Float(const std::string& name, glm::vec4 v);
-    void setMat3(const std::string& name, glm::mat3 val);
     void setMat4(const std::string& name, glm::mat4 val);
 
     /*
         static
     */
 
-    // stream containing default headers
-    static std::stringstream defaultHeaders;
-
     // default directory
     static std::string defaultDirectory;
+
+    // stream containing default header source
+    static std::stringstream defaultHeaders;
 
     // load into default header
     static void loadIntoDefault(const char* filepath);
 
-    // clear default header buffer (after shader compilation)
+    // clear default header (after shader compilation)
     static void clearDefault();
 
     // load string from file
-    static std::string loadShaderSrc(bool includeDefault, const char* filePath);
+    static std::string loadShaderSrc(bool includeDefaultHeader, const char* filePath);
 };
 
 #endif

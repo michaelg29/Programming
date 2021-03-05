@@ -35,13 +35,13 @@
     <None Include="assets\shaders\outline.vs" />
     <None Include="assets\shaders\text.fs" />
     <None Include="assets\shaders\text.vs" />
-    <None Include="assets\shaders\shadows\pointShadow.vs" />
     <None Include="assets\shaders\shadows\pointShadow.gs" />
-    <None Include="assets\shaders\shadows\spotShadow.fs" />
-    <None Include="assets\shaders\shadows\dirShadow.fs" />
+    <None Include="assets\shaders\shadows\pointShadow.vs" />
     <None Include="assets\shaders\shadows\dirSpotShadow.vs" />
     <None Include="assets\shaders\shadows\pointSpotShadow.fs" />
+    <None Include="assets\shaders\shadows\dirShadow.fs" />
     <None Include="assets\shaders\defaultHead.gh" />
+    <None Include="assets\shaders\test.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -226,15 +226,6 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="assets\textures\image2.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\textures\brickwall_diffuse.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\textures\brickwall_normal.jpg">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="assets\textures\brickwall_specular.jpg">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

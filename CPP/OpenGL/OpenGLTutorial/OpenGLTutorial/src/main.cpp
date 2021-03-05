@@ -65,7 +65,7 @@ int main() {
     std::cout << "Hello, OpenGL!" << std::endl;
 
     // construct scene
-    scene = Scene(3, 3, "OpenGL Tutorial", 800, 600);
+    scene = Scene(3, 3, "OpenGL Tutorial", 1200, 720);
     // test if GLFW successfully started and created window
     if (!scene.init()) {
         std::cout << "Could not open window" << std::endl;
@@ -81,32 +81,29 @@ int main() {
     Shader::loadIntoDefault("defaultHead.gh");
 
     Shader shader(true, "instanced/instanced.vs", "object.fs");
-
-    Shader dirShadowShader(false, "shadows/dirSpotShadow.vs", "shadows/dirShadow.fs");
-    Shader spotShadowShader(false, "shadows/dirSpotShadow.vs", "shadows/pointSpotShadow.fs");
+    Shader boxShader(false, "instanced/box.vs", "instanced/box.fs");
+    
+    Shader dirShadowShader(false, "shadows/dirSpotShadow.vs",
+        "shadows/dirShadow.fs");
+    Shader spotShadowShader(false, "shadows/dirSpotShadow.vs",
+        "shadows/pointSpotShadow.fs");
     Shader pointShadowShader(false, "shadows/pointShadow.vs",
         "shadows/pointSpotShadow.fs",
         "shadows/pointShadow.gs");
 
     Shader::clearDefault();
 
-    //ubo.startWrite();
-    
-    //ubo.clear();
-
     // MODELS==============================
     scene.registerModel(&lamp);
+
+    scene.registerModel(&wall);
 
     //scene.registerModel(&sphere);
 
     //scene.registerModel(&cube);
 
-    scene.registerModel(&wall);
-
     Box box;
     box.init();
-
-    scene.defaultFBO.bind(); // rebind default framebuffer
 
     // load all model data
     scene.loadModels();
@@ -114,18 +111,17 @@ int main() {
     // LIGHTS==============================
 
     // directional light
-    glm::vec3 min(-10.0f, -10.0f, 1.0f), max(10.0f, 10.0f, 7.0f);
     DirLight dirLight(glm::vec3(-0.2f, -0.9f, -0.2f),
         glm::vec4(0.1f, 0.1f, 0.1f, 1.0f),
         glm::vec4(0.6f, 0.6f, 0.6f, 1.0f),
         glm::vec4(0.7f, 0.7f, 0.7f, 1.0f),
-        BoundingRegion(min, max));
+        BoundingRegion(glm::vec3(-20.0f, -20.0f, 0.5f), glm::vec3(20.0f, 20.0f, 50.0f)));
     scene.dirLight = &dirLight;
-    
+
     // point lights
     glm::vec3 pointLightPositions[] = {
         glm::vec3(1.0f, 1.0f, 0.0f),
-        glm::vec3(0.0f, 15.0f, 0.0f),
+        glm::vec3(0.0f,  15.0f,  0.0f),
         glm::vec3(-4.0f,  2.0f, -12.0f),
         glm::vec3(0.0f,  0.0f, -3.0f)
     };
@@ -134,8 +130,8 @@ int main() {
     glm::vec4 diffuse = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
     glm::vec4 specular = glm::vec4(1.0f);
     float k0 = 1.0f;
-    float k1 = 0.045f;
-    float k2 = 0.016f;
+    float k1 = 0.0014f;
+    float k2 = 0.000007f;
 
     PointLight pointLights[4];
 
@@ -156,15 +152,15 @@ int main() {
 
     // spot light
     SpotLight spotLight(
-        glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),
-        //cam.cameraPos, cam.cameraFront, cam.cameraUp,
+        //glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),
+        cam.cameraPos, cam.cameraFront, cam.cameraUp,
         glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(20.0f)),
         1.0f, 0.0014f, 0.000007f,
         glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(1.0f), glm::vec4(1.0f),
-        0.1f, 100.0f);
-
-    //scene.spotLights.push_back(&spotLight);
-    //scene.activeSpotLights = 1;	// 0b00000001
+        0.1f, 100.0f
+    );
+    scene.spotLights.push_back(&spotLight);
+    //scene.activeSpotLights = 1; // 0b00000001
 
     //scene.generateInstance(cube.id, glm::vec3(20.0f, 0.1f, 20.0f), 100.0f, glm::vec3(0.0f, -3.0f, 0.0f));
     glm::vec3 cubePositions[] = {
@@ -175,13 +171,14 @@ int main() {
         { 2.8f, 1.9f, -6.2f },
         { 3.5f, 6.3f, -1.0f },
         { -3.4f, 10.9f, -5.5f },
-        { 1.0f, 5.0f, 0.0f },
-        { 0.0f, 12.0f, 0.0f }
+        { 0.0f, 11.0f, 0.0f },
+        { 0.0f, 5.0f, 0.0f }
     };
     for (unsigned int i = 0; i < 9; i++) {
         //scene.generateInstance(cube.id, glm::vec3(0.5f), 1.0f, cubePositions[i]);
     }
 
+    // instantiate the brickwall plane
     scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f, glm::vec3(0.0f, 0.0f, -2.0f));
 
     // instantiate instances
@@ -190,9 +187,15 @@ int main() {
     // finish preparations (octree, etc)
     scene.prepare(box, { shader });
 
+    // joystick recognition
+    /*mainJ.update();
+    if (mainJ.isPresent()) {
+        std::cout << mainJ.getName() << " is present." << std::endl;
+    }*/
+
     scene.variableLog["time"] = (double)0.0;
 
-    scene.defaultFBO.bind();
+    scene.defaultFBO.bind(); // bind default framebuffer
 
     while (!scene.shouldClose()) {
         // calculate dt
@@ -209,6 +212,8 @@ int main() {
         // process input
         processInput(dt);
 
+        // activate the directional light's FBO
+
         // remove launch objects if too far
         //for (int i = 0; i < sphere.currentNoInstances; i++) {
         //    if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
@@ -216,12 +221,12 @@ int main() {
         //    }
         //}
 
-        // render directional light for shadow
+        //// render scene to dirlight FBO
         //dirLight.shadowFBO.activate();
         //scene.renderDirLightShader(dirShadowShader);
         //renderScene(dirShadowShader);
 
-        //// render point lights for shadow
+        //// render scene to point light FBOs
         //for (unsigned int i = 0, len = scene.pointLights.size(); i < len; i++) {
         //    if (States::isIndexActive(&scene.activePointLights, i)) {
         //        scene.pointLights[i]->shadowFBO.activate();
@@ -230,7 +235,7 @@ int main() {
         //    }
         //}
 
-        //// render spot lights for shadow
+        //// render scene to spot light FBOs
         //for (unsigned int i = 0, len = scene.spotLights.size(); i < len; i++) {
         //    if (States::isIndexActive(&scene.activeSpotLights, i)) {
         //        scene.spotLights[i]->shadowFBO.activate();
@@ -239,7 +244,7 @@ int main() {
         //    }
         //}
 
-        // render to normal shader
+        // render scene normally
         scene.defaultFBO.activate();
         scene.renderShader(shader);
         renderScene(shader);
@@ -261,23 +266,22 @@ int main() {
 }
 
 void renderScene(Shader shader) {
-    scene.renderInstances(wall.id, shader, dt);
-
     //if (sphere.currentNoInstances > 0) {
     //    scene.renderInstances(sphere.id, shader, dt);
     //}
 
     //scene.renderInstances(cube.id, shader, dt);
 
-    // render lamps
     scene.renderInstances(lamp.id, shader, dt);
+
+    scene.renderInstances(wall.id, shader, dt);
 }
 
 void launchItem(float dt) {
-    //RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.75f), 1.0f, cam.cameraPos);
+    //RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.5f), 1.0f, cam.cameraPos);
     //if (rb) {
-        // instance generated successfully
-    //    rb->transferEnergy(30.0f, cam.cameraFront);
+    //    // instance generated successfully
+    //    rb->transferEnergy(50.0f, cam.cameraFront);
     //    rb->applyAcceleration(Environment::gravitationalAcceleration);
     //}
 }
@@ -293,14 +297,14 @@ void processInput(double dt) {
 
     // update flash light
     if (States::isIndexActive(&scene.activeSpotLights, 0)) {
-        //scene.spotLights[0]->position = scene.getActiveCamera()->cameraPos;
-        //scene.spotLights[0]->direction = scene.getActiveCamera()->cameraFront;
-        //scene.spotLights[0]->up = scene.getActiveCamera()->cameraUp;
-        //scene.spotLights[0]->updateMatrices();
+        scene.spotLights[0]->position = scene.getActiveCamera()->cameraPos;
+        scene.spotLights[0]->direction = scene.getActiveCamera()->cameraFront;
+        scene.spotLights[0]->up = scene.getActiveCamera()->cameraUp;
+        scene.spotLights[0]->updateMatrices();
     }
 
     if (Keyboard::keyWentDown(GLFW_KEY_L)) {
-        //States::toggleIndex(&scene.activeSpotLights, 0); // toggle spot light
+        States::toggleIndex(&scene.activeSpotLights, 0); // toggle spot light
     }
 
     // launch sphere

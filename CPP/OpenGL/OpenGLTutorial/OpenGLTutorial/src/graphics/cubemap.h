@@ -16,9 +16,14 @@ class Scene;
 
 class Cubemap {
 public:
+	// texture object
+	unsigned int id;
+
 	Cubemap();
 
-	void allocate(GLenum format, GLuint width, GLuint height, GLenum type);
+	void generate();
+
+	void bind();
 
 	void loadTextures(std::string dir,
 		std::string right	= "right.png",
@@ -28,19 +33,15 @@ public:
 		std::string front	= "front.png",
 		std::string back	= "back.png");
 
+	void allocate(GLenum format, GLuint width, GLuint height, GLenum type);
+
 	void init();
 
-	void bind();
-
 	void render(Shader shader, Scene* scene);
-
-	GLuint getId();
 
 	void cleanup();
 
 private:
-	// texture object
-	GLuint id;
 	std::string dir;
 	std::vector<std::string> faces;
 	bool hasTextures;

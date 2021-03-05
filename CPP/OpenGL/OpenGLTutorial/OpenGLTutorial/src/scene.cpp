@@ -1,17 +1,17 @@
 #include "scene.h"
 
+#define MAX_POINT_LIGHTS 20
+#define MAX_SPOT_LIGHTS 5
+
 unsigned int Scene::scrWidth = 0;
 unsigned int Scene::scrHeight = 0;
-
-#define MAX_POINT_LIGHTS 10
-#define MAX_SPOT_LIGHTS 2
 
 /*
     callbacks
 */
 
 // window resize
-void Scene::framebufferSizeCallback(GLFWwindow* widnow, int width, int height) {
+void Scene::framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
     // update variables
     Scene::scrWidth = width;
@@ -34,8 +34,7 @@ Scene::Scene(int glfwVersionMajor, int glfwVersionMinor,
     // default indices/vals
     activeCamera(-1), 
     activePointLights(0), activeSpotLights(0),
-    currentId("aaaaaaaa"),
-    lightUBO(0) {
+    currentId("aaaaaaaa"), lightUBO(0) {
     
     // window dimensions
     Scene::scrWidth = scrWidth;
@@ -135,6 +134,8 @@ bool Scene::init() {
 
     FT_Done_FreeType(ft);
 
+    variableLog["skipNormalMapping"] = false;
+
     return true;
 }
 
@@ -152,11 +153,13 @@ void Scene::prepare(Box &box, std::vector<Shader> shaders) {
             UBO::Type::VEC4,
             UBO::Type::VEC4,
 
+            UBO::Type::SCALAR,
+
             UBO::newColMat(4, 4)
         }),
 
         UBO::Type::SCALAR, // no point lights
-        UBO::newArray(MAX_POINT_LIGHTS, UBO::newStruct({ // point lights
+        UBO::newArray(MAX_POINT_LIGHTS, UBO::newStruct({
             UBO::Type::VEC3,
 
             UBO::Type::VEC4,
@@ -171,7 +174,7 @@ void Scene::prepare(Box &box, std::vector<Shader> shaders) {
         })),
 
         UBO::Type::SCALAR, // no spot lights
-        UBO::newArray(MAX_SPOT_LIGHTS, UBO::newStruct({ // spot lights
+        UBO::newArray(MAX_SPOT_LIGHTS, UBO::newStruct({
             UBO::Type::VEC3,
             UBO::Type::VEC3,
 
@@ -193,21 +196,18 @@ void Scene::prepare(Box &box, std::vector<Shader> shaders) {
         }))
     });
 
-    // attach lighting UBO to specified shaders
+    // attach the UBO to specified shaders
     for (Shader s : shaders) {
         lightUBO.attachToShader(s, "Lights");
     }
 
+    // setup memory
     lightUBO.generate();
     lightUBO.bind();
-
     lightUBO.initNullData(GL_STATIC_DRAW);
     lightUBO.bindRange();
 
-    lightUBO.clear();
-
     // write initial values
-    lightUBO.bind();
     lightUBO.startWrite();
 
     // directional light
@@ -215,6 +215,7 @@ void Scene::prepare(Box &box, std::vector<Shader> shaders) {
     lightUBO.writeElement<glm::vec4>(&dirLight->ambient);
     lightUBO.writeElement<glm::vec4>(&dirLight->diffuse);
     lightUBO.writeElement<glm::vec4>(&dirLight->specular);
+    lightUBO.writeElement<float>(&dirLight->br.max.z);
     lightUBO.writeArrayContainer<glm::mat4, glm::vec4>(&dirLight->lightSpaceMatrix, 4);
 
     // point lights
@@ -251,6 +252,8 @@ void Scene::prepare(Box &box, std::vector<Shader> shaders) {
         lightUBO.writeElement<float>(&spotLights[i]->farPlane);
         lightUBO.writeArrayContainer<glm::mat4, glm::vec4>(&spotLights[i]->lightSpaceMatrix, 4);
     }
+
+    lightUBO.clear();
 }
 
 /*
@@ -305,6 +308,10 @@ void Scene::processInput(float dt) {
 
         // set pos
         cameraPos = cameras[activeCamera]->cameraPos;
+
+        if (Keyboard::keyWentDown(GLFW_KEY_N)) {
+            variableLog["skipNormalMapping"] = !variableLog["skipNormalMapping"].val<bool>();
+        }
     }
 }
 
@@ -340,10 +347,10 @@ void Scene::renderShader(Shader shader, bool applyLighting) {
     shader.setMat4("projection", projection);
     shader.set3Float("viewPos", cameraPos);
 
-    unsigned int textureIdx = 31;
-
     // lighting
     if (applyLighting) {
+        unsigned int textureIdx = 31;
+
         // directional light
         dirLight->render(shader, textureIdx--);
 
@@ -371,23 +378,21 @@ void Scene::renderShader(Shader shader, bool applyLighting) {
         }
         shader.setInt("noSpotLights", noActiveLights);
 
-        shader.setBool("useBlinn", variableLog["useBlinn"].val<bool>());
-        shader.setBool("useGamma", variableLog["useGamma"].val<bool>());
+        shader.setBool("skipNormalMapping", variableLog["skipNormalMapping"].val<bool>());
     }
 }
-
-// render scene from directional light
+// set uniform shader variables for directional light render
 void Scene::renderDirLightShader(Shader shader) {
     shader.activate();
     shader.setMat4("lightSpaceMatrix", dirLight->lightSpaceMatrix);
 }
 
-// render scene from specified point light
+// set uniform shader variables for point light render
 void Scene::renderPointLightShader(Shader shader, unsigned int idx) {
     shader.activate();
 
     // light space matrices
-    for (int i = 0; i < 6; i++) {
+    for (unsigned int i = 0; i < 6; i++) {
         shader.setMat4("lightSpaceMatrices[" + std::to_string(i) + "]", pointLights[idx]->lightSpaceMatrices[i]);
     }
 
@@ -398,9 +403,11 @@ void Scene::renderPointLightShader(Shader shader, unsigned int idx) {
     shader.setFloat("farPlane", pointLights[idx]->farPlane);
 }
 
-// render scene from specified spot light
+// set uniform shader variables for spot light render
 void Scene::renderSpotLightShader(Shader shader, unsigned int idx) {
     shader.activate();
+
+    // light space matrix
     shader.setMat4("lightSpaceMatrix", spotLights[idx]->lightSpaceMatrix);
 
     // light position

@@ -3,17 +3,20 @@
 // default constructor
 DirLight::DirLight() {}
 
-DirLight::DirLight(glm::vec3 direction, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular, BoundingRegion shadowRegion)
-    : direction(direction),
-    ambient(ambient), diffuse(diffuse), specular(specular),
-    shadowFBO(1024, 1024, GL_DEPTH_BUFFER_BIT), br(br) {
-    br = BoundingRegion(glm::vec3(-10.0f, -10.0f, 0.5f), glm::vec3(10.0f, 10.0f, 50.0f));
-    
+// constructor
+DirLight::DirLight(glm::vec3 direction,
+    glm::vec4 ambient,
+    glm::vec4 diffuse,
+    glm::vec4 specular,
+    BoundingRegion br)
+    : direction(direction), 
+    ambient(ambient), diffuse(diffuse), specular(specular), 
+    shadowFBO(2048, 2048, GL_DEPTH_BUFFER_BIT), br(br) {
+    // setup FBO
     shadowFBO.generate();
 
     shadowFBO.bind();
-    shadowFBO.disableDrawBuffer();
-    shadowFBO.disableReadBuffer();
+    shadowFBO.disableColorBuffer();
     shadowFBO.allocateAndAttachTexture(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, GL_FLOAT);
 
     updateMatrices();
@@ -50,12 +53,12 @@ glm::vec3 PointLight::directions[6] = {
 
 // list of up vectors
 glm::vec3 PointLight::ups[6] = {
-    { 0.0f, -1.0f,  0.0f },
-    { 0.0f, -1.0f,  0.0f },
-    { 0.0f,  0.0f,  1.0f },
-    { 0.0f,  0.0f, -1.0f },
-    { 0.0f, -1.0f,  0.0f },
-    { 0.0f, -1.0f,  0.0f }
+    {  0.0f, -1.0f,  0.0f },
+    {  0.0f, -1.0f,  0.0f },
+    {  0.0f,  0.0f,  1.0f },
+    {  0.0f,  0.0f, -1.0f },
+    {  0.0f, -1.0f,  0.0f },
+    {  0.0f, -1.0f,  0.0f }
 };
 
 // default constructor
@@ -70,12 +73,11 @@ PointLight::PointLight(glm::vec3 position,
     k0(k0), k1(k1), k2(k2),
     ambient(ambient), diffuse(diffuse), specular(specular),
     nearPlane(nearPlane), farPlane(farPlane),
-    shadowFBO(1024, 1024, GL_DEPTH_BUFFER_BIT) {
+    shadowFBO(2048, 2048, GL_DEPTH_BUFFER_BIT) {
     shadowFBO.generate();
 
     shadowFBO.bind();
-    shadowFBO.disableDrawBuffer();
-    shadowFBO.disableReadBuffer();
+    shadowFBO.disableColorBuffer();
     shadowFBO.allocateAndAttachCubemap(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, GL_FLOAT);
 
     updateMatrices();
@@ -116,12 +118,11 @@ SpotLight::SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 up,
     k0(k0), k1(k1), k2(k2),
     ambient(ambient), diffuse(diffuse), specular(specular),
     nearPlane(nearPlane), farPlane(farPlane),
-    shadowFBO(1024, 1024, GL_DEPTH_BUFFER_BIT) {
+    shadowFBO(2048, 2048, GL_DEPTH_BUFFER_BIT) {
     shadowFBO.generate();
 
     shadowFBO.bind();
-    shadowFBO.disableDrawBuffer();
-    shadowFBO.disableReadBuffer();
+    shadowFBO.disableColorBuffer();
     shadowFBO.allocateAndAttachTexture(GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT, GL_FLOAT);
 
     updateMatrices();
@@ -139,7 +140,7 @@ void SpotLight::render(Shader shader, int idx, unsigned int textureIdx) {
 void SpotLight::updateMatrices() {
     glm::mat4 proj = glm::perspective(glm::acos(outerCutOff) * 2.0f, // FOV
         (float)shadowFBO.height / (float)shadowFBO.width, // aspect ratio
-        nearPlane, farPlane); // near and far bounds
+        nearPlane, farPlane);
 
     glm::mat4 lightView = glm::lookAt(position, position + direction, up);
 

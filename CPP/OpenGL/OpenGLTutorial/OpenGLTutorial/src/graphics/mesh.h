@@ -29,16 +29,9 @@ struct Vertex {
     glm::vec3 normal;
     // texture coordinate
     glm::vec2 texCoord;
-    // tangent vector
-    glm::vec3 tangent;
-    // bitangent vector
-    //glm::vec3 bitangent;
 
-    // generate list of vertices (only position, normal, texCoord)
+    // generate list of vertices
     static std::vector<Vertex> genList(float* vertices, int noVertices);
-
-    // calculate tangent vectors for each face
-    static void calcTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>& indices);
 };
 
 /*

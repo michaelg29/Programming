@@ -24,8 +24,7 @@ void Model::loadModel(std::string path) {
     // use ASSIMP to read file
     Assimp::Importer import;
     // triangulate = group indices in triangles, flip = flip textures on load
-    const aiScene* scene = import.ReadFile(path,
-        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
     // if no errors
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -41,10 +40,11 @@ void Model::loadModel(std::string path) {
 }
 
 // render instance(s)
-void Model::render(Shader shader, float dt, Scene* scene, glm::mat4 model) {
-    // set base model matrix
-    shader.setMat4("model", model);
-    shader.setMat3("normalModel", glm::transpose(glm::inverse(glm::mat3(model))));
+void Model::render(Shader shader, float dt, Scene* scene, bool setModel) {
+    if (setModel) {
+        // set base model matrix
+        shader.setMat4("model", glm::mat4(1.0f));
+    }
 
     if (!States::isActive(&switches, CONST_INSTANCES)) {
         // dynamic instances - update VBO data
@@ -163,10 +163,10 @@ void Model::initInstances() {
         // set vertex attrib pointers
         // positions
         posVBO.bind();
-        posVBO.setAttPointer<glm::vec3>(4, 3, GL_FLOAT, 1, 0, 1);
+        posVBO.setAttPointer<glm::vec3>(3, 3, GL_FLOAT, 1, 0, 1);
         // size
         sizeVBO.bind();
-        sizeVBO.setAttPointer<glm::vec3>(5, 3, GL_FLOAT, 1, 0, 1);
+        sizeVBO.setAttPointer<glm::vec3>(4, 3, GL_FLOAT, 1, 0, 1);
 
         ArrayObject::clear();
     }
@@ -265,13 +265,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             vertex.texCoord = glm::vec2(0.0f);
         }
 
-        // tangent vectors
-        vertex.tangent = {
-            mesh->mTangents[i].x,
-            mesh->mTangents[i].y,
-            mesh->mTangents[i].z
-        };
-
         vertices.push_back(vertex);
     }
 
@@ -341,9 +334,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
             // 2. specular maps
             std::vector<Texture> specularMaps = loadTextures(material, aiTextureType_SPECULAR);
             textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-            // 3. normal maps
-            std::vector<Texture> normalMaps = loadTextures(material, aiTextureType_NORMALS);
-            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 
             ret = Mesh(br, textures);
         }
