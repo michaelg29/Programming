@@ -134,9 +134,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="assets\shaders\defaultHead.gh" />
+    <None Include="assets\shaders\depth.fs" />
     <None Include="assets\shaders\buffer.fs" />
     <None Include="assets\shaders\buffer.vs" />
-    <None Include="assets\shaders\defaultHead.gh" />
     <None Include="assets\shaders\outline.vs" />
     <None Include="assets\shaders\outline.fs" />
     <None Include="assets\shaders\instanced\box.vs" />
@@ -145,18 +146,17 @@
     <None Include="assets\shaders\lamp.fs" />
     <None Include="assets\shaders\object.fs" />
     <None Include="assets\shaders\object.vs" />
-    <None Include="assets\shaders\shadows\spotShadow.fs" />
-    <None Include="assets\shaders\shadows\pointShadow.gs" />
     <None Include="assets\shaders\shadows\pointSpotShadow.fs" />
+    <None Include="assets\shaders\shadows\pointShadow.gs" />
     <None Include="assets\shaders\shadows\pointShadow.vs" />
-    <None Include="assets\shaders\shadows\dirSpotShadow.vs" />
     <None Include="assets\shaders\shadows\dirShadow.fs" />
+    <None Include="assets\shaders\shadows\dirSpotShadow.vs" />
+    <None Include="assets\shaders\test.vs" />
     <None Include="assets\skybox\skybox.fs" />
     <None Include="assets\skybox\skybox.vs" />
     <None Include="assets\skybox\sky.fs" />
     <None Include="assets\shaders\text.fs" />
     <None Include="assets\shaders\text.vs" />
-    <None Include="assets\shaders\depth.fs" />
     <None Include="assimp-vc142-mtd.dll" />
     <None Include="freetype.dll" />
     <None Include="glfw3.dll" />
@@ -216,9 +216,6 @@
     <ClInclude Include="src\scene.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="assets\textures\brickwall_diffuse.jpg" />
-    <Image Include="assets\textures\brickwall_normal.jpg" />
-    <Image Include="assets\textures\brickwall_specular.jpg" />
     <Image Include="assets\textures\flag.png" />
     <Image Include="assets\textures\flag_specular.png" />
     <Image Include="assets\textures\image1.jpg" />

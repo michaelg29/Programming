@@ -253,6 +253,17 @@ namespace jsoncpp {
             }
         }
 
+        // get length of list
+        unsigned int length() {
+            if (type == json_type::json_list) {
+                return l_val.size();
+            }
+            else {
+                // TODO: throw error
+                return -1;
+            }
+        }
+
         // data retrieval methods
         /*
             allows for value setting in lists/objects

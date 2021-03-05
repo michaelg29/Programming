@@ -43,7 +43,7 @@ namespace UBO {
 		unsigned int baseAlign;
 		unsigned int length; // length of the array or num elements in structure
 		std::vector<Element> list; // for struct (list of sub-elements), or array (1st slot is the type)
-
+	
 		std::string typeStr() {
 			switch (type) {
 			case Type::SCALAR: return "scalar";
@@ -389,6 +389,7 @@ namespace UBO {
 				advanceCount = indexStack[currentDepth].second->length - indexStack[currentDepth].first;
 			}
 
+			// advance offset
 			offset += advanceCount * roundUpPow2(currentElement->list[0].calcSize(), currentElement->alignPow2());
 			// advance cursor in stack
 			indexStack[currentDepth].first += advanceCount;
@@ -396,7 +397,7 @@ namespace UBO {
 			// pop from stack
 			poppedOffset = offset;
 			if (pop()) {
-				// items popped
+				// item(s) popped
 				offset = poppedOffset;
 			}
 		}

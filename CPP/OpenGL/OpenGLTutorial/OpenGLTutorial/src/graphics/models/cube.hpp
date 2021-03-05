@@ -65,16 +65,18 @@ public:
             indices[i] = i;
         }
 
+        /*Texture tex("assets/flag.png", "material.diffuse");
+        tex.load();
+        Texture tex_specular("assets/flag_specular.png", "material.specular");
+        tex_specular.load();*/
+
         BoundingRegion br(glm::vec3(-0.5f), glm::vec3(0.5f));
 
         aiColor4D diff(m.diffuse.r, m.diffuse.g, m.diffuse.b, 1.0f);
-        aiColor4D spec(m.specular.r, m.specular.g, m.specular.b, 1.0f);
-
-        std::vector<Vertex> vertexList = Vertex::genList(vertices, noVertices);
-        Vertex::calcTanVectors(vertexList, indices);
+        aiColor4D spec(m.specular.r, m.specular.g, m.diffuse.b, 1.0f);
 
         Mesh ret(br, diff, spec);
-        ret.loadData(vertexList, indices);
+        ret.loadData(Vertex::genList(vertices, noVertices), indices);
 
         meshes.push_back(ret);
         boundingRegions.push_back(br);

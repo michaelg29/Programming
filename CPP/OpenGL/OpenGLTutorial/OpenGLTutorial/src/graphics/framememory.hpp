@@ -6,8 +6,8 @@
 
 #include <vector>
 
-#include "cubemap.h"
 #include "texture.h"
+#include "cubemap.h"
 
 class RenderbufferObject {
 public:
@@ -47,16 +47,13 @@ public:
 	FramebufferObject(GLuint width, GLuint height, GLbitfield bitCombo)
 		: val(0), width(width), height(height), bitCombo(bitCombo) {}
 
-	void disableDrawBuffer() {
-		glDrawBuffer(GL_NONE);
-	}
-
-	void disableReadBuffer() {
-		glReadBuffer(GL_NONE);
-	}
-
 	void generate() {
 		glGenFramebuffers(1, &val);
+	}
+
+	void disableColorBuffer() {
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
 	}
 
 	void bind() {
@@ -117,9 +114,11 @@ public:
 	void allocateAndAttachCubemap(GLenum attachType, GLenum format, GLenum type) {
 		cubemap = Cubemap();
 
+		cubemap.generate();
+		cubemap.bind();
 		cubemap.allocate(format, width, height, type);
 
-		glFramebufferTexture(GL_FRAMEBUFFER, attachType, cubemap.getId(), 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, attachType, cubemap.id, 0);
 	}
 
 	void cleanup() {

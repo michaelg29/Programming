@@ -4,8 +4,8 @@
 #include <glm/glm.hpp>
 
 #include "shader.h"
-#include "framememory.hpp"
 #include "../algorithms/bounds.h"
+#include "framememory.hpp"
 
 /*
     directional light (eg sun)
@@ -15,7 +15,6 @@ struct DirLight {
     // direction (constant for all parallel rays)
     glm::vec3 direction;
 
-
     // light values
     glm::vec4 ambient;
     glm::vec4 diffuse;
@@ -24,7 +23,7 @@ struct DirLight {
     // bounding region for shadow
     BoundingRegion br;
 
-    // light space transformation
+    // transformation to light space (projection * view)
     glm::mat4 lightSpaceMatrix;
 
     // FBO for shadows
@@ -34,7 +33,11 @@ struct DirLight {
     DirLight();
 
     // constructor
-    DirLight(glm::vec3 direction, glm::vec4 ambient, glm::vec4 diffuse, glm::vec4 specular, BoundingRegion shadowRegion);
+    DirLight(glm::vec3 direction,
+        glm::vec4 ambient,
+        glm::vec4 diffuse,
+        glm::vec4 specular,
+        BoundingRegion br);
     
     // render light into shader
     void render(Shader shader, unsigned int textureIdx);
@@ -61,7 +64,7 @@ struct PointLight {
     glm::vec4 diffuse;
     glm::vec4 specular;
 
-    // bounds for shadows
+    // bounds
     float nearPlane;
     float farPlane;
 
@@ -120,7 +123,7 @@ struct SpotLight {
     glm::vec4 diffuse;
     glm::vec4 specular;
 
-    // bounds for shadows
+    // bounds for the shadow
     float nearPlane;
     float farPlane;
 
