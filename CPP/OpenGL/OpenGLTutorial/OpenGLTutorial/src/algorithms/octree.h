@@ -12,6 +12,7 @@
 #include "states.hpp"
 #include "bounds.h"
 #include "trie.hpp"
+#include "avl.h"
 
 #include "../graphics/model.h"
 
@@ -99,7 +100,7 @@ namespace Octree {
         */
 
         // add instance to pending queue
-        void addToPending(RigidBody* instance, trie::Trie<Model*> models);
+        void addToPending(RigidBody* instance, Model *model);
 
         // build tree (called during initialization)
         void build();
