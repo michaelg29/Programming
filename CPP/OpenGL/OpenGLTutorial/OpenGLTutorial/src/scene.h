@@ -14,23 +14,24 @@
 
 #include <jsoncpp/json.hpp>
 
-#include "graphics/light.h"
-#include "graphics/shader.h"
-#include "graphics/model.h"
-#include "graphics/text.h"
-#include "graphics/framememory.hpp"
-#include "graphics/uniformmemory.hpp"
+#include "graphics/memory/framememory.hpp"
+#include "graphics/memory/uniformmemory.hpp"
 
 #include "graphics/models/box.hpp"
+
+#include "graphics/objects/model.h"
+
+#include "graphics/rendering/light.h"
+#include "graphics/rendering/shader.h"
+#include "graphics/rendering/text.h"
 
 #include "io/camera.h"
 #include "io/keyboard.h"
 #include "io/mouse.h"
 
 #include "algorithms/states.hpp"
-#include "algorithms/trie.hpp"
-#include "algorithms/octree.h"
 #include "algorithms/avl.h"
+#include "algorithms/octree.h"
 
 // forward declarations
 namespace Octree {
@@ -47,10 +48,8 @@ class Model;
 class Scene {
 public:
     // tries to store models/instances
-    //trie::Trie<Model*> models;
-    //trie::Trie<RigidBody*> instances;
-    avl* models;    // tree mapping string keys to model class pointers
-    avl* instances; // tree mapping string keys to rigid body class pointers
+    avl* models;
+    avl* instances;
 
     // list of instances that should be deleted
     std::vector<RigidBody*> instancesToDelete;
@@ -63,8 +62,7 @@ public:
 
     // freetype library
     FT_Library ft;
-    //trie::Trie<TextRenderer> fonts;
-    avl* fonts; // tree mapping string keys to Text renderer class pointers
+    avl* fonts;
 
     FramebufferObject defaultFBO;
 

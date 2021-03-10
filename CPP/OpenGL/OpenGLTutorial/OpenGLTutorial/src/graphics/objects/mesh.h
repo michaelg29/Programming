@@ -7,13 +7,13 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "shader.h"
-#include "texture.h"
-#include "vertexmemory.hpp"
+#include "../rendering/shader.h"
+#include "../rendering/texture.h"
+#include "../memory/vertexmemory.hpp"
 
-#include "models/box.hpp"
+#include "../models/box.hpp"
 
-#include "../algorithms/bounds.h"
+#include "../../algorithms/bounds.h"
 
 /*
     structure storing values for each vertex
@@ -29,9 +29,14 @@ struct Vertex {
     glm::vec3 normal;
     // texture coordinate
     glm::vec2 texCoord;
+    // tangent vector
+    glm::vec3 tangent;
 
     // generate list of vertices
     static std::vector<Vertex> genList(float* vertices, int noVertices);
+
+    // calculate tangent vectors for each face
+    static void calcTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>& indices);
 };
 
 /*

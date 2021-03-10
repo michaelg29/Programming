@@ -11,10 +11,8 @@
 #include "list.hpp"
 #include "states.hpp"
 #include "bounds.h"
-#include "trie.hpp"
-#include "avl.h"
 
-#include "../graphics/model.h"
+#include "../graphics/objects/model.h"
 
 // forward declaration
 class Model;
