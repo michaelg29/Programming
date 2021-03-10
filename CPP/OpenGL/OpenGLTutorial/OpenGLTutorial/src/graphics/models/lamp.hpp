@@ -2,9 +2,7 @@
 #define LAMP_HPP
 
 #include "cube.hpp"
-#include "../material.h"
-#include "../shader.h"
-#include "../light.h"
+#include "../rendering/material.h"
 
 #include <glm/glm.hpp>
 
@@ -16,13 +14,6 @@ public:
         : Cube(maxNoInstances, Material::white_rubber) {
         id = "lamp";
         this->lightColor = lightColor;
-    }
-
-    void render(Shader shader, float dt, Scene *scene, bool setModel = true) {
-        // set light color
-        shader.set3Float("lightColor", lightColor);
-
-        Cube::render(shader, dt, scene, setModel);
     }
 };
 

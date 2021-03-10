@@ -1,4 +1,5 @@
 #include "octree.h"
+#include "avl.h"
 #include "../graphics/models/box.hpp"
 
 // calculate bounds of specified quadrant in bounding region

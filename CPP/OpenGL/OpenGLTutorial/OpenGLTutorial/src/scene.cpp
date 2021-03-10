@@ -1,7 +1,7 @@
 #include "scene.h"
 
-#define MAX_POINT_LIGHTS 20
-#define MAX_SPOT_LIGHTS 5
+#define MAX_POINT_LIGHTS 10
+#define MAX_SPOT_LIGHTS 2
 
 unsigned int Scene::scrWidth = 0;
 unsigned int Scene::scrHeight = 0;
@@ -132,8 +132,6 @@ bool Scene::init() {
     }
     fonts = avl_createEmptyRoot(strkeycmp);
 
-    variableLog["skipNormalMapping"] = false;
-
     return true;
 }
 
@@ -149,10 +147,9 @@ bool Scene::registerFont(TextRenderer* tr, std::string name, std::string path) {
 }
 
 // to be called after instances have been generated/registered
-void Scene::prepare(Box &box, std::vector<Shader> shaders) {
+void Scene::prepare(Box& box, std::vector<Shader> shaders) {
     // close FT library
     FT_Done_FreeType(ft);
-
     // process current instances
     octree->update(box);
 
@@ -320,10 +317,6 @@ void Scene::processInput(float dt) {
 
         // set pos
         cameraPos = cameras[activeCamera]->cameraPos;
-
-        if (Keyboard::keyWentDown(GLFW_KEY_N)) {
-            variableLog["skipNormalMapping"] = !variableLog["skipNormalMapping"].val<bool>();
-        }
     }
 }
 
@@ -389,8 +382,6 @@ void Scene::renderShader(Shader shader, bool applyLighting) {
             }
         }
         shader.setInt("noSpotLights", noActiveLights);
-
-        shader.setBool("skipNormalMapping", variableLog["skipNormalMapping"].val<bool>());
     }
 }
 // set uniform shader variables for directional light render
@@ -525,7 +516,8 @@ RigidBody* Scene::generateInstance(std::string modelId, glm::vec3 size, float ma
     // generate new rigid body
     void* val = avl_get(models, (void*)modelId.c_str());
     if (val) {
-        RigidBody* rb = ((Model*)val)->generateInstance(size, mass, pos);
+        Model* model = (Model*)val;
+        RigidBody* rb = model->generateInstance(size, mass, pos);
         if (rb) {
             // successfully generated, set new and unique id for instance
             std::string id = generateId();
@@ -533,7 +525,7 @@ RigidBody* Scene::generateInstance(std::string modelId, glm::vec3 size, float ma
             // insert into trie
             instances = avl_insert(instances, (void*)id.c_str(), rb);
             // insert into pending queue
-            octree->addToPending(rb, (Model*)val);
+            octree->addToPending(rb, model);
             return rb;
         }
     }

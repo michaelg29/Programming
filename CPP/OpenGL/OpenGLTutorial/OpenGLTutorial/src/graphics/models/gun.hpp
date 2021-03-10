@@ -1,4 +1,5 @@
-#include "../model.h"
+#include "../objects/model.h"
+
 #include "../../io/camera.h"
 #include "../../io/keyboard.h"
 
@@ -15,9 +16,7 @@ public:
         loadModel("assets/models/m4a1/scene.gltf");
     }
 
-    void render(Shader shader, float dt, Scene *scene, bool setModel = false) {
-        glm::mat4 model = glm::mat4(1.0f);
-
+    void render(Shader shader, float dt, Scene *scene, glm::mat4 model) {
         // set position
         // multiply offset by unit vector in 2 directions
         instances[0]->pos = scene->getActiveCamera()->cameraPos + glm::vec3(scene->getActiveCamera()->cameraFront * 0.5f) - glm::vec3(scene->getActiveCamera()->cameraUp * 0.205f);
@@ -38,8 +37,6 @@ public:
         // scale
         model = glm::scale(model, instances[0]->size);
 
-        shader.setMat4("model", model);
-
-        Model::render(shader, dt, scene, false);
+        Model::render(shader, dt, scene, model);
     }
 };
