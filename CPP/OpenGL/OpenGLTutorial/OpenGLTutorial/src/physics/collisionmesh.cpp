@@ -170,15 +170,3 @@ CollisionMesh::CollisionMesh(unsigned int noPoints, float* coordinates, unsigned
         };
     }
 }
-
-bool collidesWith(CollisionMesh& mesh) {
-    return false;
-}
-
-void attachToRB(RigidBody* rb) {
-
-}
-
-void transform() {
-    //
-}

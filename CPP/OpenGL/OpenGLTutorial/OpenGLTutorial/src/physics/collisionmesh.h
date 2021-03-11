@@ -26,18 +26,11 @@ class CollisionMesh {
 public:
     CollisionModel* model;
     BoundingRegion br;
-    RigidBody* rb;
 
     std::vector<vec> points;
     std::vector<Face> faces;
 
     CollisionMesh(unsigned int noPoints, float* coordinates, unsigned int noFaces, unsigned int* indices);
-
-    bool collidesWith(CollisionMesh& mesh);
-
-    void attachToRB(RigidBody* rb);
-
-    void transform();
 };
 
 #endif
