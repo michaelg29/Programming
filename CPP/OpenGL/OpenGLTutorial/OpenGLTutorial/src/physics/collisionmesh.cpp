@@ -37,7 +37,7 @@ char linePlaneIntersection__(vec P1, vec norm, vec U1, vec side, float &t) {
     */
     vec U1P1 = vecSubtract(P1, U1);
 
-    float tnum = -1.0f * dot(norm, U1);
+    float tnum = dot(norm, U1P1);
     float tden = dot(norm, side);
 
     if (tden == 0.0f) {
@@ -64,6 +64,8 @@ bool Face::collidesWith(Face& face) {
     vec U1 = vecSubtract(face.mesh->points[face.i1], P1);
     vec U2 = vecSubtract(face.mesh->points[face.i2], P1);
     vec U3 = vecSubtract(face.mesh->points[face.i3], P1);
+
+    P1.elements[0] = 0.0f; P1.elements[1] = 0.0f; P1.elements[2] = 0.0f;
 
     // placeholders
     float c1, c2, c3;
@@ -119,7 +121,6 @@ bool Face::collidesWith(Face& face) {
             
             // get point of intersection
             vec intersection = vecAdd(sideOrigins[i], vecScalarMultiplication(sides[i], t));
-            printVec(intersection);
 
             // represent the intersection point as a linear combination of the face sides
             mat m = newColMat(3, 4, P2, P3, this->norm, intersection);
