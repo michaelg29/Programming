@@ -219,8 +219,8 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
 
 // process mesh in object file
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    std::vector<Vertex> vertices(mesh->mNumVertices);
+    std::vector<unsigned int> indices(3 * mesh->mNumFaces);
     std::vector<Texture> textures;
 
     // setup bounding region

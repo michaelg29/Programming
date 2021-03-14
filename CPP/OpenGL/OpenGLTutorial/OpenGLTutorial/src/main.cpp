@@ -78,19 +78,22 @@ int main() {
         0, 1, 2
     };
 
-    float U[9] = {
+    /*float U[9] = {
         -1.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
         1.0f, 2.0f, 0.5f
     };
     unsigned int Ui[3] = {
         0, 1, 2
-    };
+    };*/
 
     CollisionMesh PF(3, P, 1, Pi);
-    CollisionMesh UF(3, U, 1, Ui);
+    //CollisionMesh UF(3, U, 1, Ui);
 
-    std::cout << PF.faces[0].collidesWith(UF.faces[0]) << std::endl;
+    //std::cout << PF.faces[0].collidesWith(UF.faces[0]) << std::endl;
+
+    BoundingRegion br(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    std::cout << '=' << br.containsFace(PF.faces[0]) << std::endl;
 
     return 0;
 

@@ -3,6 +3,8 @@
 
 #include "../algorithms/cmathematics/matrix.h"
 
+#include <limits>
+
 /*
 Line-Plane Intersection Cases
     CASE 0
@@ -150,9 +152,68 @@ bool Face::collidesWith(Face& face) {
 CollisionMesh::CollisionMesh(unsigned int noPoints, float* coordinates, unsigned int noFaces, unsigned int* indices)
     : points(noPoints), faces(noFaces) {
 
+    // keep track of maximum values for bounding regions
+    float minX = std::numeric_limits<float>::infinity();
+    float maxX = -minX;
+    float minY = minX;
+    float maxY = maxX;
+    float minZ = minX;
+    float maxZ = maxX;
+
     for (unsigned int i = 0; i < noPoints; i++) {
-        points[i] = newVector(3, coordinates[i * 3 + 0], coordinates[i * 3 + 1], coordinates[i * 3 + 2]);
+        float x = coordinates[i * 3 + 0];
+        float y = coordinates[i * 3 + 1];
+        float z = coordinates[i * 3 + 2];
+
+        points[i] = newVector(3, x, y, z);
+
+        if (x < minX) {
+            minX = x;
+        }
+        if (x > maxX) {
+            maxX = x;
+        }
+        if (y < minY) {
+            minY = y;
+        }
+        if (y > maxY) {
+            maxY = y;
+        }
+        if (z < minZ) {
+            minZ = z;
+        }
+        if (z > maxZ) {
+            maxZ = z;
+        }
     }
+
+    /*
+        calculate bounding sphere
+        - center will be the average of the min and max points
+        - radius will be largest distance from the center
+    */
+    glm::vec3 center = {
+        (minX + maxX) / 2.0f,
+        (minY + maxY) / 2.0f,
+        (minZ + maxZ) / 2.0f
+    };
+
+    float maxRadiusSquared = 0.0f;
+    for (unsigned int i = 0; i < noPoints; i++) {
+        float radiusSquared = 0.0f;
+        for (int j = 0; j < 3; j++) {
+            radiusSquared += (points[i].elements[j] - center[j]) * (points[i].elements[j] - center[j]);
+        }
+        if (radiusSquared > maxRadiusSquared) {
+            // found new squared radius
+            // a^2 > b^2 --> |a| > |b|
+            maxRadiusSquared = radiusSquared;
+        }
+    }
+
+    float radius = sqrt(maxRadiusSquared);
+
+    this->br = BoundingRegion(center, radius);
 
     for (unsigned int i = 0; i < noFaces; i++) {
         unsigned int i1 = indices[i * 3 + 0];
