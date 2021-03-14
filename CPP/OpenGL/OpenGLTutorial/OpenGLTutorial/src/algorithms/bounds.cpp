@@ -1,5 +1,6 @@
 #include "bounds.h"
 #include "octree.h"
+#include "../physics/collisionMesh.h"
 
 /*
         Constructors
@@ -66,6 +67,19 @@ bool BoundingRegion::containsPoint(glm::vec3 pt) {
         }
         return distSquared <= (radius * radius);
     }
+}
+
+// determine if contains face
+bool BoundingRegion::containsFace(Face face) {
+    for (int i = 0; i < 3; i++) {
+        unsigned int idx = *(&face.i1 + i);
+        vec pt = face.mesh->points[idx];
+        if (!containsPoint({ pt.elements[0], pt.elements[1], pt.elements[2] })) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 // determine if region completely inside

@@ -10,6 +10,8 @@ namespace Octree {
     class node;
 }
 
+struct Face;
+
 /*
     enum for possible Bound Types
 */
@@ -80,6 +82,9 @@ public:
 
     // determine if point inside
     bool containsPoint(glm::vec3 pt);
+
+    // determine if contains face
+    bool containsFace(struct Face face);
 
     // determine if region completely inside
     bool containsRegion(BoundingRegion br);
