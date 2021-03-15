@@ -69,14 +69,23 @@ public:
     // default
     Mesh();
 
+    // initialize with BR
+    Mesh(BoundingRegion br);
+
     // initialize as textured object
-    Mesh(BoundingRegion br, std::vector<Texture> textures = {});
+    Mesh(BoundingRegion br, std::vector<Texture> textures);
 
     // initialize as material object
     Mesh(BoundingRegion br, aiColor4D diff, aiColor4D spec);
 
     // load vertex and index data
     void loadData(std::vector<Vertex> vertices, std::vector<unsigned int> indices, bool pad = false);
+
+    // setup color values
+    void setupColors(aiColor4D diff, aiColor4D spec);
+
+    // setup textures
+    void setupTextures(std::vector<Texture> textures = {});
 
     // render number of instances using shader
     void render(Shader shader, unsigned int noInstances);

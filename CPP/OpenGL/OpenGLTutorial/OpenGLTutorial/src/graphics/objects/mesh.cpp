@@ -88,13 +88,21 @@ void Vertex::calcTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>
 // default
 Mesh::Mesh() {}
 
+// initialize with BR
+Mesh::Mesh(BoundingRegion br)
+    : br(br) {}
+
 // initialize as textured object
 Mesh::Mesh(BoundingRegion br, std::vector<Texture> textures)
-    : br(br), textures(textures), noTex(false) {}
+    : Mesh(br) {
+    setupTextures(textures);
+}
 
 // initialize as material object
 Mesh::Mesh(BoundingRegion br, aiColor4D diff, aiColor4D spec)
-    : br(br), diffuse(diff), specular(spec), noTex(true) {}
+    : Mesh(br) {
+    setupColors(diff, spec);
+}
 
 // load vertex and index data
 void Mesh::loadData(std::vector<Vertex> _vertices, std::vector<unsigned int> _indices, bool pad) {
@@ -137,6 +145,19 @@ void Mesh::loadData(std::vector<Vertex> _vertices, std::vector<unsigned int> _in
     VAO["VBO"].clear();
 
     ArrayObject::clear();
+}
+
+// setup color values
+void Mesh::setupColors(aiColor4D diff, aiColor4D spec) {
+    this->noTex = true;
+    this->diffuse = diff;
+    this->specular = spec;
+}
+
+// setup textures
+void Mesh::setupTextures(std::vector<Texture> textures) {
+    this->noTex = false;
+    this->textures.insert(this->textures.end(), textures.begin(), textures.end());
 }
 
 // render number of instances using shader

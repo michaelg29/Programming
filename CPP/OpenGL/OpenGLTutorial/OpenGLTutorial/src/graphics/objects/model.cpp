@@ -1,6 +1,7 @@
 #include "model.h"
 
 #include "../../physics/environment.h"
+#include "../../scene.h"
 
 #include <iostream>
 
@@ -10,7 +11,10 @@
 
 // initialize with parameters
 Model::Model(std::string id, BoundTypes boundType, unsigned int maxNoInstances, unsigned int flags)
-    : id(id), boundType(boundType), switches(flags), currentNoInstances(0), maxNoInstances(maxNoInstances) {}
+    : id(id), 
+    boundType(boundType), 
+    switches(flags), currentNoInstances(0), maxNoInstances(maxNoInstances),
+    collision(nullptr) {}
 
 /*
     process functions
@@ -101,6 +105,13 @@ void Model::cleanup() {
     // free up memory for position and size VBOs
     posVBO.cleanup();
     sizeVBO.cleanup();
+}
+
+// enable a collision model
+void Model::enableCollisionModel() {
+    if (!this->collision) {
+        this->collision = new CollisionModel();
+    }
 }
 
 /*
@@ -352,6 +363,42 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 
     // load vertex and index data
     ret.loadData(vertices, indices);
+    return ret;
+}
+
+// process custom mesh
+Mesh Model::processMesh(BoundingRegion br, 
+    unsigned int noVertices, float* vertices,
+    unsigned int noIndices, unsigned int* indices,
+    bool calcTanVectors,
+    unsigned int noCollisionPoints, float* collisionPoints,
+    unsigned int noCollisionFaces, unsigned int* collisionIndices,
+    bool pad) {
+    // process vertex array
+    std::vector<Vertex> vertexList = Vertex::genList(vertices, noVertices);
+
+    // create index list
+    std::vector<unsigned int> indexList(noIndices);
+    if (indices) {
+        // copy array
+        memcpy(indexList.data(), indices, noIndices * sizeof(unsigned int));
+    }
+    else {
+        // insert sequential indices
+        for (unsigned int i = 0; i < noIndices; i++) {
+            indexList[i] = i;
+        }
+    }
+
+    // calculate lighting values
+    if (calcTanVectors) {
+        Vertex::calcTanVectors(vertexList, indexList);
+    }
+
+    // return mesh
+    Mesh ret(br);
+    ret.loadData(vertexList, indexList, pad);
+
     return ret;
 }
 

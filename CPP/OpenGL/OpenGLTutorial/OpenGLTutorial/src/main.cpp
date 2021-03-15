@@ -95,8 +95,6 @@ int main() {
     BoundingRegion br(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     std::cout << '=' << br.containsFace(PF.faces[0]) << std::endl;
 
-    return 0;
-
     // construct scene
     scene = Scene(3, 3, "OpenGL Tutorial", 1200, 720);
     // test if GLFW successfully started and created window

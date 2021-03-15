@@ -19,18 +19,24 @@ public:
              0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f  // bottom right
         };
 
-        std::vector<unsigned int> indices = {
+        unsigned int indices[6] = {
             0, 1, 3,
             1, 2, 3
         };
 
         BoundingRegion br(glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(0.5f, 0.5f, 0.0f));
 
-        std::vector<Vertex> vertexList = Vertex::genList(quadVertices, noVertices);
+        Mesh ret = processMesh(br,
+            noVertices, quadVertices,
+            6, indices);
+
+        ret.setupTextures(textures);
+        
+        /*std::vector<Vertex> vertexList = Vertex::genList(quadVertices, noVertices);
         Vertex::calcTanVectors(vertexList, indices);
 
         Mesh ret(br, textures);
-        ret.loadData(vertexList, indices, true);
+        ret.loadData(vertexList, indices, true);*/
 
         meshes.push_back(ret);
         boundingRegions.push_back(br);
