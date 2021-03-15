@@ -18,9 +18,9 @@
 #include "../models/box.hpp"
 
 #include "../../physics/rigidbody.h"
-#include "../../algorithms/bounds.h"
+#include "../../physics/collisionmodel.h"
 
-#include "../../scene.h"
+#include "../../algorithms/bounds.h"
 
 // model switches
 #define DYNAMIC				(unsigned int)1 // 0b00000001
@@ -44,6 +44,8 @@ public:
 
     // list of meshes
     std::vector<Mesh> meshes;
+    // attached Collision Model
+    CollisionModel* collision;
     // list of bounding regions (1 for each mesh)
     std::vector<BoundingRegion> boundingRegions;
 
@@ -80,6 +82,9 @@ public:
 
     // free up memory
     void cleanup();
+
+    // enable a collision model
+    void enableCollisionModel();
 
     /*
         instance methods
@@ -119,6 +124,15 @@ protected:
 
     // process mesh in object file
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+
+    // process custom mesh
+    Mesh processMesh(BoundingRegion br,
+        unsigned int noVertices, float *vertices,
+        unsigned int noIndices, unsigned int *indices,
+        bool calcTanVectors = true,
+        unsigned int noCollisionPoints = 0, float* collisionPoints = NULL,
+        unsigned int noCollisionFaces = 0, unsigned int* collisionIndices = NULL,
+        bool pad = false);
 
     // load list of textures
     std::vector<Texture> loadTextures(aiMaterial* mat, aiTextureType type);
