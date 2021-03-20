@@ -1,8 +1,6 @@
 #include "collisionmesh.h"
 #include "collisionmodel.h"
 
-#include "../algorithms/cmathematics/matrix.h"
-
 #include <limits>
 
 /*
@@ -32,15 +30,15 @@ Line-Plane Intersection Cases
 #define CASE2 (char)2
 #define CASE3 (char)3
 
-char linePlaneIntersection__(vec P1, vec norm, vec U1, vec side, float &t) {
+char linePlaneIntersection(glm::vec3 P1, glm::vec3 norm, glm::vec3 U1, glm::vec3 side, float &t) {
     // calculate parameter t of the line at the point of intersection
     /*
         t = (N dot U1P1) / (N dot U1U2)
     */
-    vec U1P1 = vecSubtract(P1, U1);
+    glm::vec3 U1P1 = P1 - U1;
 
-    float tnum = dot(norm, U1P1);
-    float tden = dot(norm, side);
+    float tnum = glm::dot(norm, U1P1);
+    float tden = glm::dot(norm, side);
 
     if (tden == 0.0f) {
         return tnum == 0.0f ? CASE0 : CASE1;
@@ -52,22 +50,89 @@ char linePlaneIntersection__(vec P1, vec norm, vec U1, vec side, float &t) {
     }
 }
 
+template <int C, int R>
+void rref(glm::mat<C, R, float>& m) {
+    unsigned int currentRow = 0;
+    for (unsigned int c = 0; c < C; c++) {
+        unsigned int r = currentRow;
+        if (r >= R)
+        {
+            // no more rows
+            break;
+        }
+
+        // find nonzero entry
+        for (; r < R; r++)
+        {
+            if (m[c][r] != 0.0f)
+            {
+                // non-zero value
+                break;
+            }
+        }
+
+        // didn't find a nonzero entry in column
+        if (r == R)
+        {
+            continue;
+        }
+
+        // swap with proper row
+        if (r != currentRow) {
+            for (unsigned int i = 0; i < C; i++) {
+                float tmp = m[i][currentRow];
+                m[i][currentRow] = m[i][r];
+                m[i][r] = tmp;
+            }
+        }
+        //swapRows(m, currentRow + 1, r + 1);
+
+        // multiply row by 1 / value
+        // don't call function because only need to multiply values to right
+        if (m[c][currentRow] != 0.0f) {
+            float k = 1 / m[c][currentRow];
+            m[c][currentRow] = 1.0f;
+            for (unsigned int col = c + 1; col < C; col++)
+            {
+                m[col][currentRow] *= k;
+            }
+        }
+
+        // clear out rows above and below
+        for (r = 0; r < R; r++)
+        {
+            if (r == currentRow)
+            {
+                continue;
+            }
+            float k = -m[c][r];
+            for (unsigned int i = 0; i < C; i++) {
+
+                m[i][r] += k * m[i][currentRow];
+            }
+        }
+
+        currentRow++;
+    }
+}
+
 bool Face::collidesWith(Face& face) {
     // transform coordinates so that P1 is the origin
-    vec P1 = this->mesh->points[this->i1];
-    vec P2 = vecSubtract(this->mesh->points[this->i2], P1);
-    vec P3 = vecSubtract(this->mesh->points[this->i3], P1);
-    vec lines[3] = {
+    glm::vec3 P1 = this->mesh->points[this->i1];
+    glm::vec3 P2 = this->mesh->points[this->i2] - P1;
+    glm::vec3 P3 = this->mesh->points[this->i3] - P1;
+    glm::vec3 lines[3] = {
         P2,
         P3,
-        vecSubtract(P3, P2)
+        P3 - P2
     };
 
-    vec U1 = vecSubtract(face.mesh->points[face.i1], P1);
-    vec U2 = vecSubtract(face.mesh->points[face.i2], P1);
-    vec U3 = vecSubtract(face.mesh->points[face.i3], P1);
+    glm::vec3 U1 = face.mesh->points[face.i1] - P1;
+    glm::vec3 U2 = face.mesh->points[face.i2] - P1;
+    glm::vec3 U3 = face.mesh->points[face.i3] - P1;
 
-    P1.elements[0] = 0.0f; P1.elements[1] = 0.0f; P1.elements[2] = 0.0f;
+    // set P1 as the origin
+    P1[0] = 0.0f; P1[1] = 0.0f; P1[2] = 0.0f;
 
     // placeholders
     float c1, c2, c3;
@@ -75,21 +140,21 @@ bool Face::collidesWith(Face& face) {
     /*
         iterate through each bounding line of the face
     */
-    vec sideOrigins[3] = {
+    glm::vec3 sideOrigins[3] = {
         U1,
         U1,
         U2
     };
-    vec sides[3] = {
-        vecSubtract(U2, U1),
-        vecSubtract(U3, U1),
-        vecSubtract(U3, U2)
+    glm::vec3 sides[3] = {
+        U2 - U1,
+        U3 - U1,
+        U3 - U2
     };
     for (unsigned int i = 0; i < 3; i++) {
         // get intersection with the plane
         float t = 0.0f;
         
-        char currentCase = linePlaneIntersection__(P1, this->norm,
+        char currentCase = linePlaneIntersection(P1, this->norm,
             sideOrigins[i], sides[i],
             t);
 
@@ -98,15 +163,17 @@ bool Face::collidesWith(Face& face) {
             // determine intersection with the lines of this face
 
             for (int j = 0; j < 3; j++) {
-                mat m = newColMat(3, 3, lines[j], vecScalarMultiplication(sides[i], -1.0f), sideOrigins[i]);
+                glm::mat3 m(lines[j], -1.0f * sides[i], sideOrigins[i]);
             
-                if (m.elements[2][2] != 0.0f) {
+                rref(m);
+
+                if (m[2][2] != 0.0f) {
                     // no intersection
                     continue;
                 }
                 
-                c1 = m.elements[0][2];
-                c2 = m.elements[1][2];
+                c1 = m[2][0];
+                c2 = m[2][1];
 
                 if (0.0f <= c1 && c1 <= 1.0f &&
                     0.0f <= c2 && c2 <= 1.0f) {
@@ -122,18 +189,18 @@ bool Face::collidesWith(Face& face) {
             // intersection in the plane in range, determine if inside the triangle of this face
             
             // get point of intersection
-            vec intersection = vecAdd(sideOrigins[i], vecScalarMultiplication(sides[i], t));
+            glm::vec3 intersection = sideOrigins[i] + t * sides[i];
 
             // represent the intersection point as a linear combination of the face sides
-            mat m = newColMat(3, 4, P2, P3, this->norm, intersection);
+            glm::mat4x3 m(P2, P3, this->norm, intersection);
 
             // do RREF
-            rref(&m);
+            rref(m);
 
             // obtain the coefficients for the linear combination
-            c1 = m.elements[0][3];
-            c2 = m.elements[1][3];
-            c3 = m.elements[2][3];
+            c1 = m[3][0];
+            c2 = m[3][1];
+            c3 = m[3][2];
 
             if (c1 >= 0.0f && c2 >= 0.0f && c1 + c2 <= 1.0f) {
                 return true;
@@ -165,7 +232,7 @@ CollisionMesh::CollisionMesh(unsigned int noPoints, float* coordinates, unsigned
         float y = coordinates[i * 3 + 1];
         float z = coordinates[i * 3 + 2];
 
-        points[i] = newVector(3, x, y, z);
+        points[i] = { x, y, z };
 
         if (x < minX) {
             minX = x;
@@ -202,7 +269,7 @@ CollisionMesh::CollisionMesh(unsigned int noPoints, float* coordinates, unsigned
     for (unsigned int i = 0; i < noPoints; i++) {
         float radiusSquared = 0.0f;
         for (int j = 0; j < 3; j++) {
-            radiusSquared += (points[i].elements[j] - center[j]) * (points[i].elements[j] - center[j]);
+            radiusSquared += (points[i][j] - center[j]) * (points[i][j] - center[j]);
         }
         if (radiusSquared > maxRadiusSquared) {
             // found new squared radius
@@ -220,9 +287,9 @@ CollisionMesh::CollisionMesh(unsigned int noPoints, float* coordinates, unsigned
         unsigned int i2 = indices[i * 3 + 1];
         unsigned int i3 = indices[i * 3 + 2];
 
-        vec A = vecSubtract(points[i2], points[i1]);
-        vec B = vecSubtract(points[i3], points[i1]);
-        vec N = cross(A, B);
+        glm::vec3 A = points[i2] - points[i1];
+        glm::vec3 B = points[i3] - points[i1];
+        glm::vec3 N = glm::cross(A, B);
 
         faces[i] = {
             this,
