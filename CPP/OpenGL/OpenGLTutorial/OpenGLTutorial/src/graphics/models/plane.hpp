@@ -28,7 +28,10 @@ public:
 
         Mesh ret = processMesh(br,
             noVertices, quadVertices,
-            6, indices);
+            6, indices,
+            true,
+            noVertices, quadVertices,
+            2, indices);
 
         ret.setupTextures(textures);
         
@@ -38,8 +41,7 @@ public:
         Mesh ret(br, textures);
         ret.loadData(vertexList, indices, true);*/
 
-        meshes.push_back(ret);
-        boundingRegions.push_back(br);
+        addMesh(&ret);
     }
 };
 
