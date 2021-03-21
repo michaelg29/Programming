@@ -86,11 +86,12 @@ void Vertex::calcTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>
 */
 
 // default
-Mesh::Mesh() {}
+Mesh::Mesh()
+    : collision(NULL) {}
 
 // initialize with BR
 Mesh::Mesh(BoundingRegion br)
-    : br(br) {}
+    : br(br), collision(NULL) {}
 
 // initialize as textured object
 Mesh::Mesh(BoundingRegion br, std::vector<Texture> textures)
@@ -145,6 +146,12 @@ void Mesh::loadData(std::vector<Vertex> _vertices, std::vector<unsigned int> _in
     VAO["VBO"].clear();
 
     ArrayObject::clear();
+}
+
+// setup collision mesh
+void Mesh::loadCollisionMesh(unsigned int noPoints, float* coordinates, unsigned int noFaces, unsigned int* indices) {
+    this->collision = new CollisionMesh(noPoints, coordinates, noFaces, indices);
+    this->br = this->collision->br;
 }
 
 // setup color values

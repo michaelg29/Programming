@@ -77,6 +77,9 @@ public:
     // load model from path
     void loadModel(std::string path);
 
+    // add mesh to list
+    void addMesh(Mesh* mesh);
+
     // render instance(s)
     virtual void render(Shader shader, float dt, Scene *scene, glm::mat4 model = glm::mat4(1.0f));
 

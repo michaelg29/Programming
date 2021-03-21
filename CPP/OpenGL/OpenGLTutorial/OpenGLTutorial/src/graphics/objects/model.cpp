@@ -44,6 +44,12 @@ void Model::loadModel(std::string path) {
     processNode(scene->mRootNode, scene);
 }
 
+// add mesh to list
+void Model::addMesh(Mesh* mesh) {
+    meshes.push_back(*mesh);
+    boundingRegions.push_back(mesh->br);
+}
+
 // render instance(s)
 void Model::render(Shader shader, float dt, Scene* scene, glm::mat4 model) {
     // set model matrix
@@ -118,7 +124,7 @@ void Model::cleanup() {
 // enable a collision model
 void Model::enableCollisionModel() {
     if (!this->collision) {
-        this->collision = new CollisionModel();
+        this->collision = new CollisionModel(this);
     }
 }
 
@@ -232,8 +238,7 @@ void Model::processNode(aiNode* node, const aiScene* scene) {
     for (unsigned int i = 0; i < node->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
         Mesh newMesh = processMesh(mesh, scene);
-        meshes.push_back(newMesh);
-        boundingRegions.push_back(newMesh.br);
+        addMesh(&newMesh);
     }
 
     // process all child nodes
@@ -408,6 +413,12 @@ Mesh Model::processMesh(BoundingRegion br,
     // return mesh
     Mesh ret(br);
     ret.loadData(vertexList, indexList, pad);
+
+    // allocate collision mesh
+    if (noCollisionPoints) {
+        enableCollisionModel();
+        ret.loadCollisionMesh(noCollisionPoints, collisionPoints, noCollisionFaces, collisionIndices);
+    }
 
     return ret;
 }

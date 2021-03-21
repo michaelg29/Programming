@@ -15,6 +15,8 @@
 
 #include "../../algorithms/bounds.h"
 
+#include "../../physics/collisionmesh.h"
+
 /*
     structure storing values for each vertex
 */
@@ -47,6 +49,8 @@ class Mesh {
 public:
     // Bounding region for mesh
     BoundingRegion br;
+    // attached collision model
+    CollisionMesh* collision;
 
     // list of vertices
     std::vector<Vertex> vertices;
@@ -80,6 +84,9 @@ public:
 
     // load vertex and index data
     void loadData(std::vector<Vertex> vertices, std::vector<unsigned int> indices, bool pad = false);
+
+    // setup collision mesh
+    void loadCollisionMesh(unsigned int noPoints, float* coordinates, unsigned int noFaces, unsigned int* indices);
 
     // setup color values
     void setupColors(aiColor4D diff, aiColor4D spec);
