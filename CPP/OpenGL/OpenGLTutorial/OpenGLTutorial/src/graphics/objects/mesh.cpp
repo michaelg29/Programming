@@ -161,6 +161,13 @@ void Mesh::setupColors(aiColor4D diff, aiColor4D spec) {
     this->specular = spec;
 }
 
+// setup material (color) values
+void Mesh::setupMaterial(Material mat) {
+    this->noTex = true;
+    this->diffuse = { mat.diffuse.r, mat.diffuse.g, mat.diffuse.b, 1.0f };
+    this->specular = { mat.specular.r, mat.specular.g, mat.specular.b, 1.0f };
+}
+
 // setup textures
 void Mesh::setupTextures(std::vector<Texture> textures) {
     this->noTex = false;
