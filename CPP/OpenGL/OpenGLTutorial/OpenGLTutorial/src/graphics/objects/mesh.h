@@ -9,6 +9,8 @@
 
 #include "../rendering/shader.h"
 #include "../rendering/texture.h"
+#include "../rendering/material.h"
+
 #include "../memory/vertexmemory.hpp"
 
 #include "../models/box.hpp"
@@ -90,6 +92,9 @@ public:
 
     // setup color values
     void setupColors(aiColor4D diff, aiColor4D spec);
+
+    // setup material (color) values
+    void setupMaterial(Material mat);
 
     // setup textures
     void setupTextures(std::vector<Texture> textures = {});

@@ -92,12 +92,13 @@ public:
 
         BoundingRegion br(glm::vec3(-0.5f), glm::vec3(0.5f));
 
-        aiColor4D diff(m.diffuse.r, m.diffuse.g, m.diffuse.b, 1.0f);
-        aiColor4D spec(m.specular.r, m.specular.g, m.diffuse.b, 1.0f);
+        //aiColor4D diff(m.diffuse.r, m.diffuse.g, m.diffuse.b, 1.0f);
+        //aiColor4D spec(m.specular.r, m.specular.g, m.diffuse.b, 1.0f);
 
         Mesh ret = processMesh(br, noVertices, vertices, noVertices, NULL, true,
                 8, collisionVertices, 12, collisionIndices);
-        ret.setupColors(diff, spec);
+        ret.setupMaterial(m);
+        //ret.setupColors(diff, spec);
 
        /* std::vector<Vertex> vertexList = Vertex::genList(vertices, noVertices);
         Vertex::calcTanVectors(vertexList, indices);
