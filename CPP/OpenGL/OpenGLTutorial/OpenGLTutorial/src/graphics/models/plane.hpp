@@ -35,12 +35,6 @@ public:
 
         ret.setupTextures(textures);
         
-        /*std::vector<Vertex> vertexList = Vertex::genList(quadVertices, noVertices);
-        Vertex::calcTanVectors(vertexList, indices);
-
-        Mesh ret(br, textures);
-        ret.loadData(vertexList, indices, true);*/
-
         addMesh(&ret);
     }
 };
