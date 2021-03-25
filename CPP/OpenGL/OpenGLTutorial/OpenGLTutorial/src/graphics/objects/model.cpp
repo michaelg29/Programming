@@ -55,7 +55,7 @@ void Model::render(Shader shader, float dt, Scene* scene) {
     if (!States::isActive(&switches, CONST_INSTANCES)) {
         // dynamic instances - update VBO data
 
-        // create list of each
+        // create list for new model matrices
         std::vector<glm::mat4> models(currentNoInstances);
         std::vector<glm::mat3> normalModels(currentNoInstances);
 
@@ -65,8 +65,7 @@ void Model::render(Shader shader, float dt, Scene* scene) {
         // iterate through each instance
         for (int i = 0; i < currentNoInstances; i++) {
             if (doUpdate) {
-                std::cout << i << ' ' << instances.size() << ' ' << currentNoInstances << ' ' << models.size() << std::endl;
-                // update Rigid Body
+                // update rigid Body
                 instances[i]->update(dt);
                 // activate moved switch
                 States::activate(&instances[i]->state, INSTANCE_MOVED);
@@ -76,7 +75,7 @@ void Model::render(Shader shader, float dt, Scene* scene) {
                 States::deactivate(&instances[i]->state, INSTANCE_MOVED);
             }
 
-            // add updates positions and sizes
+            // add updated model matrices
             models[i] = instances[i]->model;
             normalModels[i] = instances[i]->normalModel;
         }
@@ -114,7 +113,7 @@ void Model::cleanup() {
         meshes[i].cleanup();
     }
 
-    // free up memory for position and size VBOs
+    // free up memory used for matrix VBOs
     modelVBO.cleanup();
     normalModelVBO.cleanup();
 }
