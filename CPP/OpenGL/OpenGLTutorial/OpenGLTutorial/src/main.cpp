@@ -57,10 +57,11 @@ Camera cam;
 double dt = 0.0f; // tme btwn frames
 double lastFrame = 0.0f; // time of last frame
 
-//Sphere sphere(10);
+Sphere sphere(10);
 //Cube cube(10);
 Lamp lamp(4);
 Brickwall wall;
+Gun gun(1);
 
 std::string Shader::defaultDirectory = "assets/shaders";
 
@@ -135,7 +136,9 @@ int main() {
 
     scene.registerModel(&wall);
 
-    //scene.registerModel(&sphere);
+    scene.registerModel(&sphere);
+
+    scene.registerModel(&gun);
 
     //scene.registerModel(&cube);
 
@@ -216,7 +219,10 @@ int main() {
     }
 
     // instantiate the brickwall plane
-    scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f, glm::vec3(0.0f, 0.0f, -2.0f));
+    scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f, { 0.0f, 0.0f, -2.0f });
+    //wall.instances[0]->rot = { 0.0f, glm::half_pi<float>(), 0.0f };
+
+    scene.generateInstance(gun.id, glm::vec3(0.005f), 20.0f, glm::vec3(0.0f), { 1.0f, 0.0f, 0.0f });
 
     // instantiate instances
     scene.initInstances();
@@ -252,11 +258,11 @@ int main() {
         // activate the directional light's FBO
 
         // remove launch objects if too far
-        //for (int i = 0; i < sphere.currentNoInstances; i++) {
-        //    if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
-        //        scene.markForDeletion(sphere.instances[i]->instanceId);
-        //    }
-        //}
+        for (int i = 0; i < sphere.currentNoInstances; i++) {
+            if (glm::length(cam.cameraPos - sphere.instances[i]->pos) > 250.0f) {
+                scene.markForDeletion(sphere.instances[i]->instanceId);
+            }
+        }
 
         //// render scene to dirlight FBO
         //dirLight.shadowFBO.activate();
@@ -303,24 +309,26 @@ int main() {
 }
 
 void renderScene(Shader shader) {
-    //if (sphere.currentNoInstances > 0) {
-    //    scene.renderInstances(sphere.id, shader, dt);
-    //}
+    if (sphere.currentNoInstances > 0) {
+        scene.renderInstances(sphere.id, shader, dt);
+    }
 
     //scene.renderInstances(cube.id, shader, dt);
 
     scene.renderInstances(lamp.id, shader, dt);
 
     scene.renderInstances(wall.id, shader, dt);
+
+    scene.renderInstances(gun.id, shader, dt);
 }
 
 void launchItem(float dt) {
-    //RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.5f), 1.0f, cam.cameraPos);
-    //if (rb) {
-    //    // instance generated successfully
-    //    rb->transferEnergy(50.0f, cam.cameraFront);
-    //    rb->applyAcceleration(Environment::gravitationalAcceleration);
-    //}
+    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.5f), 1.0f, cam.cameraPos);
+    if (rb) {
+        // instance generated successfully
+        rb->transferEnergy(50.0f, cam.cameraFront);
+        rb->applyAcceleration(Environment::gravitationalAcceleration);
+    }
 }
 
 void processInput(double dt) {

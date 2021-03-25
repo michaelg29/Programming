@@ -51,16 +51,13 @@ void Model::addMesh(Mesh* mesh) {
 }
 
 // render instance(s)
-void Model::render(Shader shader, float dt, Scene* scene, glm::mat4 model) {
-    // set model matrix
-    shader.setMat4("model", model);
-    shader.setMat3("normalModel", glm::transpose(glm::inverse(glm::mat3(model))));
-
+void Model::render(Shader shader, float dt, Scene* scene) {
     if (!States::isActive(&switches, CONST_INSTANCES)) {
         // dynamic instances - update VBO data
 
         // create list of each
-        std::vector<glm::vec3> positions(currentNoInstances), sizes(currentNoInstances);
+        std::vector<glm::mat4> models(currentNoInstances);
+        std::vector<glm::mat3> normalModels(currentNoInstances);
 
         // determine if instances are moving
         bool doUpdate = States::isActive(&switches, DYNAMIC);
@@ -68,6 +65,7 @@ void Model::render(Shader shader, float dt, Scene* scene, glm::mat4 model) {
         // iterate through each instance
         for (int i = 0; i < currentNoInstances; i++) {
             if (doUpdate) {
+                std::cout << i << ' ' << instances.size() << ' ' << currentNoInstances << ' ' << models.size() << std::endl;
                 // update Rigid Body
                 instances[i]->update(dt);
                 // activate moved switch
@@ -79,17 +77,17 @@ void Model::render(Shader shader, float dt, Scene* scene, glm::mat4 model) {
             }
 
             // add updates positions and sizes
-            positions[i] = instances[i]->pos;
-            sizes[i] = instances[i]->size;
+            models[i] = instances[i]->model;
+            normalModels[i] = instances[i]->normalModel;
         }
 
-        // set position data
-        posVBO.bind();
-        posVBO.updateData<glm::vec3>(0, currentNoInstances, &positions[0]);
-
-        // set size data
-        sizeVBO.bind();
-        sizeVBO.updateData<glm::vec3>(0, currentNoInstances, &sizes[0]);
+        if (currentNoInstances) {
+            // set transformation data
+            modelVBO.bind();
+            modelVBO.updateData<glm::mat4>(0, currentNoInstances, &models[0]);
+            normalModelVBO.bind();
+            normalModelVBO.updateData<glm::mat3>(0, currentNoInstances, &normalModels[0]);
+        }
     }
 
     // set shininess
@@ -117,8 +115,8 @@ void Model::cleanup() {
     }
 
     // free up memory for position and size VBOs
-    posVBO.cleanup();
-    sizeVBO.cleanup();
+    modelVBO.cleanup();
+    normalModelVBO.cleanup();
 }
 
 // enable a collision model
@@ -133,66 +131,69 @@ void Model::enableCollisionModel() {
 */
 
 // generate instance with parameters
-RigidBody* Model::generateInstance(glm::vec3 size, float mass, glm::vec3 pos) {
+RigidBody* Model::generateInstance(glm::vec3 size, float mass, glm::vec3 pos, glm::vec3 rot) {
     if (currentNoInstances >= maxNoInstances) {
         // all slots filled
         return nullptr;
     }
 
     // instantiate new instance
-    instances[currentNoInstances] = new RigidBody(id, size, mass, pos);
-    //instances.push_back(new RigidBody(id, size, mass, pos));
+    instances[currentNoInstances] = new RigidBody(id, size, mass, pos, rot);
     return instances[currentNoInstances++];
 }
 
 // initialize memory for instances
 void Model::initInstances() {
     // default values
-    glm::vec3* posData = nullptr;
-    glm::vec3* sizeData = nullptr;
+    glm::mat4* modelData = nullptr;
+    glm::mat3* normalModelData = nullptr;
     GLenum usage = GL_DYNAMIC_DRAW;
 
-    std::vector<glm::vec3> positions(currentNoInstances), sizes(currentNoInstances);
+    std::vector<glm::mat4> models(currentNoInstances);
+    std::vector<glm::mat3> normalModels(currentNoInstances);
 
     if (States::isActive(&switches, CONST_INSTANCES)) {
         // instances won't change, set data pointers
 
         for (unsigned int i = 0; i < currentNoInstances; i++) {
-            positions[i] = instances[i]->pos;
-            sizes[i] = instances[i]->size;
+            models[i] = instances[i]->model;
+            normalModels[i] = instances[i]->normalModel;
         }
 
-        if (positions.size() > 0) {
-            posData = &positions[0];
-            sizeData = &sizes[0];
+        if (models.size() > 0) {
+            modelData = &models[0];
+            normalModelData = &normalModels[0];
         }
 
         usage = GL_STATIC_DRAW;
     }
 
-    // generate positions VBO
-    posVBO = BufferObject(GL_ARRAY_BUFFER);
-    posVBO.generate();
-    posVBO.bind();
-    posVBO.setData<glm::vec3>(UPPER_BOUND, posData, usage);
+    // generate model VBO
+    modelVBO = BufferObject(GL_ARRAY_BUFFER);
+    modelVBO.generate();
+    modelVBO.bind();
+    modelVBO.setData<glm::mat4>(UPPER_BOUND, modelData, GL_STATIC_DRAW);
 
-    // generate size VBO
-    sizeVBO = BufferObject(GL_ARRAY_BUFFER);
-    sizeVBO.generate();
-    sizeVBO.bind();
-    sizeVBO.setData<glm::vec3>(UPPER_BOUND, sizeData, usage);
+    normalModelVBO = BufferObject(GL_ARRAY_BUFFER);
+    normalModelVBO.generate();
+    normalModelVBO.bind();
+    normalModelVBO.setData<glm::mat3>(UPPER_BOUND, normalModelData, GL_STATIC_DRAW);
 
     // set attribute pointers for each mesh
     for (unsigned int i = 0, size = meshes.size(); i < size; i++) {
         meshes[i].VAO.bind();
 
         // set vertex attrib pointers
-        // positions
-        posVBO.bind();
-        posVBO.setAttPointer<glm::vec3>(4, 3, GL_FLOAT, 1, 0, 1);
-        // size
-        sizeVBO.bind();
-        sizeVBO.setAttPointer<glm::vec3>(5, 3, GL_FLOAT, 1, 0, 1);
+        modelVBO.bind();
+        modelVBO.setAttPointer<glm::vec4>(4, 4, GL_FLOAT, 4, 0, 1);
+        modelVBO.setAttPointer<glm::vec4>(5, 4, GL_FLOAT, 4, 1, 1);
+        modelVBO.setAttPointer<glm::vec4>(6, 4, GL_FLOAT, 4, 2, 1);
+        modelVBO.setAttPointer<glm::vec4>(7, 4, GL_FLOAT, 4, 3, 1);
+
+        normalModelVBO.bind();
+        normalModelVBO.setAttPointer<glm::vec3>(8, 3, GL_FLOAT, 3, 0, 1);
+        normalModelVBO.setAttPointer<glm::vec3>(9, 3, GL_FLOAT, 3, 1, 1);
+        normalModelVBO.setAttPointer<glm::vec3>(10, 3, GL_FLOAT, 3, 2, 1);
 
         ArrayObject::clear();
     }
