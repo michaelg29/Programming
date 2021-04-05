@@ -10,6 +10,7 @@
 // forward declaration
 class CollisionModel;
 class CollisionMesh;
+class RigidBody;
 
 typedef struct Face {
     CollisionMesh* mesh;
@@ -18,7 +19,8 @@ typedef struct Face {
     glm::vec3 baseNormal;
     glm::vec3 norm;
 
-    bool collidesWith(struct Face& face);
+    bool collidesWithSphere(RigidBody* thisRb, BoundingRegion br);
+    bool collidesWith(RigidBody* thisRb, struct Face& face, RigidBody* faceRb);
 } Face;
 
 class CollisionMesh {
