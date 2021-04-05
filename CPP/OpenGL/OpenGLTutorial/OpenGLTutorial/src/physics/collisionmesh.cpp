@@ -1,5 +1,6 @@
 #include "collisionmesh.h"
 #include "collisionmodel.h"
+#include "rigidbody.h"
 
 #include <limits>
 
@@ -116,26 +117,100 @@ void rref(glm::mat<C, R, float>& m) {
     }
 }
 
-bool Face::collidesWith(Face& face) {
+glm::vec3 mat4vec3Mult(glm::mat4& m, glm::vec3& v) {
+    glm::vec3 ret;
+    for (int i = 0; i < 3; i++) {
+        ret[i] = v[0] * m[0][i] + v[1] * m[1][i] + v[2] * m[2][i] + m[3][i];
+    }
+    return ret;
+}
+
+float* linCombSolution(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 point) {
+    // represent the point as a linear combination of the three basis vectors
+    glm::mat4x3 m(A, B, C, point);
+
+    // do RREF
+    rref(m);
+
+    float* ret = (float*)malloc(3 * sizeof(float));
+
+    for (int i = 0; i < 3; i++) {
+        ret[i] = m[3][i];
+    }
+
+    return ret;
+}
+
+#include <iostream>
+
+bool faceContainsPointRange(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 point, float radius) {
+    float* c = linCombSolution(A, B, C, point);
+
+    bool ret = c[0] >= -radius && c[1] >= -radius && c[0] + c[1] <= 1.0f + radius;
+
+    std::cout << ret << ' ' << c[0] << ' ' << c[1] << ' ' << c[2] << std::endl;
+
+    free(c);
+
+    return ret;
+}
+
+bool faceContainsPoint(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 point) {
+    return faceContainsPointRange(A, B, C, point, 0.0f);
+}
+
+bool Face::collidesWithSphere(RigidBody* thisRB, BoundingRegion br) {
+    if (br.type != BoundTypes::SPHERE) {
+        return false;
+    }
+
+    // apply model transformations from rigid body
+
+    glm::vec3 P1 = mat4vec3Mult(thisRB->model, this->mesh->points[this->i1]);
+    glm::vec3 P2 = mat4vec3Mult(thisRB->model, this->mesh->points[this->i2]);
+    glm::vec3 P3 = mat4vec3Mult(thisRB->model, this->mesh->points[this->i3]);
+
+    glm::vec3 norm = thisRB->normalModel * this->norm; // use normal model matrix to transform normal vector
+    
+    glm::vec3 distVec = br.center - P1;
+    glm::vec3 unitN = norm / glm::length(norm);
+
+    float distance = glm::dot(distVec, unitN);
+
+    if (abs(distance) < br.radius) {
+        glm::vec3 circCenter = br.center + distance * unitN;
+
+        return faceContainsPointRange(P2 - P1, P3 - P1, norm, circCenter - P1, br.radius);
+    }
+
+    return false;
+}
+
+bool Face::collidesWith(RigidBody* thisRB, struct Face& face, RigidBody* faceRB) {
     // transform coordinates so that P1 is the origin
-    glm::vec3 P1 = this->mesh->points[this->i1];
-    glm::vec3 P2 = this->mesh->points[this->i2] - P1;
-    glm::vec3 P3 = this->mesh->points[this->i3] - P1;
+    // apply model transformations from respective rigid bodies
+
+    glm::vec3 P1 = mat4vec3Mult(thisRB->model, this->mesh->points[this->i1]);
+    glm::vec3 P2 = mat4vec3Mult(thisRB->model, this->mesh->points[this->i2]) - P1;
+    glm::vec3 P3 = mat4vec3Mult(thisRB->model, this->mesh->points[this->i3]) - P1;
+
     glm::vec3 lines[3] = {
         P2,
         P3,
         P3 - P2
     };
 
-    glm::vec3 U1 = face.mesh->points[face.i1] - P1;
-    glm::vec3 U2 = face.mesh->points[face.i2] - P1;
-    glm::vec3 U3 = face.mesh->points[face.i3] - P1;
+    glm::vec3 norm = thisRB->normalModel * this->norm; // use normal model matrix to transform normal vector
+
+    glm::vec3 U1 = mat4vec3Mult(faceRB->model, face.mesh->points[face.i1]) - P1;
+    glm::vec3 U2 = mat4vec3Mult(faceRB->model, face.mesh->points[face.i2]) - P1;
+    glm::vec3 U3 = mat4vec3Mult(faceRB->model, face.mesh->points[face.i3]) - P1;
 
     // set P1 as the origin
     P1[0] = 0.0f; P1[1] = 0.0f; P1[2] = 0.0f;
 
     // placeholders
-    float c1, c2, c3;
+    float c1, c2;
 
     /*
         iterate through each bounding line of the face
@@ -191,18 +266,7 @@ bool Face::collidesWith(Face& face) {
             // get point of intersection
             glm::vec3 intersection = sideOrigins[i] + t * sides[i];
 
-            // represent the intersection point as a linear combination of the face sides
-            glm::mat4x3 m(P2, P3, this->norm, intersection);
-
-            // do RREF
-            rref(m);
-
-            // obtain the coefficients for the linear combination
-            c1 = m[3][0];
-            c2 = m[3][1];
-            c3 = m[3][2];
-
-            if (c1 >= 0.0f && c2 >= 0.0f && c1 + c2 <= 1.0f) {
+            if (faceContainsPoint(P2, P3, this->norm, intersection)) {
                 return true;
             }
 
