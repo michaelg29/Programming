@@ -125,32 +125,22 @@ glm::vec3 mat4vec3Mult(glm::mat4& m, glm::vec3& v) {
     return ret;
 }
 
-float* linCombSolution(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 point) {
+glm::vec3 linCombSolution(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 point) {
     // represent the point as a linear combination of the three basis vectors
     glm::mat4x3 m(A, B, C, point);
 
     // do RREF
     rref(m);
 
-    float* ret = (float*)malloc(3 * sizeof(float));
-
-    for (int i = 0; i < 3; i++) {
-        ret[i] = m[3][i];
-    }
-
-    return ret;
+    return m[3];
 }
 
 #include <iostream>
 
 bool faceContainsPointRange(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 point, float radius) {
-    float* c = linCombSolution(A, B, C, point);
+    glm::vec3 c = linCombSolution(A, B, C, point);
 
     bool ret = c[0] >= -radius && c[1] >= -radius && c[0] + c[1] <= 1.0f + radius;
-
-    std::cout << ret << ' ' << c[0] << ' ' << c[1] << ' ' << c[2] << std::endl;
-
-    free(c);
 
     return ret;
 }
@@ -200,7 +190,7 @@ bool Face::collidesWith(RigidBody* thisRB, struct Face& face, RigidBody* faceRB)
         P3 - P2
     };
 
-    glm::vec3 norm = thisRB->normalModel * this->norm; // use normal model matrix to transform normal vector
+    glm::vec3 thisNorm = thisRB->normalModel * this->norm; // use normal model matrix to transform normal vector
 
     glm::vec3 U1 = mat4vec3Mult(faceRB->model, face.mesh->points[face.i1]) - P1;
     glm::vec3 U2 = mat4vec3Mult(faceRB->model, face.mesh->points[face.i2]) - P1;
@@ -229,7 +219,7 @@ bool Face::collidesWith(RigidBody* thisRB, struct Face& face, RigidBody* faceRB)
         // get intersection with the plane
         float t = 0.0f;
         
-        char currentCase = linePlaneIntersection(P1, this->norm,
+        char currentCase = linePlaneIntersection(P1, thisNorm,
             sideOrigins[i], sides[i],
             t);
 
@@ -266,7 +256,7 @@ bool Face::collidesWith(RigidBody* thisRB, struct Face& face, RigidBody* faceRB)
             // get point of intersection
             glm::vec3 intersection = sideOrigins[i] + t * sides[i];
 
-            if (faceContainsPoint(P2, P3, this->norm, intersection)) {
+            if (faceContainsPoint(P2, P3, thisNorm, intersection)) {
                 return true;
             }
 
