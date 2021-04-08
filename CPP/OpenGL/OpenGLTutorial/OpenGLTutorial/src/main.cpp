@@ -79,22 +79,36 @@ int main() {
         0, 1, 2
     };
 
-    /*float U[9] = {
+    float U[9] = {
         -1.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
         1.0f, 2.0f, 0.5f
     };
     unsigned int Ui[3] = {
         0, 1, 2
-    };*/
+    };
 
     CollisionMesh PF(3, P, 1, Pi);
-    //CollisionMesh UF(3, U, 1, Ui);
+    CollisionMesh UF(3, U, 1, Ui);
 
-    //std::cout << PF.faces[0].collidesWith(UF.faces[0]) << std::endl;
+    RigidBody prb("", glm::vec3(1.0f), 1.0f);
+    RigidBody urb("", glm::vec3(1.0f), 1.0f);
 
-    BoundingRegion br(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-    std::cout << '=' << br.containsFace(PF.faces[0]) << std::endl;
+    //std::cout << PF.faces[0].collidesWith(&prb, UF.faces[0], &urb) << std::endl;
+
+    float V[9] = {
+        0.0f, 10.0f, 0.0f,
+        3.0f, 10.0f, sqrt(3.0f),
+        -3.0f, 10.6f, -sqrt(3.0f)
+    };
+    unsigned int Vi[3] = {
+        0, 1, 2
+    };
+    CollisionMesh VF(3, V, 1, Vi);
+
+    RigidBody vrb("", glm::vec3(1.0f), 1.0f);
+
+    BoundingRegion br({ 0.0f, 0.0f, 0.0f }, 2.0f);
 
     // construct scene
     scene = Scene(3, 3, "OpenGL Tutorial", 1200, 720);
@@ -183,7 +197,7 @@ int main() {
             0.5f, 50.0f
         );
         // create physical model for each lamp
-        scene.generateInstance(lamp.id, glm::vec3(0.25f), 0.25f, pointLightPositions[i]);
+        scene.generateInstance(lamp.id, glm::vec3(0.25f), 0.25f, pointLightPositions[i], glm::vec3(glm::quarter_pi<float>()));
         // add lamp to scene's light source
         scene.pointLights.push_back(&pointLights[i]);
         // activate lamp in scene
@@ -219,10 +233,10 @@ int main() {
     }
 
     // instantiate the brickwall plane
-    scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f, { 0.0f, 0.0f, -2.0f });
+    scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f, { 0.0f, 1.0f, -2.0f }, { glm::quarter_pi<float>(), glm::pi<float>(), 0.0f });
     //wall.instances[0]->rot = { 0.0f, glm::half_pi<float>(), 0.0f };
 
-    scene.generateInstance(gun.id, glm::vec3(0.005f), 20.0f, glm::vec3(0.0f), { 1.0f, 0.0f, 0.0f });
+    //scene.generateInstance(gun.id, glm::vec3(0.005f), 20.0f, glm::vec3(0.0f), { 1.0f, 0.0f, 0.0f });
 
     // instantiate instances
     scene.initInstances();
@@ -293,8 +307,8 @@ int main() {
         renderScene(shader);
 
         // render boxes
-        //scene.renderShader(boxShader, false);
-        //box.render(boxShader);
+        scene.renderShader(boxShader, false);
+        box.render(boxShader);
 
         // send new frame to window
         scene.newFrame(box);
@@ -323,7 +337,7 @@ void renderScene(Shader shader) {
 }
 
 void launchItem(float dt) {
-    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.5f), 1.0f, cam.cameraPos);
+    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.1f), 1.0f, cam.cameraPos);
     if (rb) {
         // instance generated successfully
         rb->transferEnergy(50.0f, cam.cameraFront);

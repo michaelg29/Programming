@@ -335,6 +335,7 @@ CollisionMesh::CollisionMesh(unsigned int noPoints, float* coordinates, unsigned
     float radius = sqrt(maxRadiusSquared);
 
     this->br = BoundingRegion(center, radius);
+    this->br.collisionMesh = this;
 
     for (unsigned int i = 0; i < noFaces; i++) {
         unsigned int i1 = indices[i * 3 + 0];

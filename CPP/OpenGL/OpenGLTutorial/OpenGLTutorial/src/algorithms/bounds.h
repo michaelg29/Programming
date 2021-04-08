@@ -9,6 +9,7 @@
 namespace Octree {
     class node;
 }
+class CollisionMesh;
 
 struct Face;
 
@@ -32,6 +33,7 @@ public:
 
     // pointer for quick access to instance
     RigidBody* instance;
+    CollisionMesh* collisionMesh;
 
     // pointer for quick access to current octree node
     Octree::node* cell;
