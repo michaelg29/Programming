@@ -12,7 +12,7 @@
 class Gun : public Model {
 public:
     Gun(unsigned int maxNoInstances)
-        : Model("m4a1", BoundTypes::AABB, maxNoInstances, NO_TEX | CONST_INSTANCES) {}
+        : Model("m4a1", maxNoInstances, NO_TEX | CONST_INSTANCES) {}
 
     void init() {
         loadModel("assets/models/m4a1/scene.gltf");
