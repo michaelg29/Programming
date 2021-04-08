@@ -416,7 +416,7 @@ void Octree::node::checkCollisionsSelf(BoundingRegion obj) {
                         // check all faces in br against the obj
                         for (int i = 0; i < noFacesBr; i++) {
                             if (br.collisionMesh->faces[i].collidesWithSphere(br.instance, obj)) {
-                                std::cout << "Case 2 (" << noFacesBr << "): Instance " << br.instance->instanceId << "(" << br.instance->modelId << ") collides with " << obj.instance->instanceId << "(" << obj.instance->modelId << ")" << std::endl;
+                                std::cout << "Case 2: Instance " << br.instance->instanceId << "(" << br.instance->modelId << ") collides with " << obj.instance->instanceId << "(" << obj.instance->modelId << ")" << std::endl;
                                 break;
                             }
                         }
@@ -434,6 +434,10 @@ void Octree::node::checkCollisionsSelf(BoundingRegion obj) {
                                 break;
                             }
                         }
+                    }
+                    else {
+                        // neither have a collision mesh, but coarse grain passed
+                        std::cout << "Case 4: Instance " << br.instance->instanceId << "(" << br.instance->modelId << ") collides with " << obj.instance->instanceId << "(" << obj.instance->modelId << ")" << std::endl;
                     }
                 }
             }
