@@ -89,7 +89,7 @@ void Vertex::calcTanVectors(std::vector<Vertex>& list, std::vector<unsigned int>
 Mesh::Mesh()
     : collision(NULL) {}
 
-// initialize with BR
+// intialize with a bounding region
 Mesh::Mesh(BoundingRegion br)
     : br(br), collision(NULL) {}
 
@@ -103,6 +103,12 @@ Mesh::Mesh(BoundingRegion br, std::vector<Texture> textures)
 Mesh::Mesh(BoundingRegion br, aiColor4D diff, aiColor4D spec)
     : Mesh(br) {
     setupColors(diff, spec);
+}
+
+// initialize with a material
+Mesh::Mesh(BoundingRegion br, Material m)
+    : Mesh(br) {
+    setupMaterial(m);
 }
 
 // load vertex and index data
@@ -154,24 +160,24 @@ void Mesh::loadCollisionMesh(unsigned int noPoints, float* coordinates, unsigned
     this->br = this->collision->br;
 }
 
-// setup color values
+// setup textures
+void Mesh::setupTextures(std::vector<Texture> textures) {
+    this->noTex = false;
+    this->textures.insert(this->textures.end(), textures.begin(), textures.end());
+}
+
+// setup material colors
 void Mesh::setupColors(aiColor4D diff, aiColor4D spec) {
     this->noTex = true;
     this->diffuse = diff;
     this->specular = spec;
 }
 
-// setup material (color) values
+// set material structure
 void Mesh::setupMaterial(Material mat) {
     this->noTex = true;
     this->diffuse = { mat.diffuse.r, mat.diffuse.g, mat.diffuse.b, 1.0f };
     this->specular = { mat.specular.r, mat.specular.g, mat.specular.b, 1.0f };
-}
-
-// setup textures
-void Mesh::setupTextures(std::vector<Texture> textures) {
-    this->noTex = false;
-    this->textures.insert(this->textures.end(), textures.begin(), textures.end());
 }
 
 // render number of instances using shader

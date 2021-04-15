@@ -19,10 +19,8 @@ uniform vec3 viewPos;
 
 void main() {
 	// get position in world space
-	vec3 pos =  vec3(model * vec4(aPos, 1.0));
-
 	// apply model transformation
-	vs_out.FragPos = pos;
+	vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
 
 	// set texture coordinate
 	vs_out.TexCoord = aTexCoord;

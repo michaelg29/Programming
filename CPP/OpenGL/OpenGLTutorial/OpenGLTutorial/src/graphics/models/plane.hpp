@@ -18,8 +18,15 @@ public:
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,	0.0f, 0.0f, // bottom left
              0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,	1.0f, 0.0f  // bottom right
         };
+        float collisionVertices[] = {
+            // position			
+             0.5f,  0.5f, 0.0f,
+            -0.5f,  0.5f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+             0.5f, -0.5f, 0.0f
+        };
 
-        unsigned int indices[6] = {
+        unsigned int indices[] = {
             0, 1, 3,
             1, 2, 3
         };
@@ -31,11 +38,11 @@ public:
             noVertices, quadVertices,
             6, indices,
             true,
-            noVertices, quadVertices,
+            noVertices, collisionVertices,
             2, indices);
 
         ret.setupTextures(textures);
-        
+
         addMesh(&ret);
     }
 };

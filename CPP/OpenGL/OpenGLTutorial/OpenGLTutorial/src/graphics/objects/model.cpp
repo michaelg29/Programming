@@ -1,6 +1,7 @@
 #include "model.h"
 
 #include "../../physics/environment.h"
+
 #include "../../scene.h"
 
 #include <iostream>
@@ -12,8 +13,8 @@
 
 // initialize with parameters
 Model::Model(std::string id, unsigned int maxNoInstances, unsigned int flags)
-    : id(id), 
-    switches(flags), currentNoInstances(0), maxNoInstances(maxNoInstances), instances(maxNoInstances),
+    : id(id), switches(flags),
+    currentNoInstances(0), maxNoInstances(maxNoInstances), instances(maxNoInstances),
     collision(nullptr) {}
 
 /*
@@ -44,7 +45,14 @@ void Model::loadModel(std::string path) {
     processNode(scene->mRootNode, scene);
 }
 
-// add mesh to list
+// enable a collision model
+void Model::enableCollisionModel() {
+    if (!this->collision) {
+        this->collision = new CollisionModel(this);
+    }
+}
+
+// add a mesh to the list
 void Model::addMesh(Mesh* mesh) {
     meshes.push_back(*mesh);
     boundingRegions.push_back(mesh->br);
@@ -55,7 +63,7 @@ void Model::render(Shader shader, float dt, Scene* scene) {
     if (!States::isActive(&switches, CONST_INSTANCES)) {
         // dynamic instances - update VBO data
 
-        // create list for new model matrices
+        // create list of each
         std::vector<glm::mat4> models(currentNoInstances);
         std::vector<glm::mat3> normalModels(currentNoInstances);
 
@@ -65,7 +73,7 @@ void Model::render(Shader shader, float dt, Scene* scene) {
         // iterate through each instance
         for (int i = 0; i < currentNoInstances; i++) {
             if (doUpdate) {
-                // update rigid Body
+                // update Rigid Body
                 instances[i]->update(dt);
                 // activate moved switch
                 States::activate(&instances[i]->state, INSTANCE_MOVED);
@@ -75,7 +83,7 @@ void Model::render(Shader shader, float dt, Scene* scene) {
                 States::deactivate(&instances[i]->state, INSTANCE_MOVED);
             }
 
-            // add updated model matrices
+            // add updated matrices
             models[i] = instances[i]->model;
             normalModels[i] = instances[i]->normalModel;
         }
@@ -107,22 +115,15 @@ void Model::cleanup() {
         }
     }
     instances.clear();
-    
+
     // cleanup each mesh
-    for (unsigned int i = 0, len = meshes.size(); i < len; i++) {
+    for (unsigned int i = 0, len = instances.size(); i < len; i++) {
         meshes[i].cleanup();
     }
 
-    // free up memory used for matrix VBOs
+    // free up memory for position and size VBOs
     modelVBO.cleanup();
     normalModelVBO.cleanup();
-}
-
-// enable a collision model
-void Model::enableCollisionModel() {
-    if (!this->collision) {
-        this->collision = new CollisionModel(this);
-    }
 }
 
 /*
@@ -144,9 +145,9 @@ RigidBody* Model::generateInstance(glm::vec3 size, float mass, glm::vec3 pos, gl
 // initialize memory for instances
 void Model::initInstances() {
     // default values
+    GLenum usage = GL_DYNAMIC_DRAW;
     glm::mat4* modelData = nullptr;
     glm::mat3* normalModelData = nullptr;
-    GLenum usage = GL_DYNAMIC_DRAW;
 
     std::vector<glm::mat4> models(currentNoInstances);
     std::vector<glm::mat3> normalModels(currentNoInstances);
@@ -159,7 +160,7 @@ void Model::initInstances() {
             normalModels[i] = instances[i]->normalModel;
         }
 
-        if (models.size() > 0) {
+        if (currentNoInstances) {
             modelData = &models[0];
             normalModelData = &normalModels[0];
         }
@@ -167,16 +168,16 @@ void Model::initInstances() {
         usage = GL_STATIC_DRAW;
     }
 
-    // generate model VBO
+    // generate matrix VBOs
     modelVBO = BufferObject(GL_ARRAY_BUFFER);
     modelVBO.generate();
     modelVBO.bind();
-    modelVBO.setData<glm::mat4>(UPPER_BOUND, modelData, GL_STATIC_DRAW);
+    modelVBO.setData<glm::mat4>(UPPER_BOUND, modelData, usage);
 
     normalModelVBO = BufferObject(GL_ARRAY_BUFFER);
     normalModelVBO.generate();
     normalModelVBO.bind();
-    normalModelVBO.setData<glm::mat3>(UPPER_BOUND, normalModelData, GL_STATIC_DRAW);
+    normalModelVBO.setData<glm::mat3>(UPPER_BOUND, normalModelData, usage);
 
     // set attribute pointers for each mesh
     for (unsigned int i = 0, size = meshes.size(); i < size; i++) {
@@ -255,8 +256,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 
     // setup bounding region
     BoundingRegion br(BoundTypes::SPHERE);
-    glm::vec3 min(std::numeric_limits<float>::max());		// min point = max float
-    glm::vec3 max(std::numeric_limits<float>::min());	// max point = min float
+    glm::vec3 min(std::numeric_limits<float>::max()); // min point = max float
+    glm::vec3 max(std::numeric_limits<float>::min()); // max point = min float
 
     // vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
@@ -303,7 +304,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 
     // process min/max for BR
     // calculate max distance from the center
-    br.center = BoundingRegion(min, max).calculateCenter();
+    br.center = (min + max) / 2.0f;
     br.ogCenter = br.center;
     br.collisionMesh = NULL;
     float maxRadiusSquared = 0.0f;
@@ -373,8 +374,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
     return ret;
 }
 
-// process custom mesh
-Mesh Model::processMesh(BoundingRegion br, 
+// proces a custom mesh
+Mesh Model::processMesh(BoundingRegion br,
     unsigned int noVertices, float* vertices,
     unsigned int noIndices, unsigned int* indices,
     bool calcTanVectors,
@@ -397,22 +398,21 @@ Mesh Model::processMesh(BoundingRegion br,
         }
     }
 
-    // calculate lighting values
+    // calculate the lighting values
     if (calcTanVectors) {
         Vertex::calcTanVectors(vertexList, indexList);
     }
 
-    // return mesh
-    br.collisionMesh = NULL;
+    // setup return mesh
     Mesh ret(br);
     ret.loadData(vertexList, indexList, pad);
 
-    // allocate collision mesh
+    // allocate collision mesh if specified
     if (noCollisionPoints) {
         enableCollisionModel();
         ret.loadCollisionMesh(noCollisionPoints, collisionPoints, noCollisionFaces, collisionIndices);
     }
-
+    
     return ret;
 }
 

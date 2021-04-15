@@ -13,7 +13,7 @@ public:
         : Model("cube", maxNoInstances, CONST_INSTANCES | NO_TEX), m(m) {}
 
     void init() {
-        unsigned int noVertices = 36;
+        int noVertices = 36;
 
         float vertices[] = {
             // position                 normal              texcoord
@@ -91,10 +91,14 @@ public:
         };
 
         //BoundingRegion br(glm::vec3(-0.5f), glm::vec3(0.5f));
-        BoundingRegion br(glm::vec3(0.0f), sqrt(3.0f) / 2);
+        BoundingRegion br(glm::vec3(0.0f), sqrt(3.0f) / 2.0f);
 
-        Mesh ret = processMesh(br, noVertices, vertices, noVertices, NULL, true,
-                8, collisionVertices, 12, collisionIndices);
+        Mesh ret = processMesh(br,
+            noVertices, vertices,
+            noVertices, NULL,
+            true,
+            8, collisionVertices,
+            12, collisionIndices);
         ret.setupMaterial(m);
 
         addMesh(&ret);

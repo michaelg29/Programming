@@ -10,10 +10,8 @@ class Model;
 
 class CollisionModel {
 public:
-	// attached model
 	Model* model;
 
-	// list of collision meshes
 	std::vector<CollisionMesh> meshes;
 
 	CollisionModel(Model* model);
