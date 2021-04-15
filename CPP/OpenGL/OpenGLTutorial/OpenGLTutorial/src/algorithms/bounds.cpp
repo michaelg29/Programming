@@ -31,7 +31,7 @@ void BoundingRegion::transform() {
         }
         else {
             center = ogCenter * instance->size + instance->pos;
-
+            
             float maxDim = instance->size[0];
             for (int i = 1; i < 3; i++) {
                 if (instance->size[i] > maxDim) {
@@ -75,18 +75,6 @@ bool BoundingRegion::containsPoint(glm::vec3 pt) {
         }
         return distSquared <= (radius * radius);
     }
-}
-
-// determine if contains face
-bool BoundingRegion::containsFace(Face face) {
-    for (int i = 0; i < 3; i++) {
-        unsigned int idx = *(&face.i1 + i);
-        if (!containsPoint(face.mesh->points[idx])) {
-            return false;
-        }
-    }
-    
-    return true;
 }
 
 // determine if region completely inside

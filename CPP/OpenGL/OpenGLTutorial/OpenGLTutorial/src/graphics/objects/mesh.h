@@ -51,7 +51,7 @@ class Mesh {
 public:
     // Bounding region for mesh
     BoundingRegion br;
-    // attached collision model
+    // pointer to the attached collision mesh
     CollisionMesh* collision;
 
     // list of vertices
@@ -75,7 +75,7 @@ public:
     // default
     Mesh();
 
-    // initialize with BR
+    // intialize with a bounding region
     Mesh(BoundingRegion br);
 
     // initialize as textured object
@@ -84,20 +84,23 @@ public:
     // initialize as material object
     Mesh(BoundingRegion br, aiColor4D diff, aiColor4D spec);
 
+    // initialize with a material
+    Mesh(BoundingRegion br, Material m);
+
     // load vertex and index data
     void loadData(std::vector<Vertex> vertices, std::vector<unsigned int> indices, bool pad = false);
 
     // setup collision mesh
     void loadCollisionMesh(unsigned int noPoints, float* coordinates, unsigned int noFaces, unsigned int* indices);
 
-    // setup color values
+    // setup textures
+    void setupTextures(std::vector<Texture> textures);
+
+    // setup material colors
     void setupColors(aiColor4D diff, aiColor4D spec);
 
-    // setup material (color) values
+    // set material structure
     void setupMaterial(Material mat);
-
-    // setup textures
-    void setupTextures(std::vector<Texture> textures = {});
 
     // render number of instances using shader
     void render(Shader shader, unsigned int noInstances);

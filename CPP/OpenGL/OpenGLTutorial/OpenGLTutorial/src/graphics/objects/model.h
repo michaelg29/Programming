@@ -17,8 +17,8 @@
 
 #include "../models/box.hpp"
 
-#include "../../physics/rigidbody.h"
 #include "../../physics/collisionmodel.h"
+#include "../../physics/rigidbody.h"
 
 #include "../../algorithms/bounds.h"
 
@@ -41,7 +41,7 @@ public:
 
     // list of meshes
     std::vector<Mesh> meshes;
-    // attached Collision Model
+    // pointer to the collision model
     CollisionModel* collision;
     // list of bounding regions (1 for each mesh)
     std::vector<BoundingRegion> boundingRegions;
@@ -74,7 +74,10 @@ public:
     // load model from path
     void loadModel(std::string path);
 
-    // add mesh to list
+    // enable a collision model
+    void enableCollisionModel();
+
+    // add a mesh to the list
     void addMesh(Mesh* mesh);
 
     // render instance(s)
@@ -83,18 +86,12 @@ public:
     // free up memory
     void cleanup();
 
-    // enable a collision model
-    void enableCollisionModel();
-
     /*
         instance methods
     */
 
     // generate instance with parameters
-    RigidBody* generateInstance(glm::vec3 size = { 1.0f, 1.0f, 1.0f }, 
-        float mass = 1.0f, 
-        glm::vec3 pos = { 0.0f, 0.0f, 0.0f },
-        glm::vec3 rot = { 0.0f, 0.0f, 0.0f });
+    RigidBody* generateInstance(glm::vec3 size, float mass, glm::vec3 pos, glm::vec3 rot);
 
     // initialize memory for instances
     void initInstances();
@@ -128,10 +125,10 @@ protected:
     // process mesh in object file
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
-    // process custom mesh
+    // proces a custom mesh
     Mesh processMesh(BoundingRegion br,
-        unsigned int noVertices, float *vertices,
-        unsigned int noIndices, unsigned int *indices,
+        unsigned int noVertices, float* vertices,
+        unsigned int noIndices, unsigned int* indices,
         bool calcTanVectors = true,
         unsigned int noCollisionPoints = 0, float* collisionPoints = NULL,
         unsigned int noCollisionFaces = 0, unsigned int* collisionIndices = NULL,
@@ -140,7 +137,7 @@ protected:
     // load list of textures
     std::vector<Texture> loadTextures(aiMaterial* mat, aiTextureType type);
 
-    // VBOs for positions and sizes
+    // VBOs for model matrices
     BufferObject modelVBO;
     BufferObject normalModelVBO;
 };

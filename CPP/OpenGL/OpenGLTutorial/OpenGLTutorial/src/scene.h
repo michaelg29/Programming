@@ -166,10 +166,11 @@ public:
     void registerModel(Model* model);
 
     // generate instance of specified model with physical parameters
-    RigidBody* generateInstance(std::string modelId, glm::vec3 size = { 1.0f, 1.0f, 1.0f },
-        float mass = 1.0f,
-        glm::vec3 pos = { 0.0f, 0.0f, 0.0f },
-        glm::vec3 rot = { 0.0f, 0.0f, 0.0f });
+    RigidBody* generateInstance(std::string modelId,
+        glm::vec3 size = glm::vec3(1.0f), 
+        float mass = 1.0f, 
+        glm::vec3 pos = glm::vec3(0.0f),
+        glm::vec3 rot = glm::vec3(0.0f));
 
     // initialize model instances
     void initInstances();

@@ -11,8 +11,6 @@ namespace Octree {
 }
 class CollisionMesh;
 
-struct Face;
-
 /*
     enum for possible Bound Types
 */
@@ -31,7 +29,7 @@ public:
     // type of region
     BoundTypes type;
 
-    // pointer for quick access to instance
+    // pointer for quick access to instance and collision mesh
     RigidBody* instance;
     CollisionMesh* collisionMesh;
 
@@ -84,9 +82,6 @@ public:
 
     // determine if point inside
     bool containsPoint(glm::vec3 pt);
-
-    // determine if contains face
-    bool containsFace(struct Face face);
 
     // determine if region completely inside
     bool containsRegion(BoundingRegion br);

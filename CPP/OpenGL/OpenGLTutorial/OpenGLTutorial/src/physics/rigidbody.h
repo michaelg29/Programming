@@ -29,19 +29,15 @@ public:
     // acceleration in m/s^2
     glm::vec3 acceleration;
 
-    // rotation on the principal axes in rad
+    // dimensions of object
+    glm::vec3 size;
+
+    // rotation in Euler angles
     glm::vec3 rot;
-    // angular velocity in rad/s
-    glm::vec3 rotVel;
-    // angular acceleration in rad/s^2
-    glm::vec3 rotAcc;
 
     // model matrix
     glm::mat4 model;
     glm::mat3 normalModel;
-
-    // dimensions of object
-    glm::vec3 size;
 
     // ids for quick access to instance/model
     std::string modelId;
@@ -56,7 +52,11 @@ public:
     */
 
     // construct with parameters and default
-    RigidBody(std::string modelId = "", glm::vec3 size = glm::vec3(1.0f), float mass = 1.0f, glm::vec3 pos = glm::vec3(0.0f), glm::vec3 rot = glm::vec3(0.0f));
+    RigidBody(std::string modelId = "",
+        glm::vec3 size = glm::vec3(1.0f),
+        float mass = 1.0f,
+        glm::vec3 pos = glm::vec3(0.0f),
+        glm::vec3 rot = glm::vec3(0.0f));
 
     /*
         transformation functions
