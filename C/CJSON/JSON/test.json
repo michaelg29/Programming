@@ -2,7 +2,10 @@
     "list1": [
         "str1",
         1.290000,
-        null
+        null,
+        332,
+        0,
+        "hello"
     ],
     "list2": [
         null
