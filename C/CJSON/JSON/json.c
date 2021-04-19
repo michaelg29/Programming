@@ -5,6 +5,29 @@
 #include "json.h"
 #include "strstream.h"
 
+char *json_typeStr(jsontype type)
+{
+    switch (type)
+    {
+    case JSON_NULL:
+        return "null";
+    case JSON_STR:
+        return "string";
+    case JSON_FLOAT:
+        return "float";
+    case JSON_INT:
+        return "int";
+    case JSON_BOOL:
+        return "bool";
+    case JSON_LIST:
+        return "list";
+    case JSON_OBJ:
+        return "obj";
+    default:
+        return "else";
+    }
+}
+
 /*
     constructors
 */
@@ -115,6 +138,44 @@ json json_obj(hashmap val)
     return ret;
 }
 
+json *json_alloc_typeSize(jsontype type, unsigned int n)
+{
+    json *ret = malloc(sizeof(json));
+    ret->type = type;
+
+    switch (type)
+    {
+    case JSON_NULL:
+        ret->val.n = NULL;
+        break;
+    case JSON_STR:
+        ret->val.s = "";
+        break;
+    case JSON_FLOAT:
+        ret->val.f = 0.0f;
+        break;
+    case JSON_INT:
+        ret->val.i = 0;
+        break;
+    case JSON_BOOL:
+        ret->val.b = false;
+        break;
+    case JSON_LIST:
+        ret->val.l = dynarr_allocate(n);
+        break;
+    case JSON_OBJ:
+        ret->val.o = hmap_allocateStrAsKeyWithNum(n);
+        break;
+    }
+
+    return ret;
+}
+
+json *json_alloc_type(jsontype type)
+{
+    return json_alloc_typeSize(type, 0);
+}
+
 /*
     list modifiers
 */
@@ -212,6 +273,29 @@ void json_obj_put_bool(json *obj, char *key, bool val)
 }
 
 /*
+    value accessors
+*/
+json *json_list_get(json *list, unsigned int idx)
+{
+    if (list->type != JSON_LIST || idx >= list->val.l.size)
+    {
+        return NULL;
+    }
+
+    return list->val.l.list[idx];
+}
+
+json *json_obj_get(json *obj, char *key)
+{
+    if (obj->type != JSON_OBJ)
+    {
+        return NULL;
+    }
+
+    return hmap_get(&obj->val.o, key);
+}
+
+/*
     output accessors
 */
 strstream json_stringify(json j, bool prettify, int initTabPos, bool isDictVal)
@@ -251,7 +335,7 @@ strstream json_stringify(json j, bool prettify, int initTabPos, bool isDictVal)
         strstream_concat(&ret, "%d", j.val.i);
         break;
     case JSON_BOOL:
-        strstream_concat(&ret, "%s", j.val.b ? JSON_TRUE : JSON_FALSE);
+        strstream_concat(&ret, "%s", j.val.b ? JSON_TRUE_S : JSON_FALSE_S);
         break;
     case JSON_LIST:
         if (!j.val.l.size)
@@ -282,7 +366,7 @@ strstream json_stringify(json j, bool prettify, int initTabPos, bool isDictVal)
         // add end characters
         if (prettify)
         {
-            strstream_concat(&ret, ENDL);
+            strstream_concat(&ret, _endl);
             for (int i = 0; i < initTabPos; i++)
             {
                 strstream_concat(&ret, TAB);
@@ -332,7 +416,7 @@ strstream json_stringify(json j, bool prettify, int initTabPos, bool isDictVal)
         strstream_retreat(&ret, prettify ? 2 : 1);
         if (prettify)
         {
-            strstream_concat(&ret, ENDL);
+            strstream_concat(&ret, _endl);
             for (int i = 0; i < initTabPos; i++)
             {
                 strstream_concat(&ret, TAB);
@@ -372,27 +456,33 @@ void json_free(json *j)
     }
     else if (j->type == JSON_LIST)
     {
-        void *cur = NULL;
-        dynarr_iterator list_it = dynarr_iterator_new(&j->val.l);
-
-        while ((cur = dynarr_iterator_next(&list_it)))
+        if (j->val.l.size)
         {
-            json_free((json *)cur);
-        }
+            void *cur = NULL;
+            dynarr_iterator list_it = dynarr_iterator_new(&j->val.l);
 
-        dynarr_free(&j->val.l);
+            while ((cur = dynarr_iterator_next(&list_it)))
+            {
+                json_free((json *)cur);
+            }
+
+            dynarr_free(&j->val.l);
+        }
     }
     else if (j->type == JSON_OBJ)
     {
-        mapentry *cur = NULL;
-        hashmap_iterator hmap_it = hmap_iterator_new(&j->val.o);
-
-        while ((cur = hmap_iterator_next(&hmap_it)))
+        if (j->val.o.numEntries)
         {
-            json_free((json *)cur->val);
-        }
+            mapentry *cur = NULL;
+            hashmap_iterator hmap_it = hmap_iterator_new(&j->val.o);
 
-        hmap_free(&j->val.o);
+            while ((cur = hmap_iterator_next(&hmap_it)))
+            {
+                json_free((json *)cur->val);
+            }
+
+            hmap_free(&j->val.o);
+        }
     }
 }
 
@@ -404,26 +494,280 @@ void json_freeDeep(json *j)
     }
     else if (j->type == JSON_LIST)
     {
-        void *cur = NULL;
-        dynarr_iterator list_it = dynarr_iterator_new(&j->val.l);
-
-        while ((cur = dynarr_iterator_next(&list_it)))
+        if (j->val.l.size)
         {
-            json_freeDeep((json *)cur);
-        }
+            void *cur = NULL;
+            dynarr_iterator list_it = dynarr_iterator_new(&j->val.l);
 
-        dynarr_freeDeep(&j->val.l);
+            while ((cur = dynarr_iterator_next(&list_it)))
+            {
+                json_freeDeep((json *)cur);
+            }
+
+            dynarr_freeDeep(&j->val.l);
+        }
     }
     else if (j->type == JSON_OBJ)
     {
-        mapentry *cur = NULL;
-        hashmap_iterator hmap_it = hmap_iterator_new(&j->val.o);
-
-        while ((cur = hmap_iterator_next(&hmap_it)))
+        if (j->val.o.numEntries)
         {
-            json_freeDeep((json *)cur->val);
+            mapentry *cur = NULL;
+            hashmap_iterator hmap_it = hmap_iterator_new(&j->val.o);
+
+            while ((cur = hmap_iterator_next(&hmap_it)))
+            {
+                json_freeDeep((json *)cur->val);
+            }
+
+            hmap_freeDeep(&j->val.o);
+        }
+    }
+}
+
+/*
+    FILE IO
+*/
+void json_writeFile(json j, FILE *f, bool prettify)
+{
+    strstream out = json_stringify(j, prettify, 0, false);
+    strstream_writeFile(&out, f, 0, 0);
+    strstream_clear(&out);
+}
+
+bool charIsNumber(char c)
+{
+    return (c >= '0' && c <= '9') ||
+           c == '.' ||
+           c == '-';
+}
+
+json json_readFile(FILE *f)
+{
+    strstream str = strstream_allocDefault();
+    strstream_readFile(&str, f, 0);
+
+    dynamicarray stack = dynarr_defaultAllocate();
+    dynamicarray keyStack = dynarr_defaultAllocate();
+
+    bool keyOpen = false;
+    char *curKey;
+    json *curElement = NULL;
+
+    bool foundDecimal;
+    json *list = NULL;
+    json *obj = NULL;
+
+    unsigned int nextI;
+    unsigned int objLength;
+
+    for (unsigned int i = 0; i < str.size; i += objLength)
+    {
+        objLength = 1;
+
+        char c = str.str[i];
+
+        if (c == ' ' || c == '\n' || c == '\t' || c == ':')
+        {
+            // skip whitespace
+            continue;
         }
 
-        hmap_freeDeep(&j->val.o);
+        bool valid = true;
+
+        switch (c)
+        {
+        case '{':
+            // start dictionary
+            dynarr_addLast(&stack, json_alloc_type(JSON_OBJ));
+
+            // start key
+            keyOpen = true;
+            break;
+        case '[':
+            // start list
+            dynarr_addLast(&stack, json_alloc_type(JSON_LIST));
+
+            break;
+        case '"':
+            // start string
+            // find closing quote
+            nextI = i + 1;
+            while (nextI < str.size)
+            {
+                if (str.str[nextI] == '"' && str.str[nextI - 1] != '\\')
+                {
+                    break;
+                }
+                nextI++;
+            }
+
+            // set as key or element
+            i++;
+            objLength = nextI - i;
+            if (keyOpen)
+            {
+                dynarr_addLast(&keyStack, strstream_substrLength(&str, i, objLength));
+                //curKey = strstream_substrLength(&str, i, objLength);
+                keyOpen = false;
+            }
+            else
+            {
+                curElement = json_alloc_type(JSON_STR);
+                curElement->val.s = strstream_substrLength(&str, i, objLength);
+            }
+            objLength++;
+
+            break;
+
+        // at close brackets, set current element to popped element
+        // will be added in next iteration when see comma
+        case ',':
+            // end element
+            // determine what to do with element
+            if (curElement)
+            {
+                if (stack.size)
+                {
+                    // add to top list or dictionary
+                    if (((json *)stack.list[stack.size - 1])->type == JSON_LIST)
+                    {
+                        json_list_add(stack.list[stack.size - 1], curElement);
+                    }
+                    else
+                    {
+                        json_obj_put(stack.list[stack.size - 1], dynarr_removeLast(&keyStack), curElement);
+                        keyOpen = true;
+                    }
+                }
+            }
+            curElement = NULL;
+            break;
+        case ']':
+            // end list (pop from stack)
+            list = dynarr_removeLast(&stack);
+
+            // add current element to the list
+            if (curElement && list->type == JSON_LIST)
+            {
+                json_list_add(list, curElement);
+            }
+
+            // set current element as the popped list
+            curElement = list;
+            list = NULL;
+
+            break;
+        case '}':
+            // end object (pop from stack)
+            obj = dynarr_removeLast(&stack);
+
+            // add current key-value pair to the object
+            curKey = dynarr_removeLast(&keyStack);
+            if (curElement && curKey && obj->type == JSON_OBJ)
+            {
+                json_obj_put(obj, curKey, curElement);
+            }
+
+            // set current element as the popped object
+            curElement = obj;
+            obj = NULL;
+
+            break;
+        default:
+            // parse possible number
+            foundDecimal = false;
+            if (charIsNumber(c))
+            {
+                if (c == '.')
+                {
+                    foundDecimal = true;
+                }
+
+                nextI = i + 1;
+                while (nextI < str.size && charIsNumber(str.str[nextI]))
+                {
+                    if (str.str[nextI] == '.')
+                    {
+                        if (foundDecimal)
+                        {
+                            valid = false;
+                            break;
+                        }
+                        foundDecimal = true;
+                    }
+                    nextI++;
+                }
+                objLength = nextI - i;
+
+                if (!valid)
+                {
+                    break;
+                }
+
+                // finished number
+                if (foundDecimal)
+                {
+                    // store float
+                    curElement = json_alloc_type(JSON_FLOAT);
+                    curElement->val.f = atof(strstream_substrLength(&str, i, objLength));
+                }
+                else
+                {
+                    // store integer
+                    curElement = json_alloc_type(JSON_INT);
+                    curElement->val.i = atoi(strstream_substrLength(&str, i, objLength));
+                }
+            }
+            else
+            {
+                // parse keywords: true, false, null
+                char *substr4 = strstream_substrLength(&str, i, 4);
+                char *substr5 = strstream_substrLength(&str, i, 5);
+
+                if (!strcmp(substr4, JSON_NULL_S))
+                {
+                    // null value
+                    curElement = json_alloc_type(JSON_NULL);
+                    objLength = 4;
+                }
+                else if (!strcmp(substr4, JSON_TRUE_S))
+                {
+                    // true boolean value
+                    curElement = json_alloc_type(JSON_BOOL);
+                    curElement->val.b = true;
+                    objLength = 4;
+                }
+                else if (!strcmp(substr5, JSON_FALSE_S))
+                {
+                    curElement = json_alloc_type(JSON_BOOL);
+                    curElement->val.b = false;
+                    objLength = 5;
+                }
+                else
+                {
+                    valid = false;
+                }
+            }
+
+            break;
+        };
+
+        if (!valid)
+        {
+            break;
+        }
+    }
+
+    strstream_clear(&str);
+    dynarr_free(&stack);
+    dynarr_free(&keyStack);
+
+    if (curElement)
+    {
+        return *curElement;
+    }
+    else
+    {
+        return json_null();
     }
 }
