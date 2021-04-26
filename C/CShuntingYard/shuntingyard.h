@@ -7,8 +7,8 @@
 #ifndef SHUNTINGYARD_H
 #define SHUNTINGYARD_H
 
-void sy_init();
-void sy_cleanup();
+void SY_init();
+void SY_cleanup();
 
 dynamicarray parseTokens(char *str);
 dynamicarray RPN(char *str);
@@ -18,6 +18,7 @@ double evalTree(SY_tokenNode *tree);
 
 double SY_eval(SY_token *t, double x, double y);
 
-bool sy_registerVariable(char *name, double value);
+bool SY_registerVariable(char *name, double value);
+bool SY_clearVariable(char *name);
 
 #endif
