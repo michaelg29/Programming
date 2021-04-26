@@ -47,6 +47,7 @@ typedef struct
 {
     char *name;
     double value;
+    bool restricted;
 } SY_constant;
 
 typedef struct
@@ -73,7 +74,7 @@ SY_token *SY_findElement(int i, strstream *s, avl *list, int *length);
 
 SY_token *SY_createToken(tokentype type);
 SY_token *SY_createTokenConstant(double value);
-SY_token *SY_createTokenConstantString(char *name, double value);
+SY_token *SY_createTokenConstantString(char *name, double value, bool restricted);
 SY_token *SY_createTokenUnary(char *value);
 SY_token *SY_createTokenBinary(char *value);
 SY_token *SY_createTokenOperator(char *value);

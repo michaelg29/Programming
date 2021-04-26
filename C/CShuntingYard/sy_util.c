@@ -105,11 +105,12 @@ SY_token *SY_createTokenConstant(double value)
     return ret;
 }
 
-SY_token *SY_createTokenConstantString(char *name, double value)
+SY_token *SY_createTokenConstantString(char *name, double value, bool restricted)
 {
     SY_token *ret = SY_createToken(CONSTANTSTR);
     ret->val.namedConstVal.name = name;
     ret->val.namedConstVal.value = value;
+    ret->val.namedConstVal.restricted = restricted;
     return ret;
 }
 
