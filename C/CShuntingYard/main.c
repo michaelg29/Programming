@@ -12,7 +12,25 @@ int main(int argc, char **argv)
     sy_init();
 
     //sin(3^-2 * 27 / 4 * pi) + 1
-    dynamicarray RPNlist = RPN("-sin(2pi cos(2e)-sqrt(22))+-1");
+    if (sy_registerVariable("e", 2.0))
+    {
+        printf("Registered into variable\n");
+    }
+    else
+    {
+        printf("Restricted variable\n");
+    }
+
+    if (sy_registerVariable("x", 2.0))
+    {
+        printf("Registered into variable\n");
+    }
+    else
+    {
+        printf("Restricted variable\n");
+    }
+
+    dynamicarray RPNlist = RPN("-sin(2pi cos(2e)-sqrt(22))+-1+x");
     SY_tokenNode *tree = getEquationTree(RPNlist);
 
     printf("%.8f\n", evalTree(tree));

@@ -65,9 +65,8 @@ void sy_init()
     functions = avl_insert(functions, "max", SY_createDefaultBinaryFunction("max", maxf));
 
     constants = avl_createEmptyRoot(strkeycmp);
-
-    constants = avl_insert(constants, "pi", SY_createTokenConstantString("pi", 4.0 * atan(1.0)));
-    constants = avl_insert(constants, "e", SY_createTokenConstantString("e", exp(1.0)));
+    constants = avl_insert(constants, "pi", SY_createTokenConstantString("pi", 4.0 * atan(1.0), true));
+    constants = avl_insert(constants, "e", SY_createTokenConstantString("e", exp(1.0), true));
 }
 
 void sy_cleanup()
@@ -93,7 +92,6 @@ dynamicarray parseTokens(char *str)
 
         SY_token *obj = NULL;
         objLength = 1;
-        //SY_token *curToken = NULL;
 
         if (c == ' ' || c == ',')
         {
@@ -300,12 +298,6 @@ dynamicarray RPN(char *str)
             dynarr_free(&tokens);
             return ret;
         };
-
-        // printf("=========================\n");
-        // dynarr_iterate(&ret, printToken);
-        // printf("\n");
-        // dynarr_iterate(&stack, printToken);
-        // printf("\n");
     }
 
     while (stack.size)
@@ -451,4 +443,25 @@ double SY_eval(SY_token *t, double x, double y)
     }
 
     return 0.0;
+}
+
+bool sy_registerVariable(char *name, double value)
+{
+    SY_token *t = avl_get(constants, name);
+    if (t)
+    {
+        if (t->val.namedConstVal.restricted)
+        {
+            return false;
+        }
+
+        t->val.namedConstVal.value = value;
+    }
+    else
+    {
+        t = SY_createTokenConstantString(name, value, false);
+        constants = avl_insert(constants, name, t);
+    }
+
+    return true;
 }
