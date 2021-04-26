@@ -32,7 +32,7 @@ void printNode(avl *node, bool recurse)
     }
 }
 
-void sy_init()
+void SY_init()
 {
     functions = avl_createEmptyRoot(strkeycmp);
     functions = avl_insert(functions, "sin", SY_createDefaultUnaryFunction("sin", sin));
@@ -69,7 +69,7 @@ void sy_init()
     constants = avl_insert(constants, "e", SY_createTokenConstantString("e", exp(1.0), true));
 }
 
-void sy_cleanup()
+void SY_cleanup()
 {
     avl_freeDeep(functions);
     avl_freeDeep(constants);
@@ -445,7 +445,7 @@ double SY_eval(SY_token *t, double x, double y)
     return 0.0;
 }
 
-bool sy_registerVariable(char *name, double value)
+bool SY_registerVariable(char *name, double value)
 {
     SY_token *t = avl_get(constants, name);
     if (t)
@@ -464,4 +464,22 @@ bool sy_registerVariable(char *name, double value)
     }
 
     return true;
+}
+
+bool SY_clearVariable(char *name)
+{
+    SY_token *t = avl_get(constants, name);
+    if (t)
+    {
+        if (t->val.namedConstVal.restricted)
+        {
+            return false;
+        }
+
+        avl_remove(constants, name);
+    }
+    else
+    {
+        return false;
+    }
 }

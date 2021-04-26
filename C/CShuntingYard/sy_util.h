@@ -1,4 +1,5 @@
 #include "lib/strstream.h"
+#include "lib/dynamicarray.h"
 #include "lib/avl.h"
 
 #ifndef SY_UTIL_H
@@ -82,6 +83,7 @@ SY_token *SY_createTokenLParen();
 SY_token *SY_createTokenRParen();
 
 void SY_freeToken(SY_token *t);
+void SY_freeTokenList(dynamicarray *list);
 
 char SY_getPrecedence(SY_token *f);
 bool SY_isFunction(SY_token *f);
