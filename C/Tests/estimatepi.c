@@ -19,14 +19,12 @@ int main(int argc, char **argv)
     }
 
     unsigned int numCircle = 0;
-    unsigned int numSquare = 0;
 
     for (int i = 0; i < N; i++)
     {
         double x = rand0to1();
         double y = rand0to1();
 
-        numSquare++;
         if (x * x + y * y < 1)
         {
             numCircle++;
@@ -42,9 +40,9 @@ int main(int argc, char **argv)
         => pi ~= 4 * numCircle / numSquare
     */
 
-    double pi = 4.0 * (double)numCircle / (double)numSquare;
+    double pi = 4.0 * (double)numCircle / (double)N;
     printf("Estimated from %d samples:\n", N);
-    printf("%d in the circle, %d in the square\n", numCircle, numSquare);
+    printf("%d in the circle, %d in the square\n", numCircle, N);
     printf("pi ~= %f\n", pi);
 
     return 0;
