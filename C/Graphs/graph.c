@@ -10,7 +10,7 @@ edge *createEdge(int v1, int v2)
 
     ret->v1 = v1;
     ret->v2 = v2;
-    ret->weight = 0;
+    ret->weight = 1;
 
     return ret;
 }
@@ -215,6 +215,41 @@ graph graph_copy(graph *g)
     return ret;
 }
 
+#include "strstream.h"
+char *graph_toString(graph *g)
+{
+    strstream ret = strstream_alloc(g->n);
+
+    for (int i = 0; i < g->n; i++)
+    {
+        if (g->adjacencyMode)
+        {
+            edge *e = NULL;
+            dynarr_iterator it = dynarr_iterator_new(g->adjacencyLists + i);
+
+            while ((e = dynarr_iterator_next(&it)))
+            {
+                if (e->weight)
+                {
+                    strstream_concat(&ret, "%d -> %d; %d\n", e->v1, e->v2, e->weight);
+                }
+            }
+        }
+        else
+        {
+            for (int j = 0; j < g->n; j++)
+            {
+                if (g->adjacencyMatrix[i][j])
+                {
+                    strstream_concat(&ret, "%d -> %d; %d\n", i, j, g->adjacencyMatrix[i][j]);
+                }
+            }
+        }
+    }
+
+    return ret.str;
+}
+
 void graph_dfs(graph *g, int src, int *d, int *f, int *p, int *time)
 {
     (*time)++;
@@ -325,7 +360,7 @@ int graph_pathDfs(graph *g, int src, int dst, char *visited, int *p)
                         {
                             p[i] = src;
                             // return smaller weight
-                            return g->adjacencyMatrix[src][i] < weight ? g->adjacencyMatrix[src][i] : i;
+                            return g->adjacencyMatrix[src][i] < weight ? g->adjacencyMatrix[src][i] : weight;
                         }
                     }
                 }
@@ -497,17 +532,101 @@ int *graph_dijkstra(graph *g, int src)
     return p;
 }
 
+#define MAX(a, b) (a > b ? a : b)
+
 graph graph_fordFulkerson(graph *g, int srcIdx, int dst, int *maxFlowRet)
 {
     graph ret = graph_copy(g);
+    graph resid = graph_copy(g);
     int maxFlow = 0;
 
     int src = g->sources[srcIdx];
+
+    int *p = malloc(g->n * sizeof(int));
+    int pathFlow;
+    while ((pathFlow = graph_pathDfsStart(&resid, src, dst, p)))
+    {
+        for (int i = dst; i != src; i = p[i])
+        {
+            // edge from p[i] to i is in the appending path
+            if (g->adjacencyMode)
+            {
+                edge *e = NULL;
+                dynarr_iterator it = dynarr_iterator_new(resid.adjacencyLists + p[i]);
+
+                while ((e = dynarr_iterator_next(&it)))
+                {
+                    if (e->v2 == i)
+                    {
+                        // decrease remaining capacity on forward edge
+                        e->weight -= pathFlow;
+                        break;
+                    }
+                }
+
+                // find residual edge
+                char residualFound = 0;
+                e = NULL;
+                it = dynarr_iterator_new(resid.adjacencyLists + i);
+
+                while ((e = dynarr_iterator_next(&it)))
+                {
+                    if (e->v2 == p[i])
+                    {
+                        residualFound = !0;
+                        e->weight += pathFlow;
+                        break;
+                    }
+                }
+
+                if (!residualFound)
+                {
+                    dynarr_addLast(resid.adjacencyLists + i, createWeightedEdge(i, p[i], pathFlow));
+                }
+            }
+            else
+            {
+                // decrease weight by path flow (remaining capacity)
+                resid.adjacencyMatrix[p[i]][i] -= pathFlow;
+                // add weight to residual edge
+                resid.adjacencyMatrix[i][p[i]] += pathFlow;
+            }
+        }
+        maxFlow += pathFlow;
+    }
+    free(p);
+
+    // decrease capacities to match obtained flow
+    for (int i = 0; i < ret.n; i++)
+    {
+        if (ret.adjacencyMode)
+        {
+            for (int j = 0; j < ret.adjacencyLists[i].size; j++)
+            {
+                edge *retEdge = ret.adjacencyLists[i].list[j];
+                edge *ffEdge = resid.adjacencyLists[i].list[j];
+
+                retEdge->weight -= ffEdge->weight;
+            }
+        }
+        else
+        {
+            for (int j = 0; j < ret.n; j++)
+            {
+                if (ret.adjacencyMatrix[i][j])
+                {
+                    ret.adjacencyMatrix[i][j] -= resid.adjacencyMatrix[i][j];
+                }
+            }
+        }
+    }
 
     if (maxFlowRet)
     {
         *maxFlowRet = maxFlow;
     }
+
+    graph_free(&resid);
 
     return ret;
 }

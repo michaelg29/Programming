@@ -65,48 +65,34 @@ int main()
 {
     printf("Hello, world!\n");
 
-    int N = 5;
+    int N = 6;
 
     int src[1] = {0};
     graph g = graph_new(ADJ_LIST, N, src, 1);
-    graph_addDirectedWeightedEdge(&g, 0, 1, 10);
-    graph_addDirectedWeightedEdge(&g, 0, 3, 5);
-    graph_addDirectedWeightedEdge(&g, 1, 2, 2);
-    graph_addDirectedWeightedEdge(&g, 1, 3, 2);
-    graph_addDirectedWeightedEdge(&g, 2, 4, 2);
-    graph_addDirectedWeightedEdge(&g, 3, 1, 1);
-    graph_addDirectedWeightedEdge(&g, 3, 2, 4);
-    graph_addDirectedWeightedEdge(&g, 3, 4, 6);
-    graph_addDirectedWeightedEdge(&g, 4, 0, 3);
-    graph_addDirectedWeightedEdge(&g, 4, 2, 7);
+    graph_addDirectedWeightedEdge(&g, 0, 1, 16);
+    graph_addDirectedWeightedEdge(&g, 0, 2, 13);
+    graph_addDirectedWeightedEdge(&g, 1, 3, 12);
+    graph_addDirectedWeightedEdge(&g, 2, 1, 4);
+    graph_addDirectedWeightedEdge(&g, 2, 4, 14);
+    graph_addDirectedWeightedEdge(&g, 3, 2, 9);
+    graph_addDirectedWeightedEdge(&g, 3, 5, 20);
+    graph_addDirectedWeightedEdge(&g, 4, 3, 7);
+    graph_addDirectedWeightedEdge(&g, 4, 5, 4);
+
+    char *str = graph_toString(&g);
+    printf("%s\n", str);
+    free(str);
 
     printf("=======\n");
 
-    int *d = malloc(N * sizeof(int));
-    int *f = malloc(N * sizeof(int));
-    int *p = malloc(N * sizeof(int));
-
-    graph_dfsStart(&g, d, f, p);
-
-    char *str = printArr(d, N);
-    printf("%s\n", str);
+    int maxFlow;
+    graph flow = graph_fordFulkerson(&g, 0, 5, &maxFlow);
+    str = graph_toString(&flow);
+    printf("%d\n%s\n", maxFlow, str);
     free(str);
-
-    str = printArr(f, N);
-    printf("%s\n", str);
-    free(str);
-
-    str = printArr(p, N);
-    printf("%s\n", str);
-    free(str);
-
-    p = graph_dijkstra(&g, 0);
-    str = printArr(p, N);
-    printf("%s\n", str);
-    free(str);
-    free(p);
 
     graph_free(&g);
+    graph_free(&flow);
 
     return 0;
 }

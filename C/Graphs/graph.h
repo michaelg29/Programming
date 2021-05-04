@@ -54,6 +54,7 @@ void graph_addUndirectedEdge(graph *g, int v1, int v2);
 void graph_addUndirectedWeightedEdge(graph *g, int v1, int v2, int weight);
 void graph_free(graph *g);
 graph graph_copy(graph *g);
+char *graph_toString(graph *g);
 
 // searching
 void graph_dfs(graph *g, int src, int *d, int *f, int *p, int *time);
