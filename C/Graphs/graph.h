@@ -13,18 +13,10 @@ typedef struct edge
 {
     int v1;
     int v2;
+    int weight;
 } edge;
 edge *createEdge(int v1, int v2);
-
-// int edgeCmp(void *e1, void *e2);
-
-typedef struct weightedEdge
-{
-    int v1;
-    int v2;
-    int weight;
-} weightedEdge;
-weightedEdge *createWeightedEdge(int v1, int v2, int weight);
+edge *createWeightedEdge(int v1, int v2, int weight);
 
 // int weightedEdgeCmp(void *e1, void *e2);
 
@@ -43,7 +35,6 @@ typedef struct graph
 
     int n;
     int noEdges;
-    char edgesWeighted;
 
     int *sources;
     int noSources;
@@ -55,7 +46,7 @@ typedef struct graph
 // edge *graph_getEdge(graph *g, int v1, int v2);
 // weightedEdge *graph_getWeightedEdge(graph *g, int v1, int v2);
 
-graph graph_new(char mode, char edgesWeighted, int n, int *sources, int noSources);
+graph graph_new(char mode, int n, int *sources, int noSources);
 void graph_addVertex(graph *g);
 void graph_addDirectedEdge(graph *g, int v1, int v2);
 void graph_addDirectedWeightedEdge(graph *g, int v1, int v2, int weight);
@@ -67,6 +58,9 @@ graph graph_copy(graph *g);
 // searching
 void graph_dfs(graph *g, int src, int *d, int *f, int *p, int *time);
 void graph_dfsStart(graph *g, int *d, int *f, int *p);
+int graph_pathDfs(graph *g, int src, int dst, char *visited, int *p);
+int graph_pathDfsStart(graph *g, int src, int dst, int *p);
 
 // algorithms
 int *graph_dijkstra(graph *g, int src);
+graph graph_fordFulkerson(graph *g, int srcIdx, int dst, int *maxFlowRet);

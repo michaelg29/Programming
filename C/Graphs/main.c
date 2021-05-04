@@ -68,7 +68,7 @@ int main()
     int N = 5;
 
     int src[1] = {0};
-    graph g = graph_new(ADJ_LIST, !0, N, src, 1);
+    graph g = graph_new(ADJ_LIST, N, src, 1);
     graph_addDirectedWeightedEdge(&g, 0, 1, 10);
     graph_addDirectedWeightedEdge(&g, 0, 3, 5);
     graph_addDirectedWeightedEdge(&g, 1, 2, 2);
