@@ -10,13 +10,14 @@ edge *createEdge(int v1, int v2)
 
     ret->v1 = v1;
     ret->v2 = v2;
+    ret->weight = 0;
 
     return ret;
 }
 
-weightedEdge *createWeightedEdge(int v1, int v2, int weight)
+edge *createWeightedEdge(int v1, int v2, int weight)
 {
-    weightedEdge *ret = malloc(sizeof(weightedEdge));
+    edge *ret = malloc(sizeof(edge));
 
     ret->v1 = v1;
     ret->v2 = v2;
@@ -25,9 +26,9 @@ weightedEdge *createWeightedEdge(int v1, int v2, int weight)
     return ret;
 }
 
-graph graph_new(char mode, char edgesWeighted, int n, int *sources, int noSources)
+graph graph_new(char mode, int n, int *sources, int noSources)
 {
-    graph ret = {NULL, mode, n, 0, edgesWeighted, sources, noSources};
+    graph ret = {NULL, mode, n, 0, sources, noSources};
 
     if (mode)
     {
@@ -186,7 +187,7 @@ void graph_free(graph *g)
 
 graph graph_copy(graph *g)
 {
-    graph ret = {NULL, g->adjacencyMode, g->n, g->noEdges, g->edgesWeighted, g->sources, g->noSources};
+    graph ret = {NULL, g->adjacencyMode, g->n, g->noEdges, g->sources, g->noSources};
 
     if (g->adjacencyMode)
     {
@@ -196,16 +197,8 @@ graph graph_copy(graph *g)
             ret.adjacencyLists[i] = dynarr_allocate(g->adjacencyLists[i].size);
             for (int j = 0; j < g->adjacencyLists[i].size; j++)
             {
-                if (g->edgesWeighted)
-                {
-                    weightedEdge *e = g->adjacencyLists[i].list[j];
-                    dynarr_addLast(ret.adjacencyLists + i, createWeightedEdge(e->v1, e->v2, e->weight));
-                }
-                else
-                {
-                    edge *e = g->adjacencyLists[i].list[j];
-                    dynarr_addLast(ret.adjacencyLists + i, createEdge(e->v1, e->v2));
-                }
+                edge *e = g->adjacencyLists[i].list[j];
+                dynarr_addLast(ret.adjacencyLists + i, createWeightedEdge(e->v1, e->v2, e->weight));
             }
         }
     }
@@ -230,34 +223,16 @@ void graph_dfs(graph *g, int src, int *d, int *f, int *p, int *time)
     // discover neighbors
     if (g->adjacencyMode)
     {
-        if (g->edgesWeighted)
-        {
-            weightedEdge *e = NULL;
-            dynarr_iterator it = dynarr_iterator_new(g->adjacencyLists + src);
+        edge *e = NULL;
+        dynarr_iterator it = dynarr_iterator_new(g->adjacencyLists + src);
 
-            while ((e = dynarr_iterator_next(&it)))
-            {
-                if (e->weight && !d[e->v2])
-                {
-                    // edge from src to i has weight, i not discovered
-                    graph_dfs(g, e->v2, d, f, p, time);
-                    p[e->v2] = src;
-                }
-            }
-        }
-        else
+        while ((e = dynarr_iterator_next(&it)))
         {
-            edge *e = NULL;
-            dynarr_iterator it = dynarr_iterator_new(g->adjacencyLists + src);
-
-            while ((e = dynarr_iterator_next(&it)))
+            if (e->weight && !d[e->v2])
             {
-                if (!d[e->v2])
-                {
-                    // edge from src to i, i not discovered
-                    graph_dfs(g, e->v2, d, f, p, time);
-                    p[e->v2] = src;
-                }
+                // edge from src to i, i not discovered
+                graph_dfs(g, e->v2, d, f, p, time);
+                p[e->v2] = src;
             }
         }
     }
@@ -292,6 +267,85 @@ void graph_dfsStart(graph *g, int *d, int *f, int *p)
     {
         graph_dfs(g, g->sources[i], d, f, p, &time);
     }
+}
+
+int graph_pathDfs(graph *g, int src, int dst, char *visited, int *p)
+{
+    if (!visited[src])
+    {
+        visited[src] = !0;
+
+        if (g->adjacencyMode)
+        {
+            edge *e = NULL;
+            dynarr_iterator it = dynarr_iterator_new(g->adjacencyLists + src);
+
+            while ((e = dynarr_iterator_next(&it)))
+            {
+                if (e->weight && !visited[e->v2])
+                {
+                    // edge from src to i, i not discovered
+                    if (e->v2 == dst)
+                    {
+                        // found goal
+                        p[dst] = src;
+                        visited[dst] = !0;
+                        return e->weight;
+                    }
+                    else
+                    {
+                        int weight = graph_pathDfs(g, e->v2, dst, visited, p);
+                        if (weight)
+                        {
+                            p[e->v2] = src;
+                            // return smaller weight
+                            return e->weight < weight ? e->weight : weight;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < g->n; i++)
+            {
+                if (g->adjacencyMatrix[src][i] && !visited[i])
+                {
+                    if (i == dst)
+                    {
+                        // found goal
+                        p[dst] = src;
+                        visited[i] = !0;
+                        return g->adjacencyMatrix[src][i];
+                    }
+                    else
+                    {
+                        int weight = graph_pathDfs(g, i, dst, visited, p);
+                        if (weight)
+                        {
+                            p[i] = src;
+                            // return smaller weight
+                            return g->adjacencyMatrix[src][i] < weight ? g->adjacencyMatrix[src][i] : i;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+int graph_pathDfsStart(graph *g, int src, int dst, int *p)
+{
+    char *visited = malloc(g->n * sizeof(char));
+    for (int i = 0; i < g->n; i++)
+    {
+        visited[i] = 0;
+        p[i] = -1;
+    }
+
+    return graph_pathDfs(g, src, dst, visited, p);
 }
 
 typedef struct
@@ -396,7 +450,7 @@ int *graph_dijkstra(graph *g, int src)
         // relax
         if (g->adjacencyMode)
         {
-            weightedEdge *e = NULL;
+            edge *e = NULL;
             dynarr_iterator it = dynarr_iterator_new(g->adjacencyLists + cur->v);
 
             while ((e = dynarr_iterator_next(&it)))
@@ -441,4 +495,19 @@ int *graph_dijkstra(graph *g, int src)
     mheap_freeDeep(&q);
     free(d);
     return p;
+}
+
+graph graph_fordFulkerson(graph *g, int srcIdx, int dst, int *maxFlowRet)
+{
+    graph ret = graph_copy(g);
+    int maxFlow = 0;
+
+    int src = g->sources[srcIdx];
+
+    if (maxFlowRet)
+    {
+        *maxFlowRet = maxFlow;
+    }
+
+    return ret;
 }
