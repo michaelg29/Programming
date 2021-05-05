@@ -1,5 +1,6 @@
 #include "graph.h"
 #include "minheap.h"
+#include "strstream.h"
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -215,7 +216,6 @@ graph graph_copy(graph *g)
     return ret;
 }
 
-#include "strstream.h"
 char *graph_toString(graph *g)
 {
     strstream ret = strstream_alloc(g->n);
