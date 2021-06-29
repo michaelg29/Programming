@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <process.h>
+#include <stdatomic.h>
 
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -15,7 +16,34 @@
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "27015"
 
-int __cdecl main(int argc, char **argv) 
+_Atomic char running = 0;
+
+DWORD WINAPI receiveThread(LPVOID lpParam) {
+    SOCKET client = *(SOCKET*)lpParam;
+
+    char recvbuf[DEFAULT_BUFLEN];
+    int iResult;
+
+    do {
+        iResult = recv(client, recvbuf, DEFAULT_BUFLEN, 0);
+        recvbuf[iResult] = '\0';
+        if ( iResult > 0 ) {
+            printf("Bytes received (%d): %s\n", iResult, recvbuf);
+        }
+        else if ( iResult == 0 ) {
+            printf("Connection closed\n");
+            running = 0;
+            break;
+        }
+        else {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+        }
+    } while (running && iResult > 0);
+
+    return 0;
+}
+
+int main(int argc, char **argv) 
 {
     WSADATA wsaData;
     SOCKET ConnectSocket = INVALID_SOCKET;
@@ -59,34 +87,47 @@ int __cdecl main(int argc, char **argv)
         return 1;
     }
 
-    // Send an initial buffer
-    iResult = send( ConnectSocket, sendbuf, (int)strlen(sendbuf), 0 );
-    if (iResult == SOCKET_ERROR) {
-        printf("send failed with error: %d\n", WSAGetLastError());
-        closesocket(ConnectSocket);
-        WSACleanup();
-        return 1;
+    running = !0;
+
+    // start receive thread
+    DWORD thrdId;
+    HANDLE recvThread = CreateThread(
+        NULL,
+        0,
+        receiveThread,
+        &ConnectSocket, // parameter
+        0,
+        &thrdId
+    );
+
+    if (recvThread) {
+        printf("Receive thread started with thread ID: %d\n", thrdId);
+    }
+    else {
+        printf("Receive thread failed: %d\n", GetLastError());
     }
 
-    printf("Bytes Sent: %ld\n", iResult);
+    // send loop
+    while (running) {
+        scanf("%s", recvbuf);
+        recvbuflen = strlen(recvbuf);
 
-    //_beginthread(CALLBACK, 0, ARG);
+        iResult = send(ConnectSocket, recvbuf, recvbuflen, 0);
 
-    // Receive until the peer closes the connection
-    do {
+        if (iResult != recvbuflen) {
+            break;
+        }
+        else if (!memcmp(recvbuf, "/quit", 5)) {
+            running = 0;
+            break;
+        }
+    }
 
-        iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-        recvbuf[iResult] = '\0';
-        if ( iResult > 0 )
-            printf("Bytes received (%d): %s\n", iResult, recvbuf);
-        else if ( iResult == 0 )
-            printf("Connection closed\n");
-        else
-            printf("recv failed with error: %d\n", WSAGetLastError());
+    if (CloseHandle(recvThread)) {
+        printf("Receive thread closed successfully.\n");
+    }
 
-    } while( iResult > 0 );
-
-    // shutdown the connection since no more data will be sent
+    // shutdown the connection
     iResult = shutdown(ConnectSocket, SD_BOTH);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
