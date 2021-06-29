@@ -13,7 +13,7 @@
 #define BUFLEN 512
 #define PORT 27015
 #define ADDRESS "127.0.0.1" // aka "localhost"
-#define MAX_CLIENTS 2
+#define MAX_CLIENTS 5
 
 int main()
 {
@@ -96,7 +96,9 @@ int main()
 
     char *welcome = "Welcome to the server :)\n";
     int welcomeLength = strlen(welcome);
-    char *goodbye = "Goodnight.";
+    char *full = "Sorry, the server is full :(\n";
+    int fullLength = strlen(full);
+    char *goodbye = "Goodnight.\n";
     int goodbyeLength = strlen(goodbye);
 
     // clear client array
@@ -148,19 +150,18 @@ int main()
             printf("Client connected at %s:%d\n",
                    inet_ntoa(clientAddr.sin_addr), ntohs(clientAddr.sin_port));
 
-            // send welcome
-            sendRes = send(sd, welcome, welcomeLength, 0);
-            if (sendRes != welcomeLength)
-            {
-                printf("Error sending: %d\n", WSAGetLastError());
-                shutdown(sd, SD_BOTH);
-                closesocket(sd);
-            }
-
             // add to array
             if (curNoClients >= MAX_CLIENTS)
             {
                 printf("Full\n");
+
+                // send overflow message
+                sendRes = send(sd, full, fullLength, 0);
+                if (sendRes != fullLength)
+                {
+                    printf("Error sending: %d\n", WSAGetLastError());
+                }
+
                 shutdown(sd, SD_BOTH);
                 closesocket(sd);
             }
@@ -176,6 +177,15 @@ int main()
                         curNoClients++;
                         break;
                     }
+                }
+
+                // send welcome
+                sendRes = send(sd, welcome, welcomeLength, 0);
+                if (sendRes != welcomeLength)
+                {
+                    printf("Error sending: %d\n", WSAGetLastError());
+                    shutdown(sd, SD_BOTH);
+                    closesocket(sd);
                 }
             }
         }
