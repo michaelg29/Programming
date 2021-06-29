@@ -1,42 +1,38 @@
 #include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdatomic.h>
-#include <conio.h>
 #include <process.h>
 
-typedef struct {
-    int *a;
-    int id;
-} data;
-
-unsigned int func(void *arg) {
-    data *d = (data*)arg;
-    printf("Thread %d started\n", d->id);
-
-    for (int i = 0; i < 10; i++) {
-        (*(d->a))++;
-        printf("Thread %d incrementing to %d\n", d->id, *(d->a));
-    }
-
-    _endthread();
-
-    return d->id;
+DWORD WINAPI func(LPVOID lpParam) {
+    printf("The parameter: %u.\n", *(DWORD*)lpParam);
+    return 0;
 }
 
 int main() {
-    int a = 0;
+    DWORD dwThreadId, dwThrdParam = 1;
+    HANDLE hThread;
+    int x;
 
-    data d1 = { &a, 1 };
-    data d2 = { &a, 2 };
+    for (x = 1; x <= 10; x++) {
+        hThread = CreateThread(
+            NULL,
+            0,
+            func,
+            &dwThrdParam, // parameter
+            0,
+            &dwThreadId // identifier
+        );
 
-    printf("Beginning...\n");
+        if (hThread) {
+            printf("CreateThread() worked with thread ID: %d\n", dwThreadId);
+        } else {
+            printf("CreateThread() failed, error: %d.\n", GetLastError());
+        }
 
-    unsigned id1;
-    unsigned threadid1 = _beginthreadex(0, 0, func, &d1, 0, &id1);
-    unsigned id2;
-    unsigned threadid2 = _beginthreadex(0, 0, func, &d2, 0, &id2);
+        if (CloseHandle(hThread)) {
+            printf("Handle closed successfully.\n");
+        }
+    }
 
-    CloseHandle(&threadid1);
-    CloseHandle(&threadid2);
+    return 0;
 }
