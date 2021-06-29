@@ -43,11 +43,45 @@ DWORD WINAPI receiveThread(LPVOID lpParam) {
     return 0;
 }
 
+DWORD WINAPI sendThreadFunc(LPVOID lpParam) {
+    SOCKET client = *(SOCKET*)lpParam;
+
+    char sendbuf[DEFAULT_BUFLEN];
+    int sendbuflen;
+    int iResult;
+
+    // send loop
+    while (running) {
+        scanf("%s", sendbuf);
+
+        if (!running) {
+            break;
+        }
+
+        sendbuflen = strlen(sendbuf);
+
+        iResult = send(client, sendbuf, sendbuflen, 0);
+
+        if (iResult != sendbuflen) {
+            break;
+        }
+        else if (!memcmp(sendbuf, "/leave", 6)) {
+            running = 0;
+            break;
+        }
+        else if (!memcmp(sendbuf, "/quit", 5)) {
+            running = 0;
+            break;
+        }
+    }
+
+    return 0;
+}
+
 int main(int argc, char **argv) 
 {
     WSADATA wsaData;
-    SOCKET ConnectSocket = INVALID_SOCKET;
-    const char *sendbuf = "this is a test";
+    SOCKET client = INVALID_SOCKET;
     char recvbuf[DEFAULT_BUFLEN];
     int iResult;
     int recvbuflen = DEFAULT_BUFLEN;
@@ -67,21 +101,21 @@ int main(int argc, char **argv)
     addr.sin_port = htons(27015);
 
         // Create a SOCKET for connecting to server
-    ConnectSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (ConnectSocket == INVALID_SOCKET) {
+    client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (client == INVALID_SOCKET) {
         printf("socket failed with error: %ld\n", WSAGetLastError());
         WSACleanup();
         return 1;
     }
 
     // Connect to server.
-    iResult = connect(ConnectSocket, (struct sockaddr *)&addr, sizeof(addr));
+    iResult = connect(client, (struct sockaddr *)&addr, sizeof(addr));
     if (iResult == SOCKET_ERROR) {
-        closesocket(ConnectSocket);
-        ConnectSocket = INVALID_SOCKET;
+        closesocket(client);
+        client = INVALID_SOCKET;
     }
 
-    if (ConnectSocket == INVALID_SOCKET) {
+    if (client == INVALID_SOCKET) {
         printf("Unable to connect to server!\n");
         WSACleanup();
         return 1;
@@ -91,53 +125,53 @@ int main(int argc, char **argv)
 
     // start receive thread
     DWORD thrdId;
-    HANDLE recvThread = CreateThread(
+    HANDLE sendThread = CreateThread(
         NULL,
         0,
-        receiveThread,
-        &ConnectSocket, // parameter
+        sendThreadFunc,
+        &client, // parameter
         0,
         &thrdId
     );
 
-    if (recvThread) {
-        printf("Receive thread started with thread ID: %d\n", thrdId);
+    if (sendThread) {
+        printf("Send thread started with thread ID: %d\n", thrdId);
     }
     else {
-        printf("Receive thread failed: %d\n", GetLastError());
+        printf("Send thread failed: %d\n", GetLastError());
     }
 
-    // send loop
-    while (running) {
-        scanf("%s", recvbuf);
-        recvbuflen = strlen(recvbuf);
-
-        iResult = send(ConnectSocket, recvbuf, recvbuflen, 0);
-
-        if (iResult != recvbuflen) {
-            break;
+    do {
+        iResult = recv(client, recvbuf, DEFAULT_BUFLEN, 0);
+        recvbuf[iResult] = '\0';
+        if ( iResult > 0 ) {
+            printf("Bytes received (%d): %s\n", iResult, recvbuf);
         }
-        else if (!memcmp(recvbuf, "/quit", 5)) {
+        else if ( iResult == 0 ) {
+            printf("Connection closed\n");
             running = 0;
             break;
         }
-    }
+        else {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+        }
+    } while (running && iResult > 0);
 
-    if (CloseHandle(recvThread)) {
-        printf("Receive thread closed successfully.\n");
+    if (CloseHandle(sendThread)) {
+        printf("Send thread closed successfully.\n");
     }
 
     // shutdown the connection
-    iResult = shutdown(ConnectSocket, SD_BOTH);
+    iResult = shutdown(client, SD_BOTH);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
-        closesocket(ConnectSocket);
+        closesocket(client);
         WSACleanup();
         return 1;
     }
 
     // cleanup
-    closesocket(ConnectSocket);
+    closesocket(client);
     WSACleanup();
 
     return 0;
