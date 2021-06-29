@@ -94,7 +94,7 @@ int main()
 
     char recvbuf[BUFLEN];
 
-    char *welcome = "Welcome to the server :)";
+    char *welcome = "Welcome to the server :)\n";
     int welcomeLength = strlen(welcome);
     char *goodbye = "Goodnight.";
     int goodbyeLength = strlen(goodbye);
