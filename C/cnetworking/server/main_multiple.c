@@ -168,7 +168,8 @@ int main()
             else
             {
                 // scan through list
-                for (int i = 0; i < MAX_CLIENTS; i++)
+                int i;
+                for (i = 0; i < MAX_CLIENTS; i++)
                 {
                     if (!clients[i])
                     {
@@ -186,6 +187,8 @@ int main()
                     printf("Error sending: %d\n", WSAGetLastError());
                     shutdown(sd, SD_BOTH);
                     closesocket(sd);
+                    clients[i] = 0;
+                    curNoClients--;
                 }
             }
         }
