@@ -30,13 +30,9 @@ RigidBody::RigidBody(std::string modelId, glm::vec3 size, float mass, glm::vec3 
     transformation functions
 */
 
-#include <iostream>
-
 // update position with velocity and acceleration
 void RigidBody::update(float dt) {
-    lastCollision += dt;
-
-    pos += velocity * dt;
+    pos += velocity * dt + 0.5f * acceleration * (dt * dt);
     velocity += acceleration * dt;
 
     // calculate rotation matrix
@@ -48,6 +44,8 @@ void RigidBody::update(float dt) {
     model = glm::scale(model, size); // M = M * S = T * R * S
 
     normalModel = glm::transpose(glm::inverse(glm::mat3(model)));
+
+    lastCollision += dt;
 }
 
 // apply a force
@@ -92,13 +90,14 @@ void RigidBody::transferEnergy(float joules, glm::vec3 direction) {
     velocity += joules > 0 ? deltaV : -deltaV;
 }
 
+/*
+    collisions
+*/
 void RigidBody::handleCollision(RigidBody* inst, glm::vec3 norm) {
-    // maintain all energy
     if (lastCollision >= COLLISION_THRESHOLD || lastCollisionID != inst->instanceId) {
-        std::cout << glm::length(this->velocity) << " => ";
-        this->velocity = glm::reflect(this->velocity, glm::normalize(norm));
-        std::cout << glm::length(this->velocity) << std::endl;
-        lastCollision = 0.0f;
+        this->velocity = glm::reflect(this->velocity, glm::normalize(norm)); // register (elastic) collision
+        lastCollision = 0.0f; // reset counter
     }
+
     lastCollisionID = inst->instanceId;
 }

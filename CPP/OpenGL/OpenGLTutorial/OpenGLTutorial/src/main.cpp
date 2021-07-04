@@ -70,7 +70,7 @@ int main() {
     std::cout << "Hello, OpenGL!" << std::endl;
 
     // construct scene
-    scene = Scene(3, 3, "OpenGL Tutorial", 1920, 1080);
+    scene = Scene(3, 3, "OpenGL Tutorial", 1200, 720);
     // test if GLFW successfully started and created window
     if (!scene.init()) {
         std::cout << "Could not open window" << std::endl;
@@ -87,7 +87,7 @@ int main() {
 
     Shader shader(true, "instanced/instanced.vs", "object.fs");
     Shader boxShader(false, "instanced/box.vs", "instanced/box.fs");
-
+    
     Shader dirShadowShader(false, "shadows/dirSpotShadow.vs",
         "shadows/dirShadow.fs");
     Shader spotShadowShader(false, "shadows/dirSpotShadow.vs",
@@ -190,7 +190,7 @@ int main() {
     }
 
     // instantiate the brickwall plane
-    scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f,
+    scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f, 
         { 0.0f, 0.0f, 2.0f }, { -1.0f, glm::pi<float>(), 0.0f });
 
     // instantiate instances
@@ -293,7 +293,7 @@ void launchItem(float dt) {
     RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.1f), 1.0f, cam.cameraPos);
     if (rb) {
         // instance generated successfully
-        rb->transferEnergy(20.0f, cam.cameraFront);
+        rb->transferEnergy(25.0f, cam.cameraFront);
         rb->applyAcceleration(Environment::gravitationalAcceleration);
     }
 }

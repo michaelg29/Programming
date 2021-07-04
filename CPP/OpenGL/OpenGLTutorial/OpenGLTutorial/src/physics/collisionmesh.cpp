@@ -257,7 +257,7 @@ bool Face::collidesWithSphere(RigidBody* thisRB, BoundingRegion& br, glm::vec3& 
 	if (abs(distance) < br.radius) {
 		glm::vec3 circCenter = br.center + distance * unitN;
 
-		retNorm = circCenter - br.center;
+		retNorm = unitN;
 
 		return faceContainsPointRange(P2 - P1, P3 - P1, norm, circCenter - P1, br.radius);
 	}
