@@ -45,7 +45,7 @@ public:
     std::string modelId;
     std::string instanceId;
 
-    // timer since last collision
+    // data of previous collision
     float lastCollision;
     std::string lastCollisionID;
 

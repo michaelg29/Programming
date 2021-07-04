@@ -3,9 +3,9 @@
 #include "../graphics/models/box.hpp"
 
 // calculate bounds of specified quadrant in bounding region
-void Octree::calculateBounds(BoundingRegion& out, Octant octant, BoundingRegion parentRegion) {
+void Octree::calculateBounds(BoundingRegion &out, Octant octant, BoundingRegion parentRegion) {
     // find min and max points of corresponding octant
-
+    
     glm::vec3 center = parentRegion.calculateCenter();
     if (octant == Octant::O1) {
         out = BoundingRegion(center, parentRegion.max);
@@ -57,7 +57,7 @@ Octree::node::node(BoundingRegion bounds, std::vector<BoundingRegion> objectList
 */
 
 // add instance to pending queue
-void Octree::node::addToPending(RigidBody* instance, Model* model) {
+void Octree::node::addToPending(RigidBody* instance, Model *model) {
     // get all bounding regions of model and put them in queue
     for (BoundingRegion br : model->boundingRegions) {
         br.instance = instance;
@@ -72,7 +72,7 @@ void Octree::node::build() {
     BoundingRegion octants[NO_CHILDREN];
     glm::vec3 dimensions = region.calculateDimensions();
     std::vector<BoundingRegion> octLists[NO_CHILDREN]; // array of lists of objects in each octant
-
+    
     /*
         termination conditions (don't subdivide further)
         - 1 or less objects (ie an empty leaf node or node with 1 object)
@@ -126,7 +126,7 @@ void Octree::node::build() {
             hasChildren = true;
         }
     }
-
+    
 setVars:
     // set state variables
     treeBuilt = true;
@@ -139,7 +139,7 @@ setVars:
 }
 
 // update objects in tree (called during each iteration of main loop)
-void Octree::node::update(Box& box) {
+void Octree::node::update(Box &box) {
     if (treeBuilt && treeReady) {
         box.positions.push_back(region.calculateCenter());
         box.sizes.push_back(region.calculateDimensions());
@@ -224,7 +224,7 @@ void Octree::node::update(Box& box) {
                 }
             }
         }
-
+        
         // move moved objects into new nodes
         BoundingRegion movedObj; // placeholder
         while (movedObjects.size() != 0) {
@@ -421,7 +421,9 @@ void Octree::node::checkCollisionsSelf(BoundingRegion obj) {
                                 std::cout << "Case 1: Instance " << br.instance->instanceId
                                     << " (" << br.instance->modelId << ") collides with instance "
                                     << obj.instance->instanceId << " (" << obj.instance->modelId << ")" << std::endl;
+                                
                                 obj.instance->handleCollision(br.instance, norm);
+                                
                                 break;
                             }
                         }
@@ -439,7 +441,9 @@ void Octree::node::checkCollisionsSelf(BoundingRegion obj) {
                             std::cout << "Case 2: Instance " << br.instance->instanceId
                                 << " (" << br.instance->modelId << ") collides with instance "
                                 << obj.instance->instanceId << " (" << obj.instance->modelId << ")" << std::endl;
+                            
                             obj.instance->handleCollision(br.instance, norm);
+                            
                             break;
                         }
                     }
@@ -460,7 +464,9 @@ void Octree::node::checkCollisionsSelf(BoundingRegion obj) {
                             std::cout << "Case 3: Instance " << br.instance->instanceId
                                 << " (" << br.instance->modelId << ") collides with instance "
                                 << obj.instance->instanceId << " (" << obj.instance->modelId << ")" << std::endl;
+                            
                             obj.instance->handleCollision(br.instance, norm);
+
                             break;
                         }
                     }
@@ -471,7 +477,10 @@ void Octree::node::checkCollisionsSelf(BoundingRegion obj) {
                     std::cout << "Case 4: Instance " << br.instance->instanceId
                         << " (" << br.instance->modelId << ") collides with instance "
                         << obj.instance->instanceId << " (" << obj.instance->modelId << ")" << std::endl;
-                    obj.instance->handleCollision(br.instance, obj.center - br.center);
+                
+                    norm = obj.center - br.center;
+
+                    obj.instance->handleCollision(br.instance, norm);
                 }
             }
         }
