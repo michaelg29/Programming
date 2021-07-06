@@ -501,6 +501,64 @@ void Octree::node::checkCollisionsChildren(BoundingRegion obj) {
     }
 }
 
+// check collisions with a ray
+BoundingRegion *Octree::node::checkCollisionsRay(Ray r, float &tmin) {
+    float tmin_tmp = std::numeric_limits<float>::max();
+    float tmax_tmp = std::numeric_limits<float>::lowest();
+    float t_tmp = tmin_tmp;
+
+    // check current node
+    if (r.intersectsBoundingRegion(region, tmin_tmp, tmax_tmp)) {
+        if (tmin_tmp >= tmin) {
+            // found nearer collision
+            return nullptr;
+        }
+
+        BoundingRegion* ret = nullptr, *ret_tmp = nullptr;
+
+        // check objects in the node
+        for (BoundingRegion& br : this->objects) {
+            if (br.collisionMesh) {
+                t_tmp = std::numeric_limits<float>::max();
+                // check collision mesh
+                if (r.intersectsMesh(br.collisionMesh, br.instance, t_tmp)) {
+                    if (t_tmp < tmin) {
+                        tmin = t_tmp;
+                        ret = &br;
+                    }
+                }
+            }
+            else {
+                tmin_tmp = std::numeric_limits<float>::max();
+                tmax_tmp = std::numeric_limits<float>::lowest();
+                // check against BR
+                if (r.intersectsBoundingRegion(br, tmin_tmp, tmax_tmp)) {
+                    if (tmin_tmp < tmin) {
+                        tmin = fminf(tmin_tmp, tmax_tmp);
+                        ret = &br;
+                    }
+                }
+            }
+        }
+
+        // check children
+        if (children) {
+            for (int flags = activeOctants, i = 0;
+                flags > 0;
+                flags >>= 1, i++) {
+                ret_tmp = children[i]->checkCollisionsRay(r, tmin);
+                if (ret_tmp) {
+                    ret = ret_tmp;
+                }
+            }
+        }
+
+        return ret;
+    }
+
+    return nullptr;
+}
+
 // destroy object (free memory)
 void Octree::node::destroy() {
     // clearing out children

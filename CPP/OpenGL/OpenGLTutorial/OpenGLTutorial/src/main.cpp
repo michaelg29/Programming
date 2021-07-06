@@ -42,6 +42,8 @@
 #include "io/camera.h"
 
 #include "algorithms/states.hpp"
+#include "algorithms/bounds.h"
+#include "algorithms/ray.h"
 
 #include "scene.h"
 
@@ -69,8 +71,18 @@ std::string Shader::defaultDirectory = "assets/shaders";
 int main() {
     std::cout << "Hello, OpenGL!" << std::endl;
 
+    Ray r(glm::vec3(0.0f), glm::vec3(1.0f));
+    //BoundingRegion br(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(3.0f, 3.0f, 3.0f));
+    BoundingRegion br(glm::vec3(1.0f), glm::vec3(2.0f));
+
+    float tmin, tmax;
+    bool b = r.intersectsBoundingRegion(br, tmin, tmax);
+    std::cout << b << ' ' << tmin << ' ' << tmax << std::endl;
+
+    // =============================================================================================
+
     // construct scene
-    scene = Scene(3, 3, "OpenGL Tutorial", 1200, 720);
+    scene = Scene(3, 3, "OpenGL Tutorial", 1920, 1200);
     // test if GLFW successfully started and created window
     if (!scene.init()) {
         std::cout << "Could not open window" << std::endl;
@@ -298,6 +310,20 @@ void launchItem(float dt) {
     }
 }
 
+void emitRay() {
+    Ray r(cam.cameraPos, cam.cameraFront);
+
+    float tmin = std::numeric_limits<float>::max();
+    BoundingRegion* intersected = scene.octree->checkCollisionsRay(r, tmin);
+    if (intersected) {
+        std::cout << "Hits: " << intersected->instance->instanceId << " at t = " << tmin << std::endl;
+        scene.markForDeletion(intersected->instance->instanceId);
+    }
+    else {
+        std::cout << "No hit" << std::endl;
+    }
+}
+
 void processInput(double dt) {
     // process input with cameras
     scene.processInput(dt);
@@ -322,6 +348,10 @@ void processInput(double dt) {
     // launch sphere
     if (Keyboard::keyWentDown(GLFW_KEY_F)) {
         launchItem(dt);
+    }
+
+    if (Mouse::buttonWentDown(GLFW_MOUSE_BUTTON_1)) {
+        emitRay();
     }
 
     // determine if each lamp should be toggled
