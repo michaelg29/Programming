@@ -25,7 +25,7 @@ namespace States {
             00001000 == 1 << target
         */
 
-        return (*states & (1 << target)) == (1 << target);
+        return (*states & (1 << target));
     }
 
     // activate state
