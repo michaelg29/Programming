@@ -70,10 +70,10 @@ bool Ray::intersectsMesh(CollisionMesh* mesh, RigidBody* rb, float &t) {
 
         glm::vec3 U1 = origin - P1;
 
-        char intCase = (char)linePlaneIntersection(glm::vec3(0.0f), norm, U1, dir, tmp);
-        if (intCase > 1) {
+        LinePlaneIntCase intCase = linePlaneIntersection(glm::vec3(0.0f), norm, U1, dir, tmp);
+        if ((char)intCase > 1) {
             // intersection with the infinite plane
-            if (tmp < 0.0f) {
+            if (tmp < 0.0f || t < tmp) {
                 continue;
             }
 
