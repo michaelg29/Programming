@@ -518,26 +518,31 @@ BoundingRegion *Octree::node::checkCollisionsRay(Ray r, float &tmin) {
 
         // check objects in the node
         for (BoundingRegion& br : this->objects) {
-            if (br.collisionMesh) {
-                t_tmp = std::numeric_limits<float>::max();
-                // check collision mesh
-                if (r.intersectsMesh(br.collisionMesh, br.instance, t_tmp)) {
-                    if (t_tmp < tmin) {
-                        tmin = t_tmp;
-                        ret = &br;
+            tmin_tmp = std::numeric_limits<float>::max();
+            tmax_tmp = std::numeric_limits<float>::lowest();
+            // check against BR (coarse check)
+            if (r.intersectsBoundingRegion(br, tmin_tmp, tmax_tmp)) {
+                std::cout << "Passed coarse check, ";
+                if (br.collisionMesh) {
+                    // fine grain check
+                    t_tmp = std::numeric_limits<float>::max();
+                    // check collision mesh
+                    if (r.intersectsMesh(br.collisionMesh, br.instance, t_tmp)) {
+                        if (t_tmp < tmin) {
+                            tmin = t_tmp;
+                            ret = &br;
+                        }
                     }
                 }
-            }
-            else {
-                tmin_tmp = std::numeric_limits<float>::max();
-                tmax_tmp = std::numeric_limits<float>::lowest();
-                // check against BR
-                if (r.intersectsBoundingRegion(br, tmin_tmp, tmax_tmp)) {
+                else {
                     if (tmin_tmp < tmin) {
                         tmin = fminf(tmin_tmp, tmax_tmp);
                         ret = &br;
                     }
                 }
+            }
+            else {
+                std::cout << "Failed coarse check, ";
             }
         }
 
