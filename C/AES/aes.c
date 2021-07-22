@@ -92,6 +92,7 @@ void rightRotate(unsigned char *arr, int d, int len) {
 
 // perform Galois Field multiplication of two bytes in GF(2^8)
 unsigned char gMul(unsigned char g1, unsigned char g2) {
+    // taken and documented from https://en.wikipedia.org/wiki/Rijndael_MixColumns
     unsigned char p = 0;
 
     for (int i = 0; i < 8; i++) {
@@ -102,7 +103,7 @@ unsigned char gMul(unsigned char g1, unsigned char g2) {
         bool MSB = (g1 & 0x80);
         g1 <<= 1; // rotate g1 left (multiply by x)
         if (MSB) { // if overflow, reduce
-            g1 ^= 0x1B; // mod (x^8 + x^4 + x^3 + x + 1) = AES irreducible polynomial
+            g1 ^= 0x1B; // 00011011 => mod (x^8 + x^4 + x^3 + x + 1) = AES irreducible polynomial
         }
         g2 >>= 1; // rotate g2 right (divide by x)
     }
