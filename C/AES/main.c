@@ -32,21 +32,21 @@ int main()
     unsigned char *dec = NULL;
 
     int noBlocks = aes_encrypt(txt, 37, key, 16, &cipher);
-    aes_decrypt(cipher, noBlocks, key, 16, &dec);
-    int padLength = dec[noBlocks * BLOCK_LEN - 1];
+    int len = aes_decrypt(cipher, noBlocks, key, 16, &dec);
+    //int padLength = dec[noBlocks * BLOCK_LEN - 1];
 
     printf("Plaintext: ");
     //printCharArr(txt, 32, false);
     printString(txt, 37);
-    printf("Key: ");
+    printf("Key:       ");
     //printCharArr(key, 16, false);
     printString(key, 16);
-    printf("Cipher: ");
+    printf("Cipher:    ");
     //printCharArr(cipher, 32, false);
     printString(cipher, noBlocks * BLOCK_LEN);
     printf("Decrypted: ");
     //printCharArr(dec, 32, false);
-    printString(dec, noBlocks * BLOCK_LEN - padLength);
+    printString(dec, len);
 
     // proof of inverse matrix
     // aes_invMixColMat will be the identity matrix (A .* A^-1 = I)

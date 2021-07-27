@@ -351,7 +351,7 @@ void aes_decrypt_block(unsigned char *in_cipher, int n,
     }
 }
 
-void aes_decrypt(unsigned char *in_cipher, int noBlocks,
+int aes_decrypt(unsigned char *in_cipher, int noBlocks,
                     unsigned char *in_key, int keylen,
                     unsigned char **out) {
     // determine number of rounds
@@ -371,12 +371,23 @@ void aes_decrypt(unsigned char *in_cipher, int noBlocks,
         malloc((nr + 1) * sizeof(unsigned char[BLOCK_SIDE][BLOCK_SIDE]));
     aes_generateKeySchedule(in_key, keylen, subkeys);
 
-    *out = malloc(noBlocks * BLOCK_LEN * sizeof(unsigned char));
+    unsigned char *paddedOut = malloc(noBlocks * BLOCK_LEN * sizeof(unsigned char));
     for (int i = 0; i < noBlocks; i++) {
-        aes_decrypt_block(in_cipher + (i << 4), BLOCK_LEN, subkeys, nr, *out + (i << 4));
+        aes_decrypt_block(in_cipher + (i << 4), BLOCK_LEN, subkeys, nr, paddedOut + (i << 4));
     }
 
     free(subkeys);
+
+    // reallocate to account for padding
+    unsigned char noPadding = paddedOut[noBlocks * BLOCK_LEN - 1];
+
+    *out = malloc((noBlocks * BLOCK_LEN - noPadding) * sizeof(unsigned char));
+    memcpy(*out, paddedOut, (noBlocks * BLOCK_LEN - noPadding) * sizeof(unsigned char));
+
+    // free padded output
+    free(paddedOut);
+
+    return noBlocks * BLOCK_LEN - noPadding;
 }
 
 /*
