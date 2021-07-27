@@ -77,7 +77,7 @@ void aes_decrypt_block(unsigned char *in_cipher, int n,
                     unsigned char subkeys[][BLOCK_SIDE][BLOCK_SIDE], int nr,
                     unsigned char out[BLOCK_LEN]);
 
-void aes_decrypt(unsigned char *in_cipher, int noBlocks,
+int aes_decrypt(unsigned char *in_cipher, int noBlocks,
                     unsigned char *in_key, int keylen,
                     unsigned char **out);
 
