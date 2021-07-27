@@ -1,27 +1,55 @@
-#include "aes.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() {
-    // unsigned char x[BLOCK_LEN] = "Two One Nine Two";
-    // unsigned char y[BLOCK_LEN]; // { 29 C3 50 5F 57 14 20 F6 40 22 99 B3 1A 02 D7 3A }
-    // unsigned char k[BLOCK_LEN] = "Thats my Kung Fu";
+#include "aes.h"
 
-    //https://csrc.nist.gov/csrc/media/projects/cryptographic-algorithm-validation-program/documents/aes/aesavs.pdf
+char hex[16] = "0123456789ABCDEF";
+void printCharArr(unsigned char *arr, int len, bool asChar)
+{
+    printf("{ ");
+    for (int i = 0; i < len; i++)
+    {
+        printf("%c%c ", hex[arr[i] >> 4], hex[arr[i] & 0x0f]);
+    }
+    printf("}\n");
+}
 
-    unsigned char x[16] = "Two One Nine Two";
-    unsigned char *y = NULL;
-    unsigned char k[BLOCK_LEN] = "Thats my Kung Fu";
+void printString(unsigned char *arr, int len) {
+    for (int i = 0; i < len; i++)
+    {
+        printf("%c%c", hex[arr[i] >> 4], hex[arr[i] & 0x0f]);
+    }
+    printf("\n");
+}
 
-    int n = aes_encrypt(x, 16, k, 128, &y);
+int main()
+{
+    printf("Hello, world!\n");
 
-    printf("=======\n");
+    unsigned char *txt = "asidlhgfyiuyguaysdgbagasdcvetwee";
+    unsigned char *key = "abcdefghijklmnop";
+    unsigned char *cipher = NULL;
+    unsigned char *dec = NULL;
+
+    int noBlocks = aes_encrypt(txt, 32, key, 16, &cipher);
+    aes_decrypt(cipher, noBlocks, key, 16, &dec);
+
     printf("Plaintext: ");
-    printCharArr(x, 16, false);
+    //printCharArr(txt, 32, false);
+    printString(txt, 32);
     printf("Key: ");
-    printCharArr(k, BLOCK_LEN, false);
-    printf("Encrypted: ");
-    printCharArr(y, 16, false);   
+    //printCharArr(key, 16, false);
+    printString(key, 16);
+    printf("Cipher: ");
+    //printCharArr(cipher, 32, false);
+    printString(cipher, 32);
+    printf("Decrypted: ");
+    //printCharArr(dec, 32, false);
+    printString(dec, 32);
+
+    // proof of inverse matrix
+    // aes_invMixColMat will be the identity matrix (A .* A^-1 = I)
+    //aes_mixCols(aes_invMixColMat);
 
     return 0;
 }
