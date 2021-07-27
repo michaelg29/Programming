@@ -189,7 +189,16 @@ void aes_encrypt_block(unsigned char *in_text, int n,
     {
         for (int r = 0; r < BLOCK_SIDE; r++)
         {
-            state[r][c] = (i < n) ? in_text[i++] : 0;
+            if (i < n) {
+                state[r][c] = in_text[i++];
+            }
+            else if (i == n) {
+                state[r][c] = 0x80;
+                i++;
+            }
+            else {
+                state[r][c] = 0;
+            }
         }
     }
 
@@ -247,32 +256,23 @@ int aes_encrypt(unsigned char *in_text, int n,
     int extra = n & 0x0f;  // n % BLOCK_LEN
 
     // allocate output
-    int outLen = noBlocks * BLOCK_LEN;
-    if (extra)
-    {
-        *out = malloc((noBlocks + 1) * BLOCK_LEN * sizeof(unsigned char));
-        outLen += BLOCK_LEN;
-
-        // encrypt extra text
-        aes_encrypt_block(in_text + (noBlocks << 4), extra,
-                          subkeys, nr,
-                          *out + (noBlocks << 4));
-    }
-    else
-    {
-        *out = malloc(noBlocks * BLOCK_LEN * sizeof(unsigned char));
-    }
+    int outLen = (noBlocks + 1) * BLOCK_LEN;
+    *out = malloc(outLen * sizeof(unsigned char));
 
     // encrypt complete blocks
-    // i is the cursor position
     for (int i = 0; i < noBlocks; i++)
     {
         aes_encrypt_block(in_text + (i << 4), BLOCK_LEN, subkeys, nr, *out + (i << 4));
     }
 
+    // encrypt extra/dummy block
+    aes_encrypt_block(in_text + (noBlocks << 4), extra,
+        subkeys, nr,
+        *out + (noBlocks << 4));
+
     free(subkeys);
 
-    return noBlocks;
+    return noBlocks + 1;
 }
 
 /*

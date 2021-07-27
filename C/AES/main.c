@@ -26,12 +26,12 @@ int main()
 {
     printf("Hello, world!\n");
 
-    unsigned char *txt = "asidlhgfyiuyguaysdgbagasdcvetwee";
+    unsigned char *txt = "asidlhgfyiuyguaysdgbagasdcvetweeqwert";
     unsigned char *key = "abcdefghijklmnop";
     unsigned char *cipher = NULL;
     unsigned char *dec = NULL;
 
-    int noBlocks = aes_encrypt(txt, 32, key, 16, &cipher);
+    int noBlocks = aes_encrypt(txt, 37, key, 16, &cipher);
     aes_decrypt(cipher, noBlocks, key, 16, &dec);
 
     printf("Plaintext: ");
@@ -42,10 +42,10 @@ int main()
     printString(key, 16);
     printf("Cipher: ");
     //printCharArr(cipher, 32, false);
-    printString(cipher, 32);
+    printString(cipher, noBlocks * BLOCK_LEN);
     printf("Decrypted: ");
     //printCharArr(dec, 32, false);
-    printString(dec, 32);
+    printString(dec, noBlocks * BLOCK_LEN);
 
     // proof of inverse matrix
     // aes_invMixColMat will be the identity matrix (A .* A^-1 = I)
@@ -53,3 +53,6 @@ int main()
 
     return 0;
 }
+
+// 3B752E0772CE3B300FEE15DDC8F7191F99B5A4EFD9F02DC02A5C2B57C71506A4F23D135CD9B460AC0100F93D3937C410
+// 3B752E0772CE3B300FEE15DDC8F7191F99B5A4EFD9F02DC02A5C2B57C71506A48E64CE873F174DBB2423FCD814580E15
