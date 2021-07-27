@@ -189,16 +189,10 @@ void aes_encrypt_block(unsigned char *in_text, int n,
     {
         for (int r = 0; r < BLOCK_SIDE; r++)
         {
-            if (i < n) {
-                state[r][c] = in_text[i++];
-            }
-            else if (i == n) {
-                state[r][c] = 0x80;
-                i++;
-            }
-            else {
-                state[r][c] = 0;
-            }
+            // use PKCS5 padding
+            state[r][c] = (i < n) ?
+                                in_text[i++] :
+                                BLOCK_LEN - n;
         }
     }
 
