@@ -19,6 +19,9 @@ typedef unsigned char bool;
 #define AES_192 192
 #define AES_256 256
 
+#define AES_ECB 0x01
+#define AES_CBC 0x02
+
 /*
     REFERENCE TABLES
 */
@@ -37,6 +40,9 @@ extern unsigned char aes_invMixColMat[BLOCK_SIDE][BLOCK_SIDE];
 
 // perform Galois Field multiplication of two bytes in GF(2^8)
 unsigned char galoisMul(unsigned char g1, unsigned char g2);
+
+// generate a random array
+void randomCharArray(unsigned char *arr, int n);
 
 // method to reverse an array between two bounds
 void reverseArray(unsigned char *arr, int i1, int i2);
@@ -58,11 +64,14 @@ void aes_mixCols(unsigned char state[BLOCK_SIDE][BLOCK_SIDE]);
 
 void aes_encrypt_block(unsigned char *in_text, int n,
                        unsigned char subkeys[][BLOCK_SIDE][BLOCK_SIDE], int nr,
+                       unsigned char iv[16],
                        unsigned char out[BLOCK_LEN]);
 
 int aes_encrypt(unsigned char *in_text, int n,
-                 unsigned char *in_key, int keylen,
-                 unsigned char **out);
+                unsigned char *in_key, int keylen,
+                unsigned char mode,
+                unsigned char iv[16],
+                unsigned char **out);
 
 /*
     AES DECRYPTION LAYERS
@@ -73,12 +82,15 @@ void aes_invByteSub(unsigned char state[BLOCK_SIDE][BLOCK_SIDE]);
 void aes_invShiftRows(unsigned char state[BLOCK_SIDE][BLOCK_SIDE]);
 void aes_invMixCols(unsigned char state[BLOCK_SIDE][BLOCK_SIDE]);
 
-void aes_decrypt_block(unsigned char *in_cipher, int n,
+void aes_decrypt_block(unsigned char *in_cipher,
                     unsigned char subkeys[][BLOCK_SIDE][BLOCK_SIDE], int nr,
+                    unsigned char iv[16],
                     unsigned char out[BLOCK_LEN]);
 
 int aes_decrypt(unsigned char *in_cipher, int noBlocks,
                     unsigned char *in_key, int keylen,
+                    unsigned char mode,
+                    unsigned char iv[16],
                     unsigned char **out);
 
 /*
