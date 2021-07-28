@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /*
     REFERENCE TABLES
@@ -118,6 +119,14 @@ unsigned char galoisMul(unsigned char g1, unsigned char g2)
     return p;
 }
 
+// generate a random array
+void randomCharArray(unsigned char *arr, int n) {
+    srand(time(0));
+    for (int i = 0; i < n; i++) {
+        arr[i] = rand() & 0xff;
+    }
+}
+
 /*
     AES ENCRYPTION LAYERS
 */
@@ -180,6 +189,7 @@ void aes_mixCols(unsigned char state[BLOCK_SIDE][BLOCK_SIDE])
 
 void aes_encrypt_block(unsigned char *in_text, int n,
                        unsigned char subkeys[][BLOCK_SIDE][BLOCK_SIDE], int nr,
+                       unsigned char iv[16],
                        unsigned char out[BLOCK_LEN])
 {
     // represent the state and key as a 4x4 table (read into columns)
@@ -191,8 +201,15 @@ void aes_encrypt_block(unsigned char *in_text, int n,
         {
             // use PKCS5 padding
             state[r][c] = (i < n) ?
-                                in_text[i++] :
+                                in_text[i] :
                                 BLOCK_LEN - n;
+
+            if (iv) {
+                // XOR with IV
+                state[r][c] ^= iv[i];
+            }
+
+            i++;
         }
     }
 
@@ -225,8 +242,10 @@ void aes_encrypt_block(unsigned char *in_text, int n,
 }
 
 int aes_encrypt(unsigned char *in_text, int n,
-                 unsigned char *in_key, int keylen,
-                 unsigned char **out)
+                unsigned char *in_key, int keylen,
+                unsigned char mode,
+                unsigned char iv[16],
+                unsigned char **out)
 {
     // determine number of rounds
     int nr = 10; // AES_128 by default
@@ -245,7 +264,6 @@ int aes_encrypt(unsigned char *in_text, int n,
         malloc((nr + 1) * sizeof(unsigned char[BLOCK_SIDE][BLOCK_SIDE]));
     aes_generateKeySchedule(in_key, keylen, subkeys);
 
-    // divide input into blocks
     int noBlocks = n >> 4; // n / BLOCK_LEN
     int extra = n & 0x0f;  // n % BLOCK_LEN
 
@@ -253,16 +271,29 @@ int aes_encrypt(unsigned char *in_text, int n,
     int outLen = (noBlocks + 1) * BLOCK_LEN;
     *out = malloc(outLen * sizeof(unsigned char));
 
-    // encrypt complete blocks
-    for (int i = 0; i < noBlocks; i++)
+    // encrypt blocks (last one is extra/dummy)
+    for (int i = 0; i <= noBlocks; i++)
     {
-        aes_encrypt_block(in_text + (i << 4), BLOCK_LEN, subkeys, nr, *out + (i << 4));
-    }
+        int len = (i < noBlocks) ?
+                    BLOCK_LEN :
+                    extra;
+        switch (mode) {
+            case AES_CBC:
+                if (!i) {
+                    // use passed in iv for first block
+                    aes_encrypt_block(in_text + (i << 4), len, subkeys, nr, iv, *out + (i << 4));
+                }
+                else {
+                    // use previous encrypted block as iv
+                    aes_encrypt_block(in_text + (i << 4), len, subkeys, nr, *out + ((i - 1) << 4), *out + (i << 4));
+                }
 
-    // encrypt extra/dummy block
-    aes_encrypt_block(in_text + (noBlocks << 4), extra,
-        subkeys, nr,
-        *out + (noBlocks << 4));
+                break;
+            default: // AES_ECB
+                aes_encrypt_block(in_text + (i << 4), len, subkeys, nr, NULL, *out + (i << 4));
+                break;
+        }
+    }
 
     free(subkeys);
 
@@ -311,15 +342,16 @@ void aes_invMixCols(unsigned char state[BLOCK_SIDE][BLOCK_SIDE]) {
     memcpy(state, out, BLOCK_SIDE * BLOCK_SIDE * sizeof(unsigned char));
 }
 
-void aes_decrypt_block(unsigned char *in_cipher, int n,
+void aes_decrypt_block(unsigned char *in_cipher,
                     unsigned char subkeys[][BLOCK_SIDE][BLOCK_SIDE], int nr,
+                    unsigned char iv[16],
                     unsigned char out[BLOCK_LEN]) {
     unsigned char state[BLOCK_SIDE][BLOCK_SIDE];
 
     int i = 0;
     for (int c = 0; c < BLOCK_SIDE; c++) {
         for (int r = 0; r < BLOCK_SIDE; r++) {
-            state[r][c] = (i < n) ? in_cipher[i] : 0;
+            state[r][c] = in_cipher[i];
             i++;
         }
     }
@@ -346,13 +378,22 @@ void aes_decrypt_block(unsigned char *in_cipher, int n,
     {
         for (int r = 0; r < BLOCK_SIDE; r++)
         {
-            out[i++] = state[r][c];
+            out[i] = state[r][c];
+
+            if (iv) {
+                // XOR with IV
+                out[i] ^= iv[i];
+            }
+
+            i++;
         }
     }
 }
 
 int aes_decrypt(unsigned char *in_cipher, int noBlocks,
                     unsigned char *in_key, int keylen,
+                    unsigned char mode,
+                    unsigned char iv[16],
                     unsigned char **out) {
     // determine number of rounds
     int nr = 10; // AES_128 by default
@@ -372,8 +413,32 @@ int aes_decrypt(unsigned char *in_cipher, int noBlocks,
     aes_generateKeySchedule(in_key, keylen, subkeys);
 
     unsigned char *paddedOut = malloc(noBlocks * BLOCK_LEN * sizeof(unsigned char));
+    
+    for (int i = noBlocks - 1; i >= 0; i--) {
+        switch (mode) {
+            case AES_CBC:
+                if (!i) {
+                    // use passed in iv for first block
+                }
+        }
+    }
+    
     for (int i = 0; i < noBlocks; i++) {
-        aes_decrypt_block(in_cipher + (i << 4), BLOCK_LEN, subkeys, nr, paddedOut + (i << 4));
+        switch (mode) {
+            case AES_CBC:
+                if (!i) {
+                    // use passed in iv for first block
+                    aes_decrypt_block(in_cipher + (i << 4), subkeys, nr, iv, paddedOut + (i << 4));
+                }
+                else {
+                    // use previous block of input as iv
+                    aes_decrypt_block(in_cipher + (i << 4), subkeys, nr, in_cipher + ((i - 1) << 4), paddedOut + (i << 4));
+                }
+
+                break;
+            default: // AES_ECB
+                aes_decrypt_block(in_cipher + (i << 4), subkeys, nr, NULL, paddedOut + (i << 4));
+        }
     }
 
     free(subkeys);
@@ -418,7 +483,7 @@ void aes_generateKeySchedule128(unsigned char *in_key, unsigned char subkeys[11]
         Round 2: x^1 = x
         Round 3: x^2
         ...
-        Round 9: x^8 def x^8 mod P(x)
+        Round 9: x^8 def= x^8 mod P(x)
     */
     for (i = 1; i <= 10; i++)
     {
