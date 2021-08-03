@@ -3,7 +3,7 @@
 
 #include "aes.h"
 
-char hex[16] = "0123456789ABCDEF";
+char hex[16] = "0123456789abcdef";
 void printCharArr(unsigned char *arr, int len, bool asChar)
 {
     printf("{ ");
@@ -24,7 +24,7 @@ void printString(unsigned char *arr, int len) {
 void printHexString(unsigned char *arr, int len) {
     for (int i = 0; i < len; i++)
     {
-        printf("%c%c", hex[arr[i] >> 4], hex[arr[i] & 0x0f]);
+        printf("%c%c ", hex[arr[i] >> 4], hex[arr[i] & 0x0f]);
     }
     printf("\n");
 }
@@ -43,35 +43,27 @@ int main()
     printf("Hello, world!\n");
 
     unsigned char *txt = "asidlhgfyiuyguaysdgbagasdcvetweeqwert";
-    unsigned char *key = "abcdefghijklmnopqrstuvwxyzabcdef";
-    unsigned char *ecb_cipher = NULL;
-    unsigned char *cbc_cipher = NULL;
-    unsigned char *ecb_dec = NULL;
-    unsigned char *cbc_dec = NULL;
+    unsigned char *key = "abcdefghijklmnop";
 
     unsigned char iv[16] = "zyxwvutsrqponmlk";
     //randomCharArray(iv, 16);
 
-    int ecb_noBlocks = aes_encrypt(txt, 37, key, AES_256, AES_ECB, NULL, &ecb_cipher);
-    int ecb_len = aes_decrypt(ecb_cipher, ecb_noBlocks, key, AES_256, AES_ECB, NULL, &ecb_dec);
+    unsigned char *cipher = NULL;
+    unsigned char *text = NULL;
 
-    int cbc_noBlocks = aes_encrypt(txt, 37, key, AES_256, AES_CBC, iv, &cbc_cipher);
-    int cbc_len = aes_decrypt(cbc_cipher, cbc_noBlocks, key, AES_256, AES_CBC, iv, &cbc_dec);
+    int ctr_len = aes_encrypt(txt, 37, key, AES_128, AES_CTR, iv, &cipher);
+    int txt_len = aes_decrypt(cipher, ctr_len, key, AES_128, AES_CTR, iv, &text);
 
     printf("Plaintext:     ");
     printString(txt, 37);
     printf("Key:           ");
-    printString(key, 16);
-    printf("ECB Cipher:    ");
-    printHexString(ecb_cipher, ecb_noBlocks * BLOCK_LEN);
-    printf("ECB Decrypted: ");
-    printString(ecb_dec, ecb_len);
+    printHexString(key, 16);
     printf("IV:            ");
-    printString(iv, 16);
-    printf("CBC Cipher:    ");
-    printHexString(cbc_cipher, cbc_noBlocks * BLOCK_LEN);
-    printf("CBC Decrypted: ");
-    printString(cbc_dec, cbc_len);
+    printHexString(iv, 16);
+    printf("CTR Cipher:    ");
+    printHexString(cipher, ctr_len);
+    printf("CTR Decrypted: ");
+    printString(text, txt_len);
 
     // proof of inverse matrix
     // aes_invMixColMat will be the identity matrix (A .* A^-1 = I)
@@ -79,10 +71,11 @@ int main()
 
     free(txt);
     free(key);
-    free(ecb_cipher);
-    free(cbc_cipher);
-    free(ecb_dec);
-    free(cbc_dec);
+    free(text);
+    free(cipher);
 
     return 0;
 }
+
+// 97 d9 a3 48 31 ae ed 33 d4 5e 0f d8 a4 c4 57 2d e0 7e d6 ce 40 dd 70 79 56 b4 b3 bd e9 22 39 59 aa 8a 61 e2 3b
+// 97 d9 a3 48 31 ae ed 33 d4 5e 0f d8 a4 c4 57 2d ed 54 9f f0 58 eb e6 c2 c8 e3 35 4c 2c 15 0e f4 9d 2e 53 08 44

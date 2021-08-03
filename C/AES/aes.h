@@ -19,8 +19,9 @@ typedef unsigned char bool;
 #define AES_192 192
 #define AES_256 256
 
-#define AES_ECB 0x01
-#define AES_CBC 0x02
+#define AES_ECB 0
+#define AES_CBC 1
+#define AES_CTR 2
 
 /*
     REFERENCE TABLES
@@ -87,7 +88,7 @@ void aes_decrypt_block(unsigned char *in_cipher,
                     unsigned char iv[16],
                     unsigned char out[BLOCK_LEN]);
 
-int aes_decrypt(unsigned char *in_cipher, int noBlocks,
+int aes_decrypt(unsigned char *in_cipher, int n,
                     unsigned char *in_key, int keylen,
                     unsigned char mode,
                     unsigned char iv[16],
