@@ -29,12 +29,21 @@ void printHexString(unsigned char *arr, int len) {
     printf("\n");
 }
 
+void printState(unsigned char a[4][4]) {
+    for (int c = 0; c < 4; c++) {
+        for (int r = 0; r < 4; r++) {
+            printf("%c%c ", hex[a[r][c] >> 4], hex[a[r][c] & 0x0f]);
+        }
+    }
+    printf("\n");
+}
+
 int main()
 {
     printf("Hello, world!\n");
 
     unsigned char *txt = "asidlhgfyiuyguaysdgbagasdcvetweeqwert";
-    unsigned char *key = "abcdefghijklmnop";
+    unsigned char *key = "abcdefghijklmnopqrstuvwxyzabcdef";
     unsigned char *ecb_cipher = NULL;
     unsigned char *cbc_cipher = NULL;
     unsigned char *ecb_dec = NULL;
@@ -43,11 +52,11 @@ int main()
     unsigned char iv[16] = "zyxwvutsrqponmlk";
     //randomCharArray(iv, 16);
 
-    int ecb_noBlocks = aes_encrypt(txt, 37, key, 16, AES_ECB, NULL, &ecb_cipher);
-    int ecb_len = aes_decrypt(ecb_cipher, ecb_noBlocks, key, 16, AES_ECB, NULL, &ecb_dec);
+    int ecb_noBlocks = aes_encrypt(txt, 37, key, AES_256, AES_ECB, NULL, &ecb_cipher);
+    int ecb_len = aes_decrypt(ecb_cipher, ecb_noBlocks, key, AES_256, AES_ECB, NULL, &ecb_dec);
 
-    int cbc_noBlocks = aes_encrypt(txt, 37, key, 16, AES_CBC, iv, &cbc_cipher);
-    int cbc_len = aes_decrypt(cbc_cipher, cbc_noBlocks, key, 16, AES_CBC, iv, &cbc_dec);
+    int cbc_noBlocks = aes_encrypt(txt, 37, key, AES_256, AES_CBC, iv, &cbc_cipher);
+    int cbc_len = aes_decrypt(cbc_cipher, cbc_noBlocks, key, AES_256, AES_CBC, iv, &cbc_dec);
 
     printf("Plaintext:     ");
     printString(txt, 37);
@@ -77,6 +86,3 @@ int main()
 
     return 0;
 }
-
-// 59A2F2C752C26C5C0F28A7705E0247B42CCD7BF2A207C3CD7BA0844F75E2E03ABCBCF15DA39F37129A05AA50DEFAA3A5
-// 59A2F2C752C26C5C0F28A7705E0247B42CCD7BF2A207C3CD7BA0844F75E2E03ABCBCF15DA39F37129A05AA50DEFAA3A5
