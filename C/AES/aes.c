@@ -306,10 +306,10 @@ int aes_encrypt(unsigned char *in_text, int n,
 
                 break;
             case AES_CTR:
-                // encrypt counter
+                // encrypt counter and write to complete tmp block
                 aes_encrypt_block(counter, BLOCK_LEN, subkeys, nr, NULL, tmp);
 
-                // XOR with plaintext block
+                // XOR with plaintext block (may be incomplete)
                 for (int j = 0; j < len; j++) {
                     out[0][(i << 4) + j] = tmp[j] ^ in_text[(i << 4) + j];
                 }
@@ -329,6 +329,7 @@ int aes_encrypt(unsigned char *in_text, int n,
 
                 break;
             default: // AES_ECB
+                // pass in the text and encrypt
                 aes_encrypt_block(in_text + (i << 4), len, subkeys, nr, NULL, *out + (i << 4));
                 break;
         }
