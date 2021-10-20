@@ -93,37 +93,41 @@ btree_node* btree_node_search(btree_node* root, btree tree, int key, int* idx)
     return root->n ? btree_node_search(root->children[*idx], tree, key, idx) : NULL;
 }
 
-// int btree_node_get_inorderSuccessor(btree_node *root, btree tree, int i)
-// {
-//    if (root->noChildren) {
-//        btree_node *current = root->children[i];
-//        while (current->noChildren)
-//        {
-//            // get first child
-//            current = current->children[0];
-//        }
-//        return current->keys[0];
-//    }
-//    else {
-//        return root;
-//    }
-// }
+keyValPair btree_node_get_inorderSuccessor(btree_node *root, btree tree, int i)
+{
+   if (root->noChildren) {
+       btree_node *current = root->children[i];
+       while (current->noChildren)
+       {
+           // get first child
+           current = current->children[0];
+       }
+       keyValPair ret = {current->keys[0], current->vals[0]};
+       return ret;
+   }
+   else {
+       keyValPair ret = {root->keys[i], root->vals[i]};
+       return ret;
+   }
+}
 
-// int btree_node_get_inorderPredecessor(btree_node *root, btree tree, int i)
-// {
-//     if (root->noChildren) {
-//        btree_node *current = root->children[i];
-//        while (current->noChildren)
-//        {
-//            // get last child
-//            current = current->children[current->noChildren - 1];
-//        }
-//        return current->keys[current->n - 1];
-//    }
-//    else {
-//        return root;
-//    }
-// }
+keyValPair btree_node_get_inorderPredecessor(btree_node *root, btree tree, int i)
+{
+    if (root->noChildren) {
+       btree_node *current = root->children[i];
+       while (current->noChildren)
+       {
+           // get last child
+           current = current->children[current->noChildren - 1];
+       }
+       keyValPair ret = {current->keys[current->n - 1], current->vals[current->n - 1]};
+       return ret;
+   }
+   else {
+       keyValPair ret = {root->keys[i], root->vals[i]};
+       return ret;
+   }
+}
 
 btree_node* btree_node_split(btree_node* root, btree tree, btree_node* new_node, int i)
 {
@@ -291,29 +295,66 @@ btree_node* btree_node_insert(btree_node* root, btree tree, int key, void* val)
     return ret;
 }
 
-// btree_node *btree_node_delete(btree_node *root, btree tree, int key)
-// {
-//     // find position
-//     char found = 0;
-//     int i = 0;
-//     while (i < root->n && key > root->keys[i]) {
-//         if (key == root->keys[i])
-//         {
-//             found = !0;
-//             break;
-//         }
-//         i++;
-//     }
+/**
+ * @brief 
+ * 
+ * @param root 
+ * @param tree 
+ * @param key 
+ * @return int -1 if child not found
+ *              0 if successfully deleted
+ *              1 if cannot delete because violated minimum condition
+ */
+int btree_node_delete(btree_node *root, btree tree, int key)
+{
+    // find position
+    char found = 0;
+    int i = 0;
+    while (i < root->n && key > root->keys[i]) {
+        if (key == root->keys[i])
+        {
+            found = !0;
+            break;
+        }
+        i++;
+    }
 
-//     if (found)
-//     {
-//         // found in data
-//     }
-//     else
-//     {
+    if (found)
+    {
+        // found in data
+        if (!root->noChildren) {
+            // leaf node
+            // remove item by left shift
+            for (int j = tree.t; j < i && j < root->n - 1; j++)
+            {
+                btree_moveKeyVal(root, j + 1, root, j);
+            }
+            root->noChildren--;
+        }
+        else {
+            // left child: children[i], right child: children[i + 1]
 
-//     }
-// }
+            // substitute from left
+            int _n = root->children[i]->noChildren;
+            if (_n > tree.t) {
+                keyValPair repl = btree_node_get_inorderPredecessor(root, tree, i);
+                // recursively delete key
+                btree_node_delete(root->children[i], tree, repl.key);
+                // borrow largest key from left
+                root->keys[i] = repl.key;
+                root->vals[i] = repl.val;
+                return 0;
+            }
+
+            // substitute from right
+            _n = root->children[i]->noChildren;
+        }
+    }
+    else
+    {
+
+    }
+}
 
 void btree_node_free(btree_node* root, btree tree)
 {
