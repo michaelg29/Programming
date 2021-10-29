@@ -12,7 +12,7 @@ btree btree_new(int m)
     {
         m = BTREE_MIN_M;
     }
-    btree ret = { m, ceilf((float)m / 2.0f) - 1, NULL };
+    btree ret = { m, ceilf((float)m / 2.0f), NULL };
     return ret;
 }
 
@@ -39,6 +39,26 @@ void btree_insert(btree* tree, int key, void* val)
         if (ret)
         {
             tree->root = ret;
+        }
+    }
+}
+
+void btree_delete(btree *tree, int key)
+{
+    if (tree->root)
+    {
+        btree_node_delete(tree->root, *tree, key);
+
+        if (!tree->root->n)
+        {
+            // no more keys, tree will shrink
+            btree_node *prevRoot = tree->root;
+            tree->root = NULL;
+            if (prevRoot->noChildren)
+            {
+                tree->root = prevRoot->children[0];
+            }
+            free(prevRoot);
         }
     }
 }
@@ -137,26 +157,26 @@ btree_node* btree_node_split(btree_node* root, btree tree, btree_node* new_node,
     btree_node* tmp = btree_newNode(tree);
     memcpy(tmp->children, new_node->children, 2 * sizeof(btree_node*));
     // swap new node with corresponding node to be upshifted
-    if (i < tree.t)
+    if (i < tree.t - 1)
     {
         // insert before median
-        btree_moveKeyVal(root, tree.t - 1, tmp, 0); // upshift element will be one before median (becomes median after shift)
+        btree_moveKeyVal(root, tree.t - 2, tmp, 0); // upshift element will be one before median (becomes median after shift)
 
         // right shift to fill gap of removing the median
-        for (int j = tree.t - 1; j > i; j--)
+        for (int j = tree.t - 2; j > i; j--)
         {
             btree_moveKeyVal(root, j - 1, root, j);
         }
         // insert new node
         btree_moveKeyVal(new_node, 0, root, i);
     }
-    else if (i > tree.t)
+    else if (i > tree.t - 1)
     {
         // insert after median
-        btree_moveKeyVal(root, tree.t, tmp, 0);
+        btree_moveKeyVal(root, tree.t - 1, tmp, 0);
 
         // left shift to fill gap of removing the median
-        for (int j = tree.t; j < i && j < root->n - 1; j++)
+        for (int j = tree.t - 1; j < i && j < root->n - 1; j++)
         {
             btree_moveKeyVal(root, j + 1, root, j);
         }
@@ -175,23 +195,23 @@ btree_node* btree_node_split(btree_node* root, btree tree, btree_node* new_node,
 
     new_node->children[0] = root;
     new_node->children[1] = btree_newNode(tree);
-    for (int j = tree.t; j < tree.m - 1; j++)
+    for (int j = tree.t - 1; j < tree.m - 1; j++)
     {
-        btree_moveKeyVal(root, j, new_node->children[1], j - tree.t);
+        btree_moveKeyVal(root, j, new_node->children[1], j - tree.t + 1);
         root->keys[j] = INT_MAX;
         root->vals[j] = NULL;
     }
     if (hasChildren)
     {
-        if (i < tree.t)
+        if (i < tree.t - 1)
         {
             // copy children to right side
-            for (int j = tree.t; j < tree.m; j++)
+            for (int j = tree.t - 1; j < tree.m; j++)
             {
-                new_node->children[1]->children[j - tree.t] = new_node->children[0]->children[j];
+                new_node->children[1]->children[j - tree.t + 1] = new_node->children[0]->children[j];
             }
             // right shift children on left side
-            for (int j = tree.t; j > i + 1; j--)
+            for (int j = tree.t - 1; j > i + 1; j--)
             {
                 new_node->children[0]->children[j] = new_node->children[0]->children[j - 1];
             }
@@ -204,24 +224,24 @@ btree_node* btree_node_split(btree_node* root, btree tree, btree_node* new_node,
             // copy children to right side
             for (int j = tree.t + 1; j < tree.m; j++)
             {
-                new_node->children[1]->children[j - tree.t - 1] = new_node->children[0]->children[j];
+                new_node->children[1]->children[j - tree.t] = new_node->children[0]->children[j];
             }
             // right shift children on right side
-            for (int j = tree.t; j > i - tree.t; j--)
+            for (int j = tree.t - 1; j > i - tree.t + 1; j--)
             {
                 new_node->children[1]->children[j] = new_node->children[1]->children[j - 1];
             }
             // insert extra child on left side
-            new_node->children[1]->children[i - tree.t] = tmp->children[1];
+            new_node->children[1]->children[i - tree.t + 1] = tmp->children[1];
         }
 
-        new_node->children[0]->noChildren = tree.t + 1;
-        new_node->children[1]->noChildren = tree.m - tree.t;
+        new_node->children[0]->noChildren = tree.t;
+        new_node->children[1]->noChildren = tree.m - tree.t + 1;
     }
 
     // update counts
-    new_node->children[0]->n = tree.t;
-    new_node->children[1]->n = tree.m - 1 - tree.t;
+    new_node->children[0]->n = tree.t - 1;
+    new_node->children[1]->n = tree.m - tree.t;
     new_node->n = 1;
     new_node->noChildren = 2;
 }
