@@ -315,6 +315,9 @@ btree_node* btree_node_insert(btree_node* root, btree tree, int key, void* val)
     return ret;
 }
 
+void btree_node_merge_children(btree_node *root, btree tree, int leftChild);
+void btree_node_borrow(btree_node *root, btree tree, int base, int offset);
+
 /**
  * @brief 
  * 
@@ -327,53 +330,7 @@ btree_node* btree_node_insert(btree_node* root, btree tree, int key, void* val)
  */
 int btree_node_delete(btree_node *root, btree tree, int key)
 {
-    // find position
-    char found = 0;
-    int i = 0;
-    while (i < root->n && key > root->keys[i]) {
-        if (key == root->keys[i])
-        {
-            found = !0;
-            break;
-        }
-        i++;
-    }
-
-    if (found)
-    {
-        // found in data
-        if (!root->noChildren) {
-            // leaf node
-            // remove item by left shift
-            for (int j = tree.t; j < i && j < root->n - 1; j++)
-            {
-                btree_moveKeyVal(root, j + 1, root, j);
-            }
-            root->noChildren--;
-        }
-        else {
-            // left child: children[i], right child: children[i + 1]
-
-            // substitute from left
-            int _n = root->children[i]->noChildren;
-            if (_n > tree.t) {
-                keyValPair repl = btree_node_get_inorderPredecessor(root, tree, i);
-                // recursively delete key
-                btree_node_delete(root->children[i], tree, repl.key);
-                // borrow largest key from left
-                root->keys[i] = repl.key;
-                root->vals[i] = repl.val;
-                return 0;
-            }
-
-            // substitute from right
-            _n = root->children[i]->noChildren;
-        }
-    }
-    else
-    {
-
-    }
+    
 }
 
 void btree_node_free(btree_node* root, btree tree)
