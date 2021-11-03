@@ -6,30 +6,39 @@
 
 void testSearch();
 void testInsert();
+void testDelete();
 
 void printBtree(btree_node* root)
 {
-    printf("( ");
-
-    for (int i = 0; i < root->n; i++) {
-        if (root->noChildren) {
-            printBtree(root->children[i]);
-        }
-        printf(" %d ", root->keys[i]);
-    }
-    if (root->noChildren)
+    if (root)
     {
-        printBtree(root->children[root->n]);
+        printf("( ");
+        for (int i = 0; i < root->n; i++) {
+            if (root->noChildren) {
+                printBtree(root->children[i]);
+            }
+            printf(" %d ", root->keys[i]);
+        }
+        if (root->noChildren)
+        {
+            printBtree(root->children[root->n]);
+        }
+        printf(" )");
     }
+    else
+    {
+        printf("<>");
+    }
+    
 
-    printf(" )");
+    
 }
 
 int main()
 {
     printf("Hello, world!\n");
 
-    testInsert();
+    testDelete();
 
     return 0;
 }
@@ -72,13 +81,13 @@ void testSearch()
 
 void testInsert()
 {
-    btree tree = btree_new(5);
+    btree tree = btree_new(3);
 
-#define LEN 17
-    int elements[LEN] = { 200, 0, 1000, 2000, 600, 5000, 6000, 3500, 2100, 2090, 2080, 2010, 2020, 2005, 2040, 2050, 2030 };
+#define LEN 16
+    int elements[LEN] = { 25, 8, 37, 55, 95, 27, 88, 13, 29, 42, 51, 72, 100, 105, 90, 92 };
 
     int i;
-    for (i = 0; i < LEN - 1; i++)
+    for (i = 0; i < 9 - 1; i++)
     {
         btree_insert(&tree, elements[i], NULL);
         printf("+%04d: ", elements[i]);
@@ -94,63 +103,35 @@ void testInsert()
     btree_free(&tree);
 }
 
-//void test()
-//{
-//    int i;
-//    btree tree;
-//    btree_node* root;
-//    int key;
-//    void* val;
-//    btree_node* ret;
-//
-//    // full branch, split
-//            // determine what element is moved up and insert key as needed
-//    if (i < tree.t)
-//    {
-//        // key inserted before median (account for shift)
-//        ret = btree_newNodeItem(tree, root->keys[tree.t - 1], root->vals[tree.t - 1]);
-//
-//        // right shift to fill gap of removing the median
-//        for (int j = tree.t; j > i; j--)
-//        {
-//            btree_moveKeyVal(root, j - 1, root, j);
-//        }
-//        // insert new element
-//        root->keys[i] = key;
-//        root->vals[i] = val;
-//    }
-//    else if (i == tree.t)
-//    {
-//        // key will be the upshift element
-//        ret = btree_newNodeItem(tree, key, val);
-//    }
-//    else
-//    {
-//        ret = btree_newNodeItem(tree, root->keys[tree.t], root->vals[tree.t]);
-//
-//        // left shift to fill gap of removing the median
-//        for (int j = tree.t; j < i && j < root->n - 1; j++)
-//        {
-//            btree_moveKeyVal(root, j + 1, root, j);
-//        }
-//        // insert new element
-//        root->keys[i - 1] = key;
-//        root->vals[i - 1] = val;
-//    }
-//
-//    // split elements
-//    ret->children[0] = root;
-//    ret->children[1] = btree_newNode(tree);
-//    for (int j = tree.t; j < tree.m - 1; j++)
-//    {
-//        btree_moveKeyVal(root, j, ret->children[1], j - tree.t);
-//        //root->keys[j] = INT_MAX;
-//        root->vals[j] = NULL;
-//    }
-//
-//    // update counts
-//    ret->children[0]->n = tree.t;
-//    ret->children[1]->n = tree.m - tree.t - 1;
-//    ret->n = 1;
-//    ret->noChildren = 2;
-//}
+void testDelete()
+{
+    btree tree = btree_new(3);
+
+    #define INSERTLEN 16
+    int insertElements[INSERTLEN] = {25, 8, 37, 55, 95, 27, 88, 13, 29, 42, 51, 72, 100, 105, 90, 92};
+
+    int i;
+    for (i = 0; i < INSERTLEN; i++)
+    {
+        btree_insert(&tree, insertElements[i], NULL);
+    }
+    printBtree(tree.root);
+    printf("\n");
+
+    // #define DELETELEN 5
+    // int deleteElements[DELETELEN] = {20, 92, 22, 25, 6};
+    // for (i = 0; i < DELETELEN - 1; i++)
+    // {
+    //     btree_delete(&tree, deleteElements[i]);
+    //     printf("-%04d: ", deleteElements[i]);
+    //     printBtree(tree.root);
+    //     printf("\n");
+    // }
+
+    // btree_delete(&tree, deleteElements[i]);
+    // printf("-%04d: ", deleteElements[i]);
+    // printBtree(tree.root);
+    // printf("\n");
+
+    btree_free(&tree);
+}
