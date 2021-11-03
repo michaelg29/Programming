@@ -311,8 +311,6 @@ btree_node* btree_node_insert(btree_node* root, btree tree, int key, void* val)
     return ret;
 }
 
-void btree_node_merge_children(btree_node *root, btree tree, int leftChild);
-void btree_node_borrow(btree_node *root, btree tree, int base, int offset);
 
 /**
  * @brief 

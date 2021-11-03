@@ -42,8 +42,6 @@ btree_node *btree_node_get_inorderPredecessor(btree_node *root, btree tree, int 
 btree_node *btree_node_split(btree_node *root, btree tree, btree_node *new_node, int i);
 btree_node *btree_node_insert(btree_node *root, btree tree, int key, void *val);
 
-void btree_node_merge_children(btree_node *root, btree tree, int leftChild);
-void btree_node_borrow(btree_node *root, btree tree, int base, int offset);
 int btree_node_delete(btree_node *root, btree tree, int key);
 
 void btree_node_free(btree_node *root, btree tree);
