@@ -113,7 +113,7 @@ btree_node* btree_node_search(btree_node* root, btree tree, int key, int* idx)
     return root->n ? btree_node_search(root->children[*idx], tree, key, idx) : NULL;
 }
 
-keyValPair btree_node_get_inorderSuccessor(btree_node *root, btree tree, int i)
+btree_node *btree_node_get_inorderSuccessor(btree_node *root, btree tree, int i)
 {
    if (root->noChildren) {
        btree_node *current = root->children[i];
@@ -122,16 +122,14 @@ keyValPair btree_node_get_inorderSuccessor(btree_node *root, btree tree, int i)
            // get first child
            current = current->children[0];
        }
-       keyValPair ret = {current->keys[0], current->vals[0]};
-       return ret;
+       return current;
    }
    else {
-       keyValPair ret = {root->keys[i], root->vals[i]};
-       return ret;
+       return NULL;
    }
 }
 
-keyValPair btree_node_get_inorderPredecessor(btree_node *root, btree tree, int i)
+btree_node *btree_node_get_inorderPredecessor(btree_node *root, btree tree, int i)
 {
     if (root->noChildren) {
        btree_node *current = root->children[i];
@@ -140,12 +138,10 @@ keyValPair btree_node_get_inorderPredecessor(btree_node *root, btree tree, int i
            // get last child
            current = current->children[current->noChildren - 1];
        }
-       keyValPair ret = {current->keys[current->n - 1], current->vals[current->n - 1]};
-       return ret;
+       return current;
    }
    else {
-       keyValPair ret = {root->keys[i], root->vals[i]};
-       return ret;
+       return NULL;
    }
 }
 
