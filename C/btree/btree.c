@@ -311,6 +311,142 @@ btree_node* btree_node_insert(btree_node* root, btree tree, int key, void* val)
     return ret;
 }
 
+void btree_rebalance(btree_node *root, btree tree, int key)
+{
+    if (!root->noChildren)
+    {
+        // rebalancing takes place in parent of target leaf
+        return;
+    }
+
+    // find position
+    int i = 0;
+    while (i < root->n && key > root->keys[i]) {
+        i++;
+    }
+
+    // rebalance starting at child
+    btree_rebalance(root->children[i], tree, key);
+
+    if (root->children[i]->n < tree.t - 1)
+    {
+        /**
+         * @brief must rebalance
+         * 
+         * CASE 1: right sibling exists (i < noChildren - 1), has more than t - 1 keys
+         *      Rotate left
+         * 
+         * CASE 2: left sibling exists (i > 0), has more than t - 1 keys
+         *      Rotate right
+         * 
+         * CASE 3: both siblings only have t - 1 keys
+         *      Merge with sibling and parent separator
+         */
+
+        /**
+         * @brief terminology
+         * 
+         * Deficient node: root->children[i]
+         * 
+         * Left separator: root->keys[i - 1]
+         * Right separator: root->keys[i]
+         * Left sibling: root->children[i - 1]
+         * Right sibling: root->children[i + 1]
+         */
+
+        if (i < root->noChildren - 1 && root->children[i + 1]->n > tree.t - 1)
+        {
+            // CASE 1
+            
+            // copy right separator to end of deficient node
+            btree_moveKeyVal(root, i, root->children[i], root->children[i]->n);
+            root->children[i]->n++;
+
+            // copy smallest key in right sibling to right separator
+            btree_moveKeyVal(root->children[i + 1], 0, root, i);
+            // left shift in right sibling to cover up removal
+            for (int j = 0; j < root->children[i + 1]->n - 1; j++)
+            {
+                btree_moveKeyVal(root->children[i + 1], j + 1, root->children[i + 1], j);
+            }
+            root->children[i + 1]->n--;
+
+            // CHILDREN?
+        }
+        else if (i > 0 && root->children[i - 1]->n > tree.t - 1)
+        {
+            // CASE 2
+
+            // right shift in deficient node to create space
+            for (int j = root->children[i]->n - 1; j > 0; j--)
+            {
+                btree_moveKeyVal(root->children[i], j - 1, root->children[i], j);
+            }
+            // copy left separator to start of deficient node
+            btree_moveKeyVal(root, i, root->children[i], 0);
+            root->children[i]->n++;
+
+            // copy largest key in left sibling to left separator
+            btree_moveKeyVal(root->children[i - 1], root->children[i - 1]->n - 1, root, i - 1);
+            root->children[i - 1]->n--;
+
+            // CHILDREN?
+        }
+        else
+        {
+            // CASE 3
+
+            // if i >= 1, has left sibling
+            int leftIdx = i > 0 ? i - 1 : i;
+
+            btree_node *left = root->children[leftIdx];
+            btree_node *right = root->children[leftIdx + 1];
+
+            // copy separator to end of left merge node
+            btree_moveKeyVal(root, leftIdx, left, left->n);
+            left->n++;
+
+            // copy elements of right merge node to left
+            for (int j = 0; j < right->n; j++)
+            {
+                btree_moveKeyVal(right, j, left, left->n);
+                left->n++;
+            }
+
+            // copy children from right merge node to left
+            for (int j = 0; j < right->noChildren; j++)
+            {
+                left->children[left->noChildren] = right->children[j];
+                left->noChildren++;
+            }
+
+            // left shift keys in root to cover up removal
+            for (int j = leftIdx; j < root->n - 1; j++)
+            {
+                btree_moveKeyVal(root, j + 1, root, j);
+            }
+            root->n--;
+
+            // free right merge node
+            free(right);
+
+            // left shift children to cover up right
+            for (int j = leftIdx + 1; j < root->noChildren - 1; j++)
+            {
+                root->children[j] = root->children[j + 1];
+            }
+            root->noChildren--;
+
+            if (root->noChildren < tree.t)
+            {
+                if (root != tree.root)
+                {
+                    // rebalance root
+                }
+            }
+        }
+    }
+}
 
 /**
  * @brief 
@@ -324,7 +460,66 @@ btree_node* btree_node_insert(btree_node* root, btree tree, int key, void* val)
  */
 int btree_node_delete(btree_node *root, btree tree, int key)
 {
-    
+    /**
+     * CASE 1: Key present in leaf node
+     *      Delete key/value pair
+     * CASE 2: Key present in internal node
+     *      Replace key/value pair with inorder successor
+     */
+
+    // find position
+    int i = 0;
+    char found = 0;
+    while (i < root->n && key >= root->keys[i]) {
+        if (root->keys[i] == key)
+        {
+            found = 1;
+            break;
+        }
+        i++;
+    }
+
+    if (found)
+    {
+        if (!root->noChildren)
+        {
+            // left shift to cover up
+            for (int j = i; j < root->n - 1; j++)
+            {
+                btree_moveKeyVal(root, j + 1, root, j);
+            }
+            root->n--;
+
+            if (root->n < tree.t - 1)
+            {
+                // must rebalance starting from root
+                btree_rebalance(tree.root, tree, root->keys[0]);
+            }
+        }
+        else
+        {
+            // get inorder successor
+            btree_node *predecessor = btree_node_get_inorderPredecessor(root, tree, i);
+
+            // replace with largest value in predecessor
+            btree_moveKeyVal(predecessor, --predecessor->n, root, i);
+
+            if (predecessor->n < tree.t - 1)
+            {
+                // must rebalance starting from successor
+                btree_rebalance(tree.root, tree, predecessor->keys[0]);
+            }
+        }
+    }
+    else
+    {
+        if (root->noChildren)
+        {
+            return btree_node_delete(root->children[i], tree, key);
+        }
+    }
+
+    return 0;
 }
 
 void btree_node_free(btree_node* root, btree tree)
