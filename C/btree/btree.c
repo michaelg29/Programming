@@ -222,7 +222,7 @@ btree_node* btree_node_split(btree_node* root, btree tree, btree_node* new_node,
         else
         {
             // copy children to right side
-            for (int j = tree.t + 1; j < tree.m; j++)
+            for (int j = tree.t; j < tree.m; j++)
             {
                 new_node->children[1]->children[j - tree.t] = new_node->children[0]->children[j];
             }
