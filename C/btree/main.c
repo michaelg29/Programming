@@ -107,8 +107,8 @@ void testDelete()
 {
     btree tree = btree_new(3);
 
-    #define INSERTLEN 16
-    int insertElements[INSERTLEN] = {25, 8, 37, 55, 95, 27, 88, 13, 29, 42, 51, 72, 100, 105, 90, 92};
+    #define INSERTLEN 20
+    int insertElements[INSERTLEN] = {25, 8, 37, 55, 95, 27, 88, 13, 29, 42, 51, 72, 100, 105, 90, 92, 50, 49, 45, 47};
 
     int i;
     for (i = 0; i < INSERTLEN; i++)
