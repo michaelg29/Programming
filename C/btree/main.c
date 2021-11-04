@@ -118,20 +118,20 @@ void testDelete()
     printBtree(tree.root);
     printf("\n");
 
-    // #define DELETELEN 5
-    // int deleteElements[DELETELEN] = {20, 92, 22, 25, 6};
-    // for (i = 0; i < DELETELEN - 1; i++)
-    // {
-    //     btree_delete(&tree, deleteElements[i]);
-    //     printf("-%04d: ", deleteElements[i]);
-    //     printBtree(tree.root);
-    //     printf("\n");
-    // }
+    #define DELETELEN 16
+    int deleteElements[DELETELEN] = {27, 29, 88, 100, 51, 90, 37, 95, 72, 42, 92, 8, 55, 13, 105, 25};
+    for (i = 0; i < DELETELEN - 1; i++)
+    {
+        btree_delete(&tree, deleteElements[i]);
+        printf("-%04d: ", deleteElements[i]);
+        printBtree(tree.root);
+        printf("\n");
+    }
 
-    // btree_delete(&tree, deleteElements[i]);
-    // printf("-%04d: ", deleteElements[i]);
-    // printBtree(tree.root);
-    // printf("\n");
+    btree_delete(&tree, deleteElements[i]);
+    printf("-%04d: ", deleteElements[i]);
+    printBtree(tree.root);
+    printf("\n");
 
     btree_free(&tree);
 }
