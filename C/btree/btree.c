@@ -371,7 +371,20 @@ void btree_rebalance(btree_node *root, btree tree, int key)
             }
             root->children[i + 1]->n--;
 
-            // CHILDREN?
+            // CHILDREN
+            if (root->children[i]->noChildren)
+            {
+                // move leftmost child of right sibling to end of deficient node
+                root->children[i]->children[root->children[i]->noChildren] = root->children[i + 1]->children[0];
+                root->children[i]->noChildren++;
+
+                // left shift children on right sibling
+                for (int j = 0; j < root->children[i + 1]->noChildren - 1; j++)
+                {
+                    root->children[i + 1]->children[j] = root->children[i + 1]->children[j + 1];
+                }
+                root->children[i + 1]->noChildren--;
+            }
         }
         else if (i > 0 && root->children[i - 1]->n > tree.t - 1)
         {
@@ -383,14 +396,27 @@ void btree_rebalance(btree_node *root, btree tree, int key)
                 btree_moveKeyVal(root->children[i], j - 1, root->children[i], j);
             }
             // copy left separator to start of deficient node
-            btree_moveKeyVal(root, i, root->children[i], 0);
+            btree_moveKeyVal(root, i - 1, root->children[i], 0);
             root->children[i]->n++;
 
             // copy largest key in left sibling to left separator
             btree_moveKeyVal(root->children[i - 1], root->children[i - 1]->n - 1, root, i - 1);
             root->children[i - 1]->n--;
 
-            // CHILDREN?
+            // CHILDREN
+            if (root->children[i]->noChildren)
+            {
+                // right shift children on deficient node
+                for (int j = root->children[i]->noChildren; j > 0; j--)
+                {
+                    root->children[i]->children[j] = root->children[i]->children[j - 1];
+                }
+                root->children[i]->noChildren++;
+
+                // move rightmost child of left sibling to beginning of deficient node
+                root->children[i]->children[0] = root->children[i - 1]->children[root->children[i - 1]->noChildren - 1];
+                root->children[i - 1]->noChildren--;
+            }
         }
         else
         {
@@ -436,14 +462,6 @@ void btree_rebalance(btree_node *root, btree tree, int key)
                 root->children[j] = root->children[j + 1];
             }
             root->noChildren--;
-
-            if (root->noChildren < tree.t)
-            {
-                if (root != tree.root)
-                {
-                    // rebalance root
-                }
-            }
         }
     }
 }
