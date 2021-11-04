@@ -535,6 +535,10 @@ int btree_node_delete(btree_node *root, btree tree, int key)
         {
             return btree_node_delete(root->children[i], tree, key);
         }
+        else
+        {
+            return -1;
+        }
     }
 
     return 0;
