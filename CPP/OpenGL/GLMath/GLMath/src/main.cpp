@@ -62,7 +62,15 @@ int main()
     // set viewport
     framebufferSizeCallback(window, 800, 800);
 
+    // timing variables
+    double dt = 0.0;
+    double lastFrame = 0.0;
+
     while (!glfwWindowShouldClose(window)) {
+        // update time
+        dt = glfwGetTime() - lastFrame;
+        lastFrame += dt;
+        
         glfwPollEvents();
 
         if (glfwGetKey(window, GLFW_KEY_ESCAPE)) {
