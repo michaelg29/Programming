@@ -147,6 +147,9 @@
     <ClCompile Include="src\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\shaders\grid.fs" />
+    <None Include="assets\shaders\grid.gs" />
+    <None Include="assets\shaders\grid.vs" />
     <None Include="glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
