@@ -144,7 +144,7 @@
   <ItemGroup>
     <ClCompile Include="lib\glad.c" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\programs\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\grid.fs" />
@@ -153,9 +153,9 @@
     <None Include="glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\program.h" />
-    <ClInclude Include="src\shader.h" />
-    <ClInclude Include="src\vertexmemory.hpp" />
+    <ClInclude Include="src\programs\program.h" />
+    <ClInclude Include="src\programs\shader.h" />
+    <ClInclude Include="src\programs\vertexmemory.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
