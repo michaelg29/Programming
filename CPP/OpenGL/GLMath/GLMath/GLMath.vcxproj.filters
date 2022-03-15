@@ -18,7 +18,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\shader.cpp">
+    <ClCompile Include="src\programs\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="lib\glad.c">
@@ -32,13 +32,13 @@
     <None Include="assets\shaders\grid.vs" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\shader.h">
+    <ClInclude Include="src\programs\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\program.h">
+    <ClInclude Include="src\programs\program.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\vertexmemory.hpp">
+    <ClInclude Include="src\programs\vertexmemory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

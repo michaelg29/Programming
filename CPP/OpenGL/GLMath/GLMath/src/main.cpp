@@ -73,10 +73,15 @@ int main()
         
         glfwPollEvents();
 
+        // process input
         if (glfwGetKey(window, GLFW_KEY_ESCAPE)) {
             glfwSetWindowShouldClose(window, true);
         }
+
+        // render
     }
+
+    // cleanup
 
     glfwTerminate();
 
