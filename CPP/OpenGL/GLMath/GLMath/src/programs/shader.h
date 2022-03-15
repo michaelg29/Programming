@@ -2,7 +2,6 @@
 #define SHADER_H
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include <string>
 #include <sstream>
@@ -30,8 +29,8 @@ public:
 
     // initialize with paths to vertex, fragment, and optional geometry shaders
     Shader(bool includeDefaultHeader,
-        const char* vertexShaderPath, 
-        const char* fragShaderPath, 
+        const char* vertexShaderPath,
+        const char* fragShaderPath,
         const char* geoShaderPath = nullptr);
 
     /*
@@ -40,16 +39,15 @@ public:
 
     // generate using vertex, frag, and optional geometry shaders
     void generate(bool includeDefaultHeader,
-        const char* vertexShaderPath, 
-        const char* fragShaderPath, 
+        const char* vertexShaderPath,
+        const char* fragShaderPath,
         const char* geoShaderPath = nullptr);
 
     // activate shader
     void activate();
 
-    /*
-        utility functions
-    */
+    // cleanup
+    void cleanup();
 
     /*
         set uniform variables
@@ -85,7 +83,7 @@ public:
     static void clearDefault();
 
     // load string from file
-    static char *loadShaderSrc(bool includeDefaultHeader, const char* filePath);
+    static char* loadShaderSrc(bool includeDefaultHeader, const char* filePath);
 };
 
 #endif
