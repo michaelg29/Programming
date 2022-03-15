@@ -153,8 +153,10 @@
     <None Include="glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\programs\2d\grid2d.hpp" />
     <ClInclude Include="src\programs\program.h" />
     <ClInclude Include="src\programs\shader.h" />
+    <ClInclude Include="src\programs\uniformmemory.hpp" />
     <ClInclude Include="src\programs\vertexmemory.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
