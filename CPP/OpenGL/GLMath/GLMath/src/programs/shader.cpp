@@ -54,6 +54,11 @@ void Shader::activate() {
     glUseProgram(id);
 }
 
+// cleanup
+void Shader::cleanup() {
+    glDeleteProgram(id);
+}
+
 /*
     set uniform variables
 */
@@ -124,7 +129,7 @@ std::stringstream Shader::defaultHeaders;
 
 // load into default header
 void Shader::loadIntoDefault(const char* filepath) {
-    char *fileContents = Shader::loadShaderSrc(false, filepath);
+    char* fileContents = Shader::loadShaderSrc(false, filepath);
 
     Shader::defaultHeaders << fileContents;
 
@@ -137,7 +142,7 @@ void Shader::clearDefault() {
 }
 
 // load string from file
-char *Shader::loadShaderSrc(bool includeDefaultHeader, const char* filePath) {
+char* Shader::loadShaderSrc(bool includeDefaultHeader, const char* filePath) {
     std::string fullPath = Shader::defaultDirectory + '/' + filePath;
 
     FILE* file = NULL;
