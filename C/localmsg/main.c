@@ -7,13 +7,23 @@
 #include <ws2tcpip.h>
 #include <iphlpapi.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define BUFLEN 512
-#define PORT 27015
+#define BUFLEN 1024
+#define PORT 5500
 #define ADDRESS "127.0.0.1" // aka "localhost"
 #define MAX_CLIENTS 5
+
+void cleanup(SOCKET listener)
+{
+    if (listener)
+    {
+        closesocket(listener);
+    }
+    WSACleanup();
+}
 
 int main()
 {
@@ -39,7 +49,7 @@ int main()
     if (listener == INVALID_SOCKET)
     {
         printf("Error with construction: %d\n", WSAGetLastError());
-        WSACleanup();
+        cleanup(0);
         return 1;
     }
 
@@ -49,8 +59,7 @@ int main()
     if (res < 0)
     {
         printf("Multiple client setup failed: %d\n", WSAGetLastError());
-        closesocket(listener);
-        WSACleanup();
+        cleanup(listener);
         return 1;
     }
 
@@ -63,8 +72,7 @@ int main()
     if (res == SOCKET_ERROR)
     {
         printf("Bind failed: %d\n", WSAGetLastError());
-        closesocket(listener);
-        WSACleanup();
+        cleanup(listener);
         return 1;
     }
 
@@ -73,10 +81,29 @@ int main()
     if (res == SOCKET_ERROR)
     {
         printf("Listen failed: %d\n", WSAGetLastError());
-        closesocket(listener);
-        WSACleanup();
+        cleanup(listener);
         return 1;
     }
+
+    // load input file
+    FILE *fp = fopen("input.html", "r");
+    if (!fp) {
+        printf("Could not load input form\n");
+        cleanup(listener);
+        return 1;
+    }
+    // get length
+    // move cursor to the end
+    fseek(fp, 0L, SEEK_END);
+    // get remaining length
+    int inputFileLength = ftell(fp);
+    // return to original position
+    fseek(fp, 0, SEEK_SET);
+    // read
+    char *inputFileContents = malloc(inputFileLength + 1);
+    fread(inputFileContents, inputFileLength, 1, fp);
+    inputFileContents[inputFileLength] = 0;
+
     // ==========================================
 
     printf("Accepting on %s:%d\n", ADDRESS, PORT);
@@ -179,17 +206,6 @@ int main()
                         break;
                     }
                 }
-
-                // send welcome
-                sendRes = send(sd, welcome, welcomeLength, 0);
-                if (sendRes != welcomeLength)
-                {
-                    printf("Error sending: %d\n", WSAGetLastError());
-                    shutdown(sd, SD_BOTH);
-                    closesocket(sd);
-                    clients[i] = 0;
-                    curNoClients--;
-                }
             }
         }
 
@@ -211,7 +227,6 @@ int main()
                 {
                     // print message
                     recvbuf[res] = '\0';
-                    printf("Received (%d): %s\n", res, recvbuf);
 
                     // test if quit command
                     if (!memcmp(recvbuf, "/quit", 5 * sizeof(char)))
@@ -219,16 +234,46 @@ int main()
                         running = 0; // false
                         break;
                     }
-
-                    // echo message
-                    sendRes = send(sd, recvbuf, res, 0);
-                    if (sendRes == SOCKET_ERROR)
+                    // test if GET command
+                    else if (!memcmp(recvbuf, "GET", 3 * sizeof(char)))
                     {
-                        printf("Echo failed: %d\n", WSAGetLastError());
-                        shutdown(sd, SD_BOTH);
-                        closesocket(sd);
-                        clients[i] = 0;
-                        curNoClients--;
+                        // return input file
+                        printf("Requested file\n");
+                        sendRes = send(sd, inputFileContents, inputFileLength, 0);
+                        if (sendRes == SOCKET_ERROR)
+                        {
+                            printf("Send failed: %d\n", WSAGetLastError());
+                            shutdown(sd, SD_BOTH);
+                            closesocket(sd);
+                            clients[i] = 0;
+                            curNoClients--;
+                        }
+                    }
+                    // test if POST command
+                    else if (!memcmp(recvbuf, "POST", 4 * sizeof(char)))
+                    {
+                        // get message
+                        // find new line
+                        int i = res - 1;
+                        for (; i >= 0; i--) {
+                            if (recvbuf[i] == '\n') {
+                                i++;
+                                break;
+                            }
+                        }
+                        // content from cursor onwards contains data
+                        printf("Received (%d): \n%s\n", i, recvbuf + i);
+
+                        // send file back
+                        sendRes = send(sd, inputFileContents, inputFileLength, 0);
+                        if (sendRes == SOCKET_ERROR)
+                        {
+                            printf("Send failed: %d\n", WSAGetLastError());
+                            shutdown(sd, SD_BOTH);
+                            closesocket(sd);
+                            clients[i] = 0;
+                            curNoClients--;
+                        }
                     }
                 }
                 else
