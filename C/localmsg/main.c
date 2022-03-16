@@ -227,6 +227,7 @@ int main()
                 {
                     // print message
                     recvbuf[res] = '\0';
+                    //printf("%s\n", recvbuf);
                     
                     // test if GET command
                     if (!memcmp(recvbuf, "GET", 3 * sizeof(char)))
@@ -267,6 +268,7 @@ int main()
                             }
                         }
                         // content from cursor onwards contains data
+                        //printf("Received (%d, %d, %d): \n%s\n", res, i, res - i, recvbuf + i);
                         // get length
                         int len = 0;
                         for (int j = i; j < res; j++) {
@@ -305,14 +307,21 @@ int main()
                             }
                         }
                         msg[len] = 0; // terminator
-                        printf("Parsed (%d): %s\n", len, msg);
+                        //printf("Parsed (%d): %s\n", len, msg);
 
                         // test message
                         if (!memcmp(msg, "/quit", 5 * sizeof(char)))
                         {
+                            printf("Quit message received\n");
                             running = 0; // false
+                            free(msg);
                             break;
                         }
+                        else {
+                            printf("%s\n", msg);
+                        }
+
+                        free(msg);
                     }
                 }
                 else
