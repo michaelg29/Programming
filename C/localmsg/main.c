@@ -227,15 +227,9 @@ int main()
                 {
                     // print message
                     recvbuf[res] = '\0';
-
-                    // test if quit command
-                    if (!memcmp(recvbuf, "/quit", 5 * sizeof(char)))
-                    {
-                        running = 0; // false
-                        break;
-                    }
+                    
                     // test if GET command
-                    else if (!memcmp(recvbuf, "GET", 3 * sizeof(char)))
+                    if (!memcmp(recvbuf, "GET", 3 * sizeof(char)))
                     {
                         // return input file
                         printf("Requested file\n");
@@ -252,18 +246,6 @@ int main()
                     // test if POST command
                     else if (!memcmp(recvbuf, "POST", 4 * sizeof(char)))
                     {
-                        // get message
-                        // find new line
-                        int i = res - 1;
-                        for (; i >= 0; i--) {
-                            if (recvbuf[i] == '\n') {
-                                i++;
-                                break;
-                            }
-                        }
-                        // content from cursor onwards contains data
-                        printf("Received (%d): \n%s\n", i, recvbuf + i);
-
                         // send file back
                         sendRes = send(sd, inputFileContents, inputFileLength, 0);
                         if (sendRes == SOCKET_ERROR)
@@ -273,6 +255,63 @@ int main()
                             closesocket(sd);
                             clients[i] = 0;
                             curNoClients--;
+                        }
+
+                        // get message
+                        // find new line
+                        int i = res - 1;
+                        for (; i >= 0; i--) {
+                            if (recvbuf[i] == '=') {
+                                i++;
+                                break;
+                            }
+                        }
+                        // content from cursor onwards contains data
+                        // get length
+                        int len = 0;
+                        for (int j = i; j < res; j++) {
+                            len++;
+                            if (recvbuf[j] == '%') {
+                                j += 2;
+                            }
+                        }
+                        // read characters
+                        char *msg = malloc(len + 1);
+                        for (int cursor = 0, j = i; cursor < len; cursor++, j++) {
+                            char c = recvbuf[j];
+                            if (c == '%')
+                            {
+                                // get hex val of next two characters
+                                msg[cursor] = 0;
+                                for (int k = 1; k <= 2; k++) {
+                                    c = recvbuf[j + k];
+                                    if (c >= 'A') {
+                                        c -= 'A' - 10;
+                                    }
+                                    else {
+                                        c -= '0';
+                                    }
+                                    msg[cursor] <<= 4;
+                                    msg[cursor] |= c;
+                                }
+                                j += 2;
+                            }
+                            else if (c == '+') {
+                                msg[cursor] = ' ';
+                            }
+                            else {
+                                // output character directly
+                                msg[cursor] = c;
+                            }
+                        }
+                        msg[len] = 0; // terminator
+                        printf("Parsed (%d): %s\n", len, msg);
+
+                        // test message
+                        if (!memcmp(msg, "/quit", 5 * sizeof(char)))
+                        {
+                            running = 0; // false
+                            break;
                         }
                     }
                 }
