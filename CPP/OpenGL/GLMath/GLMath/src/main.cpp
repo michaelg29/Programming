@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include "programs/shader.h"
+#include "programs/2d/grid2d.hpp"
 
 std::string Shader::defaultDirectory = "assets/shaders";
 
@@ -66,6 +67,11 @@ int main()
     double dt = 0.0;
     double lastFrame = 0.0;
 
+    // programs
+
+    Grid2D grid({ 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, 5, 5);
+    grid.load();
+
     while (!glfwWindowShouldClose(window)) {
         // update time
         dt = glfwGetTime() - lastFrame;
@@ -73,15 +79,24 @@ int main()
         
         glfwPollEvents();
 
-        // process input
+        // =================PROCESS INPUT
         if (glfwGetKey(window, GLFW_KEY_ESCAPE)) {
             glfwSetWindowShouldClose(window, true);
         }
+        grid.processInput(dt, window);
 
-        // render
+        // =================RENDER
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // render programs
+        grid.render(dt);
+
+        glfwSwapBuffers(window);
     }
 
-    // cleanup
+    // =====================CLEANUp
+    grid.cleanup();
 
     glfwTerminate();
 
