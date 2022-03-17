@@ -269,3 +269,4 @@ __pycache__/
 *.log
 *.ipch
 *.exe
+*.env
