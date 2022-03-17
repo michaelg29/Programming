@@ -1,0 +1,6 @@
+* HTML Forms: https://www.w3schools.com/tags/att_form_method.asp
+* HTML GET Requests: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET
+* HTML POST Requests: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST
+* HTML Responses: https://www.tutorialspoint.com/http/http_responses.htm
+* ASCII Table: https://www.asciitable.com/
+* Winsock Server Video: https://youtu.be/QedzfsexcdU
