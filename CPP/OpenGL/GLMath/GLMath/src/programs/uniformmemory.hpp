@@ -8,7 +8,7 @@
 #include <string>
 
 #include "vertexmemory.hpp"
-#include "../rendering/shader.h"
+#include "shader.h"
 
 #define N 4 // word size
 

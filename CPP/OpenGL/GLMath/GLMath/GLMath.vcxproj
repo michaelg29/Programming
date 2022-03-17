@@ -144,6 +144,7 @@
   <ItemGroup>
     <ClCompile Include="lib\glad.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\programs\program.cpp" />
     <ClCompile Include="src\programs\shader.cpp" />
   </ItemGroup>
   <ItemGroup>

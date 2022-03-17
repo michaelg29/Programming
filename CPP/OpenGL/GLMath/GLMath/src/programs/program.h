@@ -5,6 +5,7 @@
 #define PROGRAM_H
 
 class Program {
+public:
 	virtual void load();
 
 	virtual void processInput(double dt, GLFWwindow* window);
