@@ -24,6 +24,29 @@ void cleanup(SOCKET listener)
     WSACleanup();
 }
 
+int readFile(const char* filename, char **output)
+{
+    // load input file
+    FILE *fp = fopen("input.html", "r");
+    if (!fp) {
+        return 0;
+    }
+    // get length
+    // move cursor to the end
+    fseek(fp, 0L, SEEK_END);
+    // get remaining length
+    int len = ftell(fp);
+    // return to original position
+    fseek(fp, 0, SEEK_SET);
+    // read
+    *output = malloc(len + 1);
+    fread(*output, len, 1, fp);
+    (*output)[len] = 0;
+    fclose(fp);
+
+    return len;
+}
+
 int main()
 {
     printf("Hello, world!\n");
@@ -77,24 +100,13 @@ int main()
 
     printf("Loading file\n");
 
-    // load input file
-    FILE *fp = fopen("input.html", "r");
-    if (!fp) {
-        printf("Could not load input form\n");
+    inputFileLength = readFile("input.html", &inputFileContents);
+    if (!inputFileLength || !inputFileContents)
+    {
+        printf("Could not read input form\n");
         cleanup(listener);
         return 1;
     }
-    // get length
-    // move cursor to the end
-    fseek(fp, 0L, SEEK_END);
-    // get remaining length
-    inputFileLength = ftell(fp);
-    // return to original position
-    fseek(fp, 0, SEEK_SET);
-    // read
-    inputFileContents = malloc(inputFileLength + 1);
-    fread(inputFileContents, inputFileLength, 1, fp);
-    inputFileContents[inputFileLength] = 0;
 
     // done setting up
     printf("Accepting on %s:%d\n", ADDRESS, PORT);
