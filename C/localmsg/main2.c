@@ -8,12 +8,13 @@
 #include <iphlpapi.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #pragma comment(lib, "Ws2_32.lib")
 
 #define BUFLEN 1024
-#define PORT 5500
-#define ADDRESS "127.0.0.1" // aka "localhost"
+char ADDRESS[16]; // 255.255.255.255, 15 characters
+int PORT;
 
 void cleanup(SOCKET listener)
 {
@@ -47,7 +48,7 @@ int readFile(const char* filename, char **output)
     return len;
 }
 
-int main()
+int main(int argc, char **argv)
 {
     printf("Hello, world!\n");
 
@@ -66,6 +67,38 @@ int main()
     {
         printf("Startup failed: %d\n", res);
         return 1;
+    }
+
+    // read address
+    if (argc < 3)
+    {
+        FILE *fp = NULL;
+        if (argc == 2)
+        {
+            printf("%s: ", argv[1]);
+            fp = fopen(argv[1], "r");
+        }
+        else
+        {
+            printf(".env: ");
+            fp = fopen(".env", "r");
+        }
+
+        if (!fp)
+        {
+            printf("Could not read address file\n");
+            return 1;
+        }
+        fscanf(fp, "%s %d", ADDRESS, &PORT);
+        fclose(fp);
+
+        printf("Take in %s:%d through file\n", ADDRESS, PORT);
+    }
+    else
+    {
+        strcpy(ADDRESS, argv[1]);
+        PORT = atoi(argv[2]);
+        printf("Take in %s:%d through runtime arguments\n", ADDRESS, PORT);
     }
 
     // setup server
