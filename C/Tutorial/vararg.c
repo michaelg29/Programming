@@ -24,5 +24,5 @@ double avg(int num, ...)
 
 int main()
 {
-    printf("avg = %f\n", avg(2, 3, 5, 1, -2, 5));
+    printf("avg = %f\n", avg(6, 2, 3, 5, 1, -2, 5));
 }
