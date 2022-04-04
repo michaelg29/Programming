@@ -143,6 +143,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lib\glad.c" />
+    <ClCompile Include="src\io\camera.cpp" />
+    <ClCompile Include="src\io\keyboard.cpp" />
+    <ClCompile Include="src\io\mouse.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\programs\program.cpp" />
     <ClCompile Include="src\programs\shader.cpp" />
@@ -154,6 +157,9 @@
     <None Include="glfw3.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\io\camera.h" />
+    <ClInclude Include="src\io\keyboard.h" />
+    <ClInclude Include="src\io\mouse.h" />
     <ClInclude Include="src\programs\2d\grid2d.hpp" />
     <ClInclude Include="src\programs\program.h" />
     <ClInclude Include="src\programs\shader.h" />
