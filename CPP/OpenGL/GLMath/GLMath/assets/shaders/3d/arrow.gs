@@ -5,13 +5,12 @@
 // take in points
 layout (points) in;
 // output triangles
-// 21 edges for arm (42 vertices)
-// 33 points for head (33 vertices)
-layout (triangle_strip, max_vertices=75) out;
+// 16 edges for arm (32 vertices)
+// 16+8 points for head (24 vertices)
+layout (triangle_strip, max_vertices=56) out;
 
 in VS_OUT {
-	vec3 start;
-	vec3 end;
+	float mag;
 	float radius;
 	float head_radius;
 	float head_height;
@@ -26,10 +25,10 @@ uniform mat4 view;
 uniform mat4 projection;
 
 mat4 model;
-int noEdges = 20;
+int noEdges = 15;
 
 void sendVertex(vec3 pos) {
-	gl_Position = projection * view * (model * vec4(pos, 1.0));
+	gl_Position = projection * view * model * vec4(pos, 1.0);
 	EmitVertex();
 }
 
@@ -62,13 +61,11 @@ void buildHead(float head_radius, float mag, float head_height) {
 }
 
 void main() {
-	fragColor = vec4(gs_in[0].color, 1.0);
-
-	vec3 arm_vector = gs_in[0].end - gs_in[0].start; // direction vector
-	float mag = length(arm_vector); // magnitude
-	model = gs_in[0].model;
+	// extract data from vertex shader
+	fragColor = vec4(gs_in[0].color, 1.0); // color for fragment shader
+	model = gs_in[0].model; // transormation matrix
 
 	// call build functions
-	buildArm(mag - gs_in[0].head_height, gs_in[0].radius);
-	buildHead(gs_in[0].head_radius, mag, gs_in[0].head_height);
+	buildArm(gs_in[0].mag - gs_in[0].head_height, gs_in[0].radius);
+	buildHead(gs_in[0].head_radius, gs_in[0].mag, gs_in[0].head_height);
 }
