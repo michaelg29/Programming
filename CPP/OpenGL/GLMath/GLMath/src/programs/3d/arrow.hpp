@@ -94,23 +94,24 @@ public:
 		glm::vec3 armVector = glm::normalize(end - start); // {ax, ay, az}
 
 		// arm vector perpendicular to plane with equation ax*x + ay*y + az*z = 0
-		// points of the form (x, (-ax*x - az*z)/ay, z) satisfy
-		// lincomb of (1, -ax/ay, 0) and (0, -az/ay, 1)
-
+		// get basis of the plane
 		glm::vec3 b1, b2;
 
 		if (armVector.y != 0.0f)
 		{
+			// y = -(ax*x + az*z)/ay
 			b1 = glm::normalize(glm::vec3(1.0f, -armVector.x / armVector.y, 0.0f));
 			b2 = glm::normalize(glm::vec3(0.0f, -armVector.z / armVector.y, 1.0f));
 		}
 		else if (armVector.z != 0.0f)
 		{
+			// z = -(ax*x + ay*y)/az
 			b1 = glm::normalize(glm::vec3(1.0f, 0.0f, -armVector.x / armVector.z));
 			b2 = glm::normalize(glm::vec3(0.0f, 1.0f, -armVector.y / armVector.z));
 		}
 		else if (armVector.x != 0.0f)
 		{
+			// x = -(ay*y + az*z)/ax
 			b1 = glm::normalize(glm::vec3(-armVector.y / armVector.x, 1.0f, 0.0f));
 			b2 = glm::normalize(glm::vec3(-armVector.z / armVector.x, 0.0f, 1.0f));
 		}
