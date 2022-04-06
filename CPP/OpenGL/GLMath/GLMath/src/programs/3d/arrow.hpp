@@ -79,9 +79,7 @@ public:
 		VAO["matVBO"].setAttPointer<glm::vec4>(6, 4, GL_FLOAT, 4, 2);
 		VAO["matVBO"].setAttPointer<glm::vec4>(7, 4, GL_FLOAT, 4, 3);
 
-		// set camera matrices
-		cam = Camera(glm::vec3(-1.0f, 0.0f, 0.0f));
-		updateCameraMatrices();
+		
 	}
 
 	bool addInstance(glm::vec3 start, glm::vec3 end, float radius, float head_radius, float head_height, glm::vec3 color) {
@@ -137,45 +135,15 @@ public:
 		return true;
 	}
 
-	void updateCameraMatrices() {
+	void updateCameraMatrices(glm::mat4 view, glm::mat4 projection) {
 		shader.activate();
-		view = cam.getViewMatrix();
-		projection = glm::perspective(
-			glm::radians(cam.getZoom()),	// FOV
-			1.0f,							// aspect ratio
-			0.1f, 100.0f					// near and far bounds
-		);
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
 	}
 
 	// process input
 	void processInput(double dt, GLFWwindow* window) {
-		// set camera pos/matrices, continuously poll
-		if (Keyboard::key(GLFW_KEY_W)) {
-			cam.updateCameraPos(CameraDirection::FORWARD, dt);
-			updateCameraMatrices();
-		}
-		if (Keyboard::key(GLFW_KEY_S)) {
-			cam.updateCameraPos(CameraDirection::BACKWARD, dt);
-			updateCameraMatrices();
-		}
-		if (Keyboard::key(GLFW_KEY_D)) {
-			cam.updateCameraPos(CameraDirection::RIGHT, dt);
-			updateCameraMatrices();
-		}
-		if (Keyboard::key(GLFW_KEY_A)) {
-			cam.updateCameraPos(CameraDirection::LEFT, dt);
-			updateCameraMatrices();
-		}
-		if (Keyboard::key(GLFW_KEY_SPACE)) {
-			cam.updateCameraPos(CameraDirection::UP, dt);
-			updateCameraMatrices();
-		}
-		if (Keyboard::key(GLFW_KEY_LEFT_SHIFT)) {
-			cam.updateCameraPos(CameraDirection::DOWN, dt);
-			updateCameraMatrices();
-		}
+		
 	}
 
 	void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -185,14 +153,7 @@ public:
 
 	void cursorChanged(GLFWwindow* window, double _x, double _y)
 	{
-		// set camera direction
-		double dx = Mouse::getDX(), dy = Mouse::getDY();
-		if (dx != 0 || dy != 0) {
-			cam.updateCameraDirection(dx, dy);
-		}
-
-		// set matrices
-		updateCameraMatrices();
+		
 	}
 
 	void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods)
@@ -202,14 +163,7 @@ public:
 
 	void scrollChanged(GLFWwindow* window, double dx, double dy)
 	{
-		// set camera zoom
-		double scrollDy = Mouse::getScrollDY();
-		if (scrollDy != 0) {
-			cam.updateCameraZoom(scrollDy);
-		}
-
-		// set matrices
-		updateCameraMatrices();
+		
 	}
 
 	void render(double dt) {
