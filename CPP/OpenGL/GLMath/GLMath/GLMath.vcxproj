@@ -166,7 +166,6 @@
     <ClInclude Include="src\io\camera.h" />
     <ClInclude Include="src\io\keyboard.h" />
     <ClInclude Include="src\io\mouse.h" />
-    <ClInclude Include="src\programs\2d\grid2d.hpp" />
     <ClInclude Include="src\programs\3d\arrow.hpp" />
     <ClInclude Include="src\programs\3d\surface.hpp" />
     <ClInclude Include="src\programs\program.h" />
