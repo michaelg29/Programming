@@ -29,15 +29,11 @@ class Arrow : public Program {
 
 	ArrayObject VAO;
 
-	Camera cam;
-	glm::mat4 view;
-	glm::mat4 projection;
-
 public:
 	Shader shader;
 
 	Arrow(unsigned int maxNoInstances)
-		: maxNoInstances(maxNoInstances), noInstances(0), view(1.0f), projection(1.0f) {}
+		: maxNoInstances(maxNoInstances), noInstances(0) {}
 
 	void load() {
 		shader = Shader(false, "3d/arrow.vs", "3d/dirlight.fs", "3d/arrow.gs");
