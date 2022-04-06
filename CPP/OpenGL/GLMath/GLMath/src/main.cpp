@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 
 #include "programs/shader.h"
+#include "programs/uniformmemory.hpp"
+#include "programs/material.h"
 #include "programs/3d/arrow.hpp"
 
 #include "io/keyboard.h"
@@ -64,6 +66,13 @@ glm::mat4 projection;
 // programs
 Arrow a(3);
 
+typedef struct {
+    glm::vec3 direction;
+    glm::vec4 ambient;
+    glm::vec4 diffuse;
+    glm::vec4 specular;
+} DirLight;
+
 int main()
 {
     std::cout << "Hello, world!" << std::endl;
@@ -107,14 +116,43 @@ int main()
 
     // programs ===============
     // axes
-    a.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f)); // x
-    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f)); // y
-    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f)); // z
+    a.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::cyan_plastic); // x
+    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::green_plastic); // y
+    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, Material::red_plastic); // z
     a.load();
 
     // Camera ==============
     updateCameraMatrices();
 
+    // lighting
+    DirLight dirLight = {
+        glm::vec3(-0.2f, -0.9f, -0.2f),
+        glm::vec4(0.5f, 0.5f, 0.5f, 1.0f),
+        glm::vec4(0.6f, 0.6f, 0.6f, 1.0f),
+        glm::vec4(0.7f, 0.7f, 0.7f, 1.0f)
+    };
+    // write to UBO
+    UBO::UBO dirLightUBO(0, {
+        UBO::newStruct({ // dir light
+            UBO::Type::VEC3,
+            UBO::Type::VEC4,
+            UBO::Type::VEC4,
+            UBO::Type::VEC4 
+        })
+    });
+    dirLightUBO.attachToShader(a.shader, "DirLightUniform");
+    // generate/bind
+    dirLightUBO.generate();
+    dirLightUBO.bind();
+    dirLightUBO.initNullData(GL_STATIC_DRAW);
+    dirLightUBO.bindRange();
+    // write
+    dirLightUBO.startWrite();
+    dirLightUBO.writeElement<glm::vec3>(&dirLight.direction);
+    dirLightUBO.writeElement<glm::vec4>(&dirLight.ambient);
+    dirLightUBO.writeElement<glm::vec4>(&dirLight.diffuse);
+    dirLightUBO.writeElement<glm::vec4>(&dirLight.specular);
+    
     while (!glfwWindowShouldClose(window)) {
         // update time
         dt = glfwGetTime() - lastFrame;
@@ -154,7 +192,7 @@ void updateCameraMatrices() {
     );
 
     // program callbacks
-    a.updateCameraMatrices(view, projection);
+    a.updateCameraMatrices(view, projection, cam.cameraPos);
 }
 
 void processInput(double dt) {

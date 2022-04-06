@@ -147,6 +147,7 @@
     <ClCompile Include="src\io\keyboard.cpp" />
     <ClCompile Include="src\io\mouse.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\programs\material.cpp" />
     <ClCompile Include="src\programs\program.cpp" />
     <ClCompile Include="src\programs\shader.cpp" />
   </ItemGroup>
@@ -157,6 +158,7 @@
     <None Include="assets\shaders\3d\arrow.fs" />
     <None Include="assets\shaders\3d\arrow.gs" />
     <None Include="assets\shaders\3d\arrow.vs" />
+    <None Include="assets\shaders\3d\dirlight.fs" />
     <None Include="assets\shaders\3d\surface.fs" />
     <None Include="assets\shaders\3d\surface.gs" />
     <None Include="assets\shaders\3d\surface.vs" />
@@ -168,6 +170,7 @@
     <ClInclude Include="src\io\mouse.h" />
     <ClInclude Include="src\programs\3d\arrow.hpp" />
     <ClInclude Include="src\programs\3d\surface.hpp" />
+    <ClInclude Include="src\programs\material.h" />
     <ClInclude Include="src\programs\program.h" />
     <ClInclude Include="src\programs\shader.h" />
     <ClInclude Include="src\programs\uniformmemory.hpp" />
