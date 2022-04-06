@@ -8,6 +8,7 @@
 
 #include "io/keyboard.h"
 #include "io/mouse.h"
+#include "io/camera.h"
 
 std::string Shader::defaultDirectory = "assets/shaders";
 
@@ -43,22 +44,33 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+// IO CALLBACK SIGNATURES ==================================
+void processInput(double dt);
+void updateCameraMatrices();
 void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods);
 void cursorChanged(GLFWwindow* window, double _x, double _y);
 void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods);
 void scrollChanged(GLFWwindow* window, double dx, double dy);
 
+// GLOBAL VARIABLES =================================
+
+GLFWwindow* window = nullptr;
+
+// camera
+Camera cam(glm::vec3(-1.0f, 0.0f, 0.0f));
+glm::mat4 view;
+glm::mat4 projection;
+
+// programs
 Arrow a(3);
 
 int main()
 {
     std::cout << "Hello, world!" << std::endl;
 
+    // initialize
     initGLFW(3, 3);
-
-    GLFWwindow* window = nullptr;
     createWindow(window, "GLMath", 800, 800, framebufferSizeCallback);
-
     if (!window) {
         std::cout << "Could not create window" << std::endl;
         return -1;
@@ -93,6 +105,9 @@ int main()
     Mouse::mouseButtonCallbacks.push_back(mouseButtonChanged);
     Mouse::mouseWheelCallbacks.push_back(scrollChanged);
 
+    // Camera
+    updateCameraMatrices();
+
     // programs
     a.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
     a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -104,12 +119,11 @@ int main()
         dt = glfwGetTime() - lastFrame;
         lastFrame += dt;
         
+        // =================PROCESS INPUT
+        // wait for interrupt
         glfwWaitEventsTimeout(0.001);
 
-        // =================PROCESS INPUT
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE)) {
-            glfwSetWindowShouldClose(window, true);
-        }
+        processInput(dt);
         a.processInput(dt, window);
 
         // =================RENDER
@@ -130,22 +144,88 @@ int main()
 	return 0;
 }
 
+void updateCameraMatrices() {
+    view = cam.getViewMatrix();
+    projection = glm::perspective(
+        glm::radians(cam.getZoom()),	// FOV
+        1.0f,							// aspect ratio
+        0.1f, 100.0f					// near and far bounds
+    );
+
+    // program callbacks
+    a.updateCameraMatrices(view, projection);
+}
+
+void processInput(double dt) {
+    if (Keyboard::key(GLFW_KEY_ESCAPE)) {
+        glfwSetWindowShouldClose(window, true);
+    }
+
+    // set camera pos/matrices, continuously poll
+    if (Keyboard::key(GLFW_KEY_W)) {
+        cam.updateCameraPos(CameraDirection::FORWARD, dt);
+        updateCameraMatrices();
+    }
+    if (Keyboard::key(GLFW_KEY_S)) {
+        cam.updateCameraPos(CameraDirection::BACKWARD, dt);
+        updateCameraMatrices();
+    }
+    if (Keyboard::key(GLFW_KEY_D)) {
+        cam.updateCameraPos(CameraDirection::RIGHT, dt);
+        updateCameraMatrices();
+    }
+    if (Keyboard::key(GLFW_KEY_A)) {
+        cam.updateCameraPos(CameraDirection::LEFT, dt);
+        updateCameraMatrices();
+    }
+    if (Keyboard::key(GLFW_KEY_SPACE)) {
+        cam.updateCameraPos(CameraDirection::UP, dt);
+        updateCameraMatrices();
+    }
+    if (Keyboard::key(GLFW_KEY_LEFT_SHIFT)) {
+        cam.updateCameraPos(CameraDirection::DOWN, dt);
+        updateCameraMatrices();
+    }
+}
+
 void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    // program callbacks
     a.keyChanged(window, key, scancode, action, mods);
 }
 
 void cursorChanged(GLFWwindow* window, double _x, double _y)
 {
+    // set camera direction
+    double dx = Mouse::getDX(), dy = Mouse::getDY();
+    if (dx != 0 || dy != 0) {
+        cam.updateCameraDirection(dx, dy);
+    }
+
+    // set matrices
+    updateCameraMatrices();
+
+    // program callbacks
     a.cursorChanged(window, _x, _y);
 }
 
 void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods)
 {
+    // program callbacks
     a.mouseButtonChanged(window, button, action, mods);
 }
 
 void scrollChanged(GLFWwindow* window, double dx, double dy)
 {
+    // set camera zoom
+    double scrollDy = Mouse::getScrollDY();
+    if (scrollDy != 0) {
+        cam.updateCameraZoom(scrollDy);
+    }
+
+    // set matrices
+    updateCameraMatrices();
+
+    // program callbacks
     a.scrollChanged(window, dx, dy);
 }
