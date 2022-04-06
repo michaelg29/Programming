@@ -95,7 +95,7 @@ int main()
     double dt = 0.0;
     double lastFrame = 0.0;
 
-    // I/O
+    // I/O ================
     glfwSetKeyCallback(window, Keyboard::keyCallback);
     glfwSetCursorPosCallback(window, Mouse::cursorPosCallback);
     glfwSetMouseButtonCallback(window, Mouse::mouseButtonCallback);
@@ -105,14 +105,15 @@ int main()
     Mouse::mouseButtonCallbacks.push_back(mouseButtonChanged);
     Mouse::mouseWheelCallbacks.push_back(scrollChanged);
 
-    // Camera
-    updateCameraMatrices();
-
-    // programs
-    a.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
-    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+    // programs ===============
+    // axes
+    a.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f)); // x
+    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f)); // y
+    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f)); // z
     a.load();
+
+    // Camera ==============
+    updateCameraMatrices();
 
     while (!glfwWindowShouldClose(window)) {
         // update time
