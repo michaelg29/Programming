@@ -5,7 +5,6 @@
 
 #include "programs/shader.h"
 #include "programs/3d/arrow.hpp"
-#include "programs/2d/grid2d.hpp"
 
 #include "io/keyboard.h"
 #include "io/mouse.h"
