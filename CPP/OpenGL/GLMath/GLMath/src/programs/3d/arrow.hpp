@@ -10,9 +10,6 @@
 #include "../material.h"
 #include "../vertexmemory.hpp"
 #include "../uniformmemory.hpp"
-#include "../../io/camera.h"
-#include "../../io/keyboard.h"
-#include "../../io/mouse.h"
 
 #ifndef ARROW_HPP
 #define ARROW_HPP
