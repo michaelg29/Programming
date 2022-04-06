@@ -141,31 +141,6 @@ public:
 		shader.setMat4("projection", projection);
 	}
 
-	// process input
-	void processInput(double dt, GLFWwindow* window) {
-		
-	}
-
-	void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
-
-	}
-
-	void cursorChanged(GLFWwindow* window, double _x, double _y)
-	{
-		
-	}
-
-	void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods)
-	{
-
-	}
-
-	void scrollChanged(GLFWwindow* window, double dx, double dy)
-	{
-		
-	}
-
 	void render(double dt) {
 		shader.activate();
 		VAO.bind();
