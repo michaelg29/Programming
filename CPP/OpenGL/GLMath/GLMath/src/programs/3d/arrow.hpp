@@ -119,10 +119,15 @@ public:
 			return false;
 		}
 
-		mat[0] = glm::vec4(b1, 0.0f);
-		mat[1] = glm::vec4(armVector, 0.0f);
-		mat[2] = glm::vec4(b2, 0.0f);
-		mat[3] = glm::vec4(start, 1.0f);
+		/*
+			in geometry shader, arrow drawn with base in XZ plane (y = 0) and arm along y-axis
+			transform y unit vector to be along the armVector
+			transform x/z unit vectors to be in the plane of the base, perpendicular to the arm
+		*/
+		mat[0] = glm::vec4(b1, 0.0f); // how x unit vector gets transformed
+		mat[1] = glm::vec4(armVector, 0.0f); // how y unit vector gets transformed
+		mat[2] = glm::vec4(b2, 0.0f); // how z unit vector gets transformed
+		mat[3] = glm::vec4(start, 1.0f); // translation to start point
 		mats.push_back(mat);
 
 		startPts.push_back(start);
