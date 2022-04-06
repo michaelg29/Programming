@@ -7,6 +7,7 @@
 
 #include "../program.h"
 #include "../shader.h"
+#include "../material.h"
 #include "../vertexmemory.hpp"
 #include "../uniformmemory.hpp"
 #include "../../io/camera.h"
@@ -17,14 +18,14 @@
 #define ARROW_HPP
 
 class Arrow : public Program {
-	Shader shader;
-
 	unsigned int maxNoInstances;
 	unsigned int noInstances;
 
 	std::vector<glm::vec4> dimensions; // magnitude, radius, head_radius, head_height
-	std::vector<glm::vec3> colors;
+	std::vector<glm::vec4> colors; // rgb, shininess
 	std::vector<glm::mat4> mats;
+	std::vector<glm::vec3> diffuse;
+	std::vector<glm::vec3> specular;
 
 	ArrayObject VAO;
 
@@ -33,11 +34,13 @@ class Arrow : public Program {
 	glm::mat4 projection;
 
 public:
+	Shader shader;
+
 	Arrow(unsigned int maxNoInstances)
 		: maxNoInstances(maxNoInstances), noInstances(0), view(1.0f), projection(1.0f) {}
 
 	void load() {
-		shader = Shader(false, "3d/arrow.vs", "3d/arrow.fs", "3d/arrow.gs");
+		shader = Shader(false, "3d/arrow.vs", "3d/dirlight.fs", "3d/arrow.gs");
 
 		VAO.generate();
 		VAO.bind();
@@ -52,8 +55,8 @@ public:
 		VAO["colorVBO"] = BufferObject(GL_ARRAY_BUFFER);
 		VAO["colorVBO"].generate();
 		VAO["colorVBO"].bind();
-		VAO["colorVBO"].setData<glm::vec3>(noInstances, &colors[0], GL_STATIC_DRAW);
-		VAO["colorVBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 3, 0);
+		VAO["colorVBO"].setData<glm::vec4>(noInstances, &colors[0], GL_STATIC_DRAW);
+		VAO["colorVBO"].setAttPointer<GLfloat>(1, 4, GL_FLOAT, 4, 0);
 
 		VAO["matVBO"] = BufferObject(GL_ARRAY_BUFFER);
 		VAO["matVBO"].generate();
@@ -63,11 +66,21 @@ public:
 		VAO["matVBO"].setAttPointer<glm::vec4>(3, 4, GL_FLOAT, 4, 1);
 		VAO["matVBO"].setAttPointer<glm::vec4>(4, 4, GL_FLOAT, 4, 2);
 		VAO["matVBO"].setAttPointer<glm::vec4>(5, 4, GL_FLOAT, 4, 3);
+	
+		VAO["diffVBO"] = BufferObject(GL_ARRAY_BUFFER);
+		VAO["diffVBO"].generate();
+		VAO["diffVBO"].bind();
+		VAO["diffVBO"].setData<glm::vec3>(noInstances, &diffuse[0], GL_STATIC_DRAW);
+		VAO["diffVBO"].setAttPointer<GLfloat>(6, 3, GL_FLOAT, 3, 0);
 
-		
+		VAO["specularVBO"] = BufferObject(GL_ARRAY_BUFFER);
+		VAO["specularVBO"].generate();
+		VAO["specularVBO"].bind();
+		VAO["specularVBO"].setData<glm::vec3>(noInstances, &specular[0], GL_STATIC_DRAW);
+		VAO["specularVBO"].setAttPointer<GLfloat>(7, 3, GL_FLOAT, 3, 0);
 	}
 
-	bool addInstance(glm::vec3 start, glm::vec3 end, float radius, float head_radius, float head_height, glm::vec3 color) {
+	bool addInstance(glm::vec3 start, glm::vec3 end, float radius, float head_radius, float head_height, Material material) {
 		if (noInstances >= maxNoInstances)
 		{
 			return false;
@@ -116,17 +129,20 @@ public:
 		mats.push_back(mat);
 
 		dimensions.push_back({ glm::length(end - start), radius, head_radius, head_height });
-		colors.push_back(color);
+		colors.push_back(glm::vec4(material.ambient, material.shininess));
+		diffuse.push_back(material.diffuse);
+		specular.push_back(material.specular);
 
 		noInstances++;
 
 		return true;
 	}
 
-	void updateCameraMatrices(glm::mat4 view, glm::mat4 projection) {
+	void updateCameraMatrices(glm::mat4 view, glm::mat4 projection, glm::vec3 camPos) {
 		shader.activate();
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
+		shader.set3Float("viewPos", camPos);
 	}
 
 	void render(double dt) {

@@ -36,6 +36,9 @@
     <ClCompile Include="src\io\mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\programs\material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="glfw3.dll" />
@@ -48,6 +51,7 @@
     <None Include="assets\shaders\3d\arrow.fs" />
     <None Include="assets\shaders\3d\arrow.gs" />
     <None Include="assets\shaders\3d\arrow.vs" />
+    <None Include="assets\shaders\3d\dirlight.fs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\programs\shader.h">
@@ -75,6 +79,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\programs\3d\arrow.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\programs\material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
