@@ -22,9 +22,7 @@ class Arrow : public Program {
 	unsigned int maxNoInstances;
 	unsigned int noInstances;
 
-	std::vector<glm::vec3> startPts;
-	std::vector<glm::vec3> endPts;
-	std::vector<glm::vec3> dimensions;
+	std::vector<glm::vec4> dimensions; // magnitude, radius, head_radius, head_height
 	std::vector<glm::vec3> colors;
 	std::vector<glm::mat4> mats;
 
@@ -45,39 +43,26 @@ public:
 		VAO.bind();
 
 		// load data into vertex buffers
-		VAO["startVBO"] = BufferObject(GL_ARRAY_BUFFER);
-		VAO["startVBO"].generate();
-		VAO["startVBO"].bind();
-		VAO["startVBO"].setData<glm::vec3>(noInstances, &startPts[0], GL_STATIC_DRAW);
-		VAO["startVBO"].setAttPointer<GLfloat>(0, 3, GL_FLOAT, 3, 0);
-		VAO["startVBO"].clear();
-
-		VAO["endVBO"] = BufferObject(GL_ARRAY_BUFFER);
-		VAO["endVBO"].generate();
-		VAO["endVBO"].bind();
-		VAO["endVBO"].setData<glm::vec3>(noInstances, &endPts[0], GL_STATIC_DRAW);
-		VAO["endVBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 3, 0);
-
-		VAO["radiiVBO"] = BufferObject(GL_ARRAY_BUFFER);
-		VAO["radiiVBO"].generate();
-		VAO["radiiVBO"].bind();
-		VAO["radiiVBO"].setData<glm::vec3>(noInstances, &dimensions[0], GL_STATIC_DRAW);
-		VAO["radiiVBO"].setAttPointer<GLfloat>(2, 3, GL_FLOAT, 3, 0);
+		VAO["dimVBO"] = BufferObject(GL_ARRAY_BUFFER);
+		VAO["dimVBO"].generate();
+		VAO["dimVBO"].bind();
+		VAO["dimVBO"].setData<glm::vec4>(noInstances, &dimensions[0], GL_STATIC_DRAW);
+		VAO["dimVBO"].setAttPointer<GLfloat>(0, 4, GL_FLOAT, 4, 0);
 
 		VAO["colorVBO"] = BufferObject(GL_ARRAY_BUFFER);
 		VAO["colorVBO"].generate();
 		VAO["colorVBO"].bind();
 		VAO["colorVBO"].setData<glm::vec3>(noInstances, &colors[0], GL_STATIC_DRAW);
-		VAO["colorVBO"].setAttPointer<GLfloat>(3, 3, GL_FLOAT, 3, 0);
+		VAO["colorVBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 3, 0);
 
 		VAO["matVBO"] = BufferObject(GL_ARRAY_BUFFER);
 		VAO["matVBO"].generate();
 		VAO["matVBO"].bind();
 		VAO["matVBO"].setData<glm::mat4>(noInstances, &mats[0], GL_STATIC_DRAW);
-		VAO["matVBO"].setAttPointer<glm::vec4>(4, 4, GL_FLOAT, 4, 0);
-		VAO["matVBO"].setAttPointer<glm::vec4>(5, 4, GL_FLOAT, 4, 1);
-		VAO["matVBO"].setAttPointer<glm::vec4>(6, 4, GL_FLOAT, 4, 2);
-		VAO["matVBO"].setAttPointer<glm::vec4>(7, 4, GL_FLOAT, 4, 3);
+		VAO["matVBO"].setAttPointer<glm::vec4>(2, 4, GL_FLOAT, 4, 0);
+		VAO["matVBO"].setAttPointer<glm::vec4>(3, 4, GL_FLOAT, 4, 1);
+		VAO["matVBO"].setAttPointer<glm::vec4>(4, 4, GL_FLOAT, 4, 2);
+		VAO["matVBO"].setAttPointer<glm::vec4>(5, 4, GL_FLOAT, 4, 3);
 
 		
 	}
@@ -115,7 +100,7 @@ public:
 		}
 		else
 		{
-			// arrow goes nowhere
+			// two points are the same
 			return false;
 		}
 
@@ -130,9 +115,7 @@ public:
 		mat[3] = glm::vec4(start, 1.0f); // translation to start point
 		mats.push_back(mat);
 
-		startPts.push_back(start);
-		endPts.push_back(end);
-		dimensions.push_back({ radius, head_radius, head_height });
+		dimensions.push_back({ glm::length(end - start), radius, head_radius, head_height });
 		colors.push_back(color);
 
 		noInstances++;
@@ -155,9 +138,9 @@ public:
 	void cleanup() {
 		noInstances = 0;
 
-		startPts.clear();
-		endPts.clear();
 		dimensions.clear();
+		colors.clear();
+		mats.clear();
 
 		shader.cleanup();
 		VAO.cleanup();
