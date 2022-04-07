@@ -7,6 +7,7 @@
 #include "programs/uniformmemory.hpp"
 #include "programs/material.h"
 #include "programs/3d/arrow.hpp"
+#include "programs/3d/surface.hpp"
 
 #include "io/keyboard.h"
 #include "io/mouse.h"
@@ -65,6 +66,7 @@ glm::mat4 projection;
 
 // programs
 Arrow a(3);
+Surface s(glm::vec2(-10.0f), glm::vec2(10.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
 
 typedef struct {
     glm::vec3 direction;
@@ -120,6 +122,8 @@ int main()
     a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::green_plastic); // y
     a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, Material::red_plastic); // z
     a.load();
+    // surface
+    s.load();
 
     // Camera ==============
     updateCameraMatrices();
@@ -141,6 +145,7 @@ int main()
         })
     });
     dirLightUBO.attachToShader(a.shader, "DirLightUniform");
+    dirLightUBO.attachToShader(s.shader, "DirLightUniform");
     // generate/bind
     dirLightUBO.generate();
     dirLightUBO.bind();
@@ -164,6 +169,7 @@ int main()
 
         processInput(dt);
         a.processInput(dt, window);
+        s.processInput(dt, window);
 
         // =================RENDER
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -171,12 +177,14 @@ int main()
 
         // render programs
         a.render(dt);
+        s.render(dt);
 
         glfwSwapBuffers(window);
     }
 
     // =====================CLEANUP
     a.cleanup();
+    s.cleanup();
 
     glfwTerminate();
 
@@ -193,6 +201,7 @@ void updateCameraMatrices() {
 
     // program callbacks
     a.updateCameraMatrices(view, projection, cam.cameraPos);
+    s.updateCameraMatrices(view, projection, cam.cameraPos);
 }
 
 void processInput(double dt) {
