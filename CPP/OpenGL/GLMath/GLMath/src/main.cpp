@@ -136,7 +136,7 @@ int main()
         glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)
     };
     // write to UBO
-    UBO::UBO dirLightUBO(0, {
+    UBO::UBO dirLightUBO({
         UBO::newStruct({ // dir light
             UBO::Type::VEC3,
             UBO::Type::VEC4,
@@ -185,6 +185,8 @@ int main()
     // =====================CLEANUP
     a.cleanup();
     s.cleanup();
+
+    dirLightUBO.cleanup();
 
     glfwTerminate();
 

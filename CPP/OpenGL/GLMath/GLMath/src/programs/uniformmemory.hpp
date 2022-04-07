@@ -185,21 +185,23 @@ namespace UBO {
 
     class UBO : public BufferObject {
     public:
+        static GLuint nextBindingPos;
+
         Element block; // root element of the UBO (struct)
         unsigned int calculatedSize;
         GLuint bindingPos;
 
-        UBO(GLuint bindingPos)
+        UBO()
             : BufferObject(GL_UNIFORM_BUFFER),
             block(newStruct({})),
             calculatedSize(0),
-            bindingPos(bindingPos) {}
+            bindingPos(UBO::nextBindingPos++) {}
 
-        UBO(GLuint bindingPos, std::vector<Element> elements)
+        UBO(std::vector<Element> elements)
             : BufferObject(GL_UNIFORM_BUFFER),
             block(newStruct(elements)),
             calculatedSize(0),
-            bindingPos(bindingPos) {}
+            bindingPos(UBO::nextBindingPos++) {}
 
         void attachToShader(Shader shader, std::string name) {
             GLuint blockIdx = glGetUniformBlockIndex(shader.id, name.c_str());
@@ -403,5 +405,7 @@ namespace UBO {
         }
     };
 };
+
+GLuint UBO::UBO::nextBindingPos = 0;
 
 #endif
