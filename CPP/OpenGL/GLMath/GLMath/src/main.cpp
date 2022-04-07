@@ -66,7 +66,7 @@ glm::mat4 projection;
 
 // programs
 Arrow a(3);
-Surface s(glm::vec2(-10.0f), glm::vec2(10.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
+Surface s(glm::vec2(-5.0f), glm::vec2(5.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
 
 typedef struct {
     glm::vec3 direction;

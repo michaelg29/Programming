@@ -29,6 +29,9 @@ in VS_OUT {
 uniform mat4 view;
 uniform mat4 projection;
 
+float y_min;
+float y_max;
+
 void sendVertex(vec3 pos, vec3 norm) {
 	fragPos = pos;
 	normal = norm;
@@ -36,15 +39,31 @@ void sendVertex(vec3 pos, vec3 norm) {
 	EmitVertex();
 }
 
-float func(float x, float y) {
-	return 1 / (x*x + y*y);
+float func(float x, float z) {
+	return 1 / (x*x + z*z);
 }
 
-vec3 norm(float x, float y) {
-	float denom = func(x, y);
+vec3 norm(float x, float z) {
+	float denom = func(x, z);
 	denom *= denom;
 
-	return vec3(2 * x * denom, 2 * y * denom, 1);
+	return vec3(2 * x * denom, 2 * z * denom, 1);
+}
+
+void calcAndSendPoint(float x, float z) {
+	float y = func(x, z);
+	vec3 norm = vec3(2 * x * y * y, 1, 2 * z * y * y);
+
+	if (y < y_min) {
+		y = y_min;
+		norm = vec3(0.0, -1.0, 0.0);
+	}
+	else if (y > y_max) {
+		y = y_max;
+		norm = vec3(0.0, 1.0, 0.0);
+	}
+
+	sendVertex(vec3(x, y, z), norm);
 }
 
 uniform int x_len;
@@ -59,24 +78,16 @@ void main() {
 	// x_inc, y_inc, z_min, z_max
 	float x_inc = dim.x;
 	float z_inc = dim.y;
-	float y_min = dim.z;
-	float y_max = dim.w;
+	y_min = dim.z;
+	y_max = dim.w;
 
 	// convert index into cell
 	float x = (float(gs_in[0].idx % x_len) * x_inc) + bounds.x;
 	float z = (float(gs_in[0].idx / y_len) * z_inc) + bounds.y;
 
-	float y = min(max(func(x, z), y_min), y_max);
-	sendVertex(vec3(x, y, z), norm(x, z));
-
-	y = min(max(func(x + x_inc, z), y_min), y_max);
-	sendVertex(vec3(x + x_inc, y, z), norm(x + x_inc, z));
-
-	y = min(max(func(x, z + z_inc), y_min), y_max);
-	sendVertex(vec3(x, y, z + z_inc), norm(x, z + z_inc));
-
-	y = min(max(func(x + x_inc, z + z_inc), y_min), y_max);
-	sendVertex(vec3(x + x_inc, y, z + z_inc), norm(x + x_inc, z + z_inc));
-
+	calcAndSendPoint(x, z);
+	calcAndSendPoint(x + x_inc, z);
+	calcAndSendPoint(x, z + z_inc);
+	calcAndSendPoint(x + x_inc, z + z_inc);
 	EndPrimitive();
 }
