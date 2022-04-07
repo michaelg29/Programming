@@ -26,7 +26,7 @@ public:
 	Shader shader;
 
 	Surface(glm::vec2 start, glm::vec2 end, int x_cells, int z_cells, float minY, float maxY, Material material) 
-		: uniformObject(1, {
+		: uniformObject({
 			UBO::newVec(4), // startXZ, endXZ
 			UBO::newVec(4), // x_inc, z_inc, y_min, y_max
 			UBO::newVec(3), // ambient
@@ -81,6 +81,7 @@ public:
 	void cleanup() {
 		shader.cleanup();
 		VAO.cleanup();
+		uniformObject.cleanup();
 	}
 };
 
