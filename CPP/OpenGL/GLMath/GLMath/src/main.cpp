@@ -66,7 +66,8 @@ glm::mat4 projection;
 
 // programs
 Arrow a(3);
-Surface s(glm::vec2(-5.0f), glm::vec2(5.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
+Surface s(glm::vec2(-10.0f), glm::vec2(10.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
+Surface s2(glm::vec2(-1.0f), glm::vec2(1.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
 
 typedef struct {
     glm::vec3 direction;
@@ -124,6 +125,7 @@ int main()
     a.load();
     // surface
     s.load();
+    s2.load();
 
     // Camera ==============
     updateCameraMatrices();
@@ -146,6 +148,7 @@ int main()
     });
     dirLightUBO.attachToShader(a.shader, "DirLightUniform");
     dirLightUBO.attachToShader(s.shader, "DirLightUniform");
+    dirLightUBO.attachToShader(s2.shader, "DirLightUniform");
     // generate/bind
     dirLightUBO.generate();
     dirLightUBO.bind();
@@ -178,6 +181,7 @@ int main()
         // render programs
         a.render(dt);
         s.render(dt);
+        s2.render(dt);
 
         glfwSwapBuffers(window);
     }
@@ -185,6 +189,7 @@ int main()
     // =====================CLEANUP
     a.cleanup();
     s.cleanup();
+    s2.cleanup();
 
     dirLightUBO.cleanup();
 
@@ -204,6 +209,7 @@ void updateCameraMatrices() {
     // program callbacks
     a.updateCameraMatrices(view, projection, cam.cameraPos);
     s.updateCameraMatrices(view, projection, cam.cameraPos);
+    s2.updateCameraMatrices(view, projection, cam.cameraPos);
 }
 
 void processInput(double dt) {
