@@ -58,6 +58,7 @@ void scrollChanged(GLFWwindow* window, double dx, double dy);
 // GLOBAL VARIABLES =================================
 
 GLFWwindow* window = nullptr;
+bool re_render = false;
 
 // camera
 Camera cam(glm::vec3(-1.0f, 0.0f, 0.0f));
@@ -160,6 +161,8 @@ int main()
     dirLightUBO.writeElement<glm::vec4>(&dirLight.ambient);
     dirLightUBO.writeElement<glm::vec4>(&dirLight.diffuse);
     dirLightUBO.writeElement<glm::vec4>(&dirLight.specular);
+
+    re_render = true;
     
     while (!glfwWindowShouldClose(window)) {
         // update time
@@ -175,15 +178,19 @@ int main()
         s.processInput(dt, window);
 
         // =================RENDER
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (re_render)
+        {
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // render programs
-        a.render(dt);
-        s.render(dt);
-        s2.render(dt);
+            // render programs
+            a.render(dt);
+            s.render(dt);
+            s2.render(dt);
 
-        glfwSwapBuffers(window);
+            glfwSwapBuffers(window);
+            re_render = false;
+        }
     }
 
     // =====================CLEANUP
@@ -210,6 +217,8 @@ void updateCameraMatrices() {
     a.updateCameraMatrices(view, projection, cam.cameraPos);
     s.updateCameraMatrices(view, projection, cam.cameraPos);
     s2.updateCameraMatrices(view, projection, cam.cameraPos);
+
+    re_render = true;
 }
 
 void processInput(double dt) {
