@@ -231,10 +231,6 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 void processInput(double dt) {
-    if (Keyboard::key(GLFW_KEY_ESCAPE)) {
-        glfwSetWindowShouldClose(window, true);
-    }
-
     // set camera pos/matrices, continuously poll
     if (Keyboard::key(GLFW_KEY_W)) {
         cam.updateCameraPos(CameraDirection::FORWARD, dt);
@@ -264,8 +260,11 @@ void processInput(double dt) {
 
 void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+    if (Keyboard::key(GLFW_KEY_ESCAPE)) {
+        glfwSetWindowShouldClose(window, true);
+    }
+
     // program callbacks
-    a.keyChanged(window, key, scancode, action, mods);
 }
 
 void cursorChanged(GLFWwindow* window, double _x, double _y)
@@ -280,13 +279,11 @@ void cursorChanged(GLFWwindow* window, double _x, double _y)
     updateCameraMatrices();
 
     // program callbacks
-    a.cursorChanged(window, _x, _y);
 }
 
 void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods)
 {
     // program callbacks
-    a.mouseButtonChanged(window, button, action, mods);
 }
 
 void scrollChanged(GLFWwindow* window, double dx, double dy)
@@ -301,5 +298,4 @@ void scrollChanged(GLFWwindow* window, double dx, double dy)
     updateCameraMatrices();
 
     // program callbacks
-    a.scrollChanged(window, dx, dy);
 }
