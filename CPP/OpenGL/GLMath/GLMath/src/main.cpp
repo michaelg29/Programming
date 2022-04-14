@@ -15,6 +15,8 @@
 
 std::string Shader::defaultDirectory = "assets/shaders";
 
+int scr_width = 800, scr_height = 800;
+
 // initialize GLFW
 void initGLFW(unsigned int versionMajor, unsigned int versionMinor) {
     // initialize context
@@ -43,13 +45,10 @@ void createWindow(GLFWwindow*& window,
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 }
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
 // IO CALLBACK SIGNATURES ==================================
 void processInput(double dt);
 void updateCameraMatrices();
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods);
 void cursorChanged(GLFWwindow* window, double _x, double _y);
 void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods);
@@ -101,14 +100,13 @@ int main()
     glfwSwapInterval(1);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // disable cursor
 
-    // set viewport
-    framebufferSizeCallback(window, 800, 800);
 
     // timing variables
     double dt = 0.0;
     double lastFrame = 0.0;
 
     // I/O ================
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetKeyCallback(window, Keyboard::keyCallback);
     glfwSetCursorPosCallback(window, Mouse::cursorPosCallback);
     glfwSetMouseButtonCallback(window, Mouse::mouseButtonCallback);
@@ -129,7 +127,7 @@ int main()
     s2.load();
 
     // Camera ==============
-    updateCameraMatrices();
+    framebufferSizeCallback(window, scr_width, scr_height);
 
     // lighting
     DirLight dirLight = {
@@ -208,9 +206,9 @@ int main()
 void updateCameraMatrices() {
     view = cam.getViewMatrix();
     projection = glm::perspective(
-        glm::radians(cam.getZoom()),	// FOV
-        1.0f,							// aspect ratio
-        0.1f, 100.0f					// near and far bounds
+        glm::radians(cam.getZoom()),	        // FOV
+        (float)scr_width / (float)scr_height,	// aspect ratio
+        0.1f, 100.0f					        // near and far bounds
     );
 
     // program callbacks
@@ -219,6 +217,13 @@ void updateCameraMatrices() {
     s2.updateCameraMatrices(view, projection, cam.cameraPos);
 
     re_render = true;
+}
+
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+    scr_width = 800;
+    scr_height = 800;
+    updateCameraMatrices();
 }
 
 void processInput(double dt) {
