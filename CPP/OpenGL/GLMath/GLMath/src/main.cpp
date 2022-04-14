@@ -15,8 +15,6 @@
 
 std::string Shader::defaultDirectory = "assets/shaders";
 
-int scr_width = 800, scr_height = 800;
-
 // initialize GLFW
 void initGLFW(unsigned int versionMajor, unsigned int versionMinor) {
     // initialize context
@@ -55,7 +53,7 @@ void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods);
 void scrollChanged(GLFWwindow* window, double dx, double dy);
 
 // GLOBAL VARIABLES =================================
-
+int scr_width = 800, scr_height = 800;
 GLFWwindow* window = nullptr;
 bool re_render = false;
 
