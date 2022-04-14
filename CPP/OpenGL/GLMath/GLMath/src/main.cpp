@@ -3,11 +3,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "programs/shader.h"
-#include "programs/uniformmemory.hpp"
-#include "programs/material.h"
-#include "programs/3d/arrow.hpp"
-#include "programs/3d/surface.hpp"
+#include "rendering/shader.h"
+#include "rendering/uniformmemory.hpp"
+#include "rendering/material.h"
+#include "programs/arrow.hpp"
+#include "programs/surface.hpp"
 
 #include "io/keyboard.h"
 #include "io/mouse.h"
