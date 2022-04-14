@@ -18,7 +18,7 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\programs\shader.cpp">
+    <ClCompile Include="src\rendering\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="lib\glad.c">
@@ -36,7 +36,7 @@
     <ClCompile Include="src\io\mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\programs\material.cpp">
+    <ClCompile Include="src\rendering\material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -54,16 +54,16 @@
     <None Include="assets\shaders\3d\dirlight.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\programs\shader.h">
+    <ClInclude Include="src\rendering\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\programs\program.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\programs\vertexmemory.hpp">
+    <ClInclude Include="src\rendering\vertexmemory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\programs\uniformmemory.hpp">
+    <ClInclude Include="src\rendering\uniformmemory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\io\camera.h">
@@ -75,13 +75,13 @@
     <ClInclude Include="src\io\mouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\programs\3d\surface.hpp">
+    <ClInclude Include="src\programs\surface.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\programs\3d\arrow.hpp">
+    <ClInclude Include="src\programs\arrow.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\programs\material.h">
+    <ClInclude Include="src\rendering\material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

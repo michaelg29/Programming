@@ -3,11 +3,11 @@
 
 #include <glm/glm.hpp>
 
-#include "../program.h"
-#include "../shader.h"
-#include "../material.h"
-#include "../vertexmemory.hpp"
-#include "../uniformmemory.hpp"
+#include "program.h"
+#include "../rendering/shader.h"
+#include "../rendering/material.h"
+#include "../rendering/vertexmemory.hpp"
+#include "../rendering/uniformmemory.hpp"
 
 #ifndef SURFACE_HPP
 #define SURFACE_HPP
@@ -23,8 +23,6 @@ class Surface : public Program {
 	UBO::UBO uniformObject;
 
 public:
-	Shader shader;
-
 	Surface(glm::vec2 start, glm::vec2 end, int x_cells, int z_cells, float minY, float maxY, Material material) 
 		: uniformObject({
 			UBO::newVec(4), // startXZ, endXZ
@@ -63,13 +61,6 @@ public:
 		uniformObject.writeElement<glm::vec3>(&material.diffuse);
 		uniformObject.writeElement<glm::vec3>(&material.specular);
 		uniformObject.writeElement<float>(&material.shininess);
-	}
-
-	void updateCameraMatrices(glm::mat4 view, glm::mat4 projection, glm::vec3 camPos) {
-		shader.activate();
-		shader.setMat4("view", view);
-		shader.setMat4("projection", projection);
-		shader.set3Float("viewPos", camPos);
 	}
 
 	void render(double dt) {

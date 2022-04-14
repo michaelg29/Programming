@@ -5,11 +5,11 @@
 
 #include <vector>
 
-#include "../program.h"
-#include "../shader.h"
-#include "../material.h"
-#include "../vertexmemory.hpp"
-#include "../uniformmemory.hpp"
+#include "program.h"
+#include "../rendering/shader.h"
+#include "../rendering/material.h"
+#include "../rendering/vertexmemory.hpp"
+#include "../rendering/uniformmemory.hpp"
 
 #ifndef ARROW_HPP
 #define ARROW_HPP
@@ -27,8 +27,6 @@ class Arrow : public Program {
 	ArrayObject VAO;
 
 public:
-	Shader shader;
-
 	Arrow(unsigned int maxNoInstances)
 		: maxNoInstances(maxNoInstances), noInstances(0) {}
 
@@ -129,13 +127,6 @@ public:
 		noInstances++;
 
 		return true;
-	}
-
-	void updateCameraMatrices(glm::mat4 view, glm::mat4 projection, glm::vec3 camPos) {
-		shader.activate();
-		shader.setMat4("view", view);
-		shader.setMat4("projection", projection);
-		shader.set3Float("viewPos", camPos);
 	}
 
 	void render(double dt) {
