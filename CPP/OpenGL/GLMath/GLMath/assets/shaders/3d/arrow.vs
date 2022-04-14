@@ -12,6 +12,7 @@ out VS_OUT {
 	float head_radius; // radius of head
 	float head_height; // height of head
 	mat4 model; // transformation matrix
+	mat3 normalModel;
 
 	vec3 color;
 	vec3 diffuse;
@@ -26,6 +27,7 @@ void main() {
 	vs_out.head_radius = dimensions.z;
 	vs_out.head_height = dimensions.w;
 	vs_out.model = model;
+	vs_out.normalModel = transpose(inverse(mat3(model)));
 
 	vs_out.color = color.xyz;
 	vs_out.diffuse = diffuse;
