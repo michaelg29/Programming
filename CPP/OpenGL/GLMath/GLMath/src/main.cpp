@@ -173,8 +173,6 @@ int main()
         glfwWaitEventsTimeout(0.001);
 
         processInput(dt);
-        a.processInput(dt, window);
-        s.processInput(dt, window);
 
         // =================RENDER
         if (re_render)
@@ -184,9 +182,9 @@ int main()
 
             // render programs
             r.render(dt);
-            /*a.render(dt);
+            a.render(dt);
             s.render(dt);
-            s2.render(dt);*/
+            s2.render(dt);
 
             glfwSwapBuffers(window);
             re_render = false;
