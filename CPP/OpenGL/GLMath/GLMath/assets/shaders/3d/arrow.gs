@@ -15,6 +15,7 @@ in VS_OUT {
 	float head_radius; // radius of head
 	float head_height; // height of head
 	mat4 model; // transformation matrix
+	mat3 normalModel;
 
 	vec3 color;
 	vec3 diffuse;
@@ -33,12 +34,14 @@ uniform mat4 view;
 uniform mat4 projection;
 
 mat4 model;
+mat3 normalModel;
+
 int noEdges = 15;
 
 void sendVertex(vec3 pos, vec3 norm) {
 	vec4 transformedPos = model * vec4(pos, 1.0);
 	fragPos = transformedPos.xyz;
-	normal = transpose(inverse(mat3(model))) * norm;
+	normal = normalModel * norm;
 	gl_Position = projection * view * transformedPos;
 	EmitVertex();
 }
@@ -81,6 +84,7 @@ void main() {
 	shininess = gs_in[0].shininess;
 	
 	model = gs_in[0].model; // transormation matrix
+	normalModel = gs_in[0].normalModel;
 
 	// call build functions
 	buildArm(gs_in[0].mag - gs_in[0].head_height, gs_in[0].radius);
