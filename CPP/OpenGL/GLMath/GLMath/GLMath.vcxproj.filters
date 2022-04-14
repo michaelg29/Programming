@@ -52,6 +52,8 @@
     <None Include="assets\shaders\3d\arrow.gs" />
     <None Include="assets\shaders\3d\arrow.vs" />
     <None Include="assets\shaders\3d\dirlight.fs" />
+    <None Include="assets\shaders\2d\rectangle.fs" />
+    <None Include="assets\shaders\2d\rectangle.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rendering\shader.h">
@@ -82,6 +84,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\rendering\material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\programs\rectangle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

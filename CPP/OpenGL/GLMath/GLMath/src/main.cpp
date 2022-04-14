@@ -6,6 +6,7 @@
 #include "rendering/shader.h"
 #include "rendering/uniformmemory.hpp"
 #include "rendering/material.h"
+#include "programs/rectangle.hpp"
 #include "programs/arrow.hpp"
 #include "programs/surface.hpp"
 
@@ -63,6 +64,7 @@ glm::mat4 view;
 glm::mat4 projection;
 
 // programs
+Rectangle r;
 Arrow a(3);
 Surface s(glm::vec2(-10.0f), glm::vec2(10.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
 Surface s2(glm::vec2(-1.0f), glm::vec2(1.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
@@ -115,6 +117,7 @@ int main()
     Mouse::mouseWheelCallbacks.push_back(scrollChanged);
 
     // programs ===============
+    r.load();
     // axes
     a.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::cyan_plastic); // x
     a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::green_plastic); // y
@@ -180,9 +183,10 @@ int main()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // render programs
-            a.render(dt);
+            r.render(dt);
+            /*a.render(dt);
             s.render(dt);
-            s2.render(dt);
+            s2.render(dt);*/
 
             glfwSwapBuffers(window);
             re_render = false;
@@ -190,6 +194,7 @@ int main()
     }
 
     // =====================CLEANUP
+    r.cleanup();
     a.cleanup();
     s.cleanup();
     s2.cleanup();
@@ -210,6 +215,7 @@ void updateCameraMatrices() {
     );
 
     // program callbacks
+    r.updateCameraMatrices(view, projection, cam.cameraPos);
     a.updateCameraMatrices(view, projection, cam.cameraPos);
     s.updateCameraMatrices(view, projection, cam.cameraPos);
     s2.updateCameraMatrices(view, projection, cam.cameraPos);

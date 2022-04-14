@@ -152,6 +152,8 @@
     <ClCompile Include="src\rendering\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\shaders\2d\rectangle.fs" />
+    <None Include="assets\shaders\2d\rectangle.vs" />
     <None Include="assets\shaders\2d\grid.fs" />
     <None Include="assets\shaders\2d\grid.gs" />
     <None Include="assets\shaders\2d\grid.vs" />
@@ -169,6 +171,7 @@
     <ClInclude Include="src\io\keyboard.h" />
     <ClInclude Include="src\io\mouse.h" />
     <ClInclude Include="src\programs\arrow.hpp" />
+    <ClInclude Include="src\programs\rectangle.hpp" />
     <ClInclude Include="src\programs\surface.hpp" />
     <ClInclude Include="src\rendering\material.h" />
     <ClInclude Include="src\programs\program.h" />
