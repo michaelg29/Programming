@@ -150,7 +150,10 @@ public:
 
 		dimensions.clear();
 		colors.clear();
+		diffuse.clear();
+		specular.clear();
 		mats.clear();
+		normalMats.clear();
 
 		shader.cleanup();
 		VAO.cleanup();
