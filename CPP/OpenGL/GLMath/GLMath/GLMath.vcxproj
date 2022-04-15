@@ -161,6 +161,8 @@
     <None Include="assets\shaders\3d\arrow.gs" />
     <None Include="assets\shaders\3d\arrow.vs" />
     <None Include="assets\shaders\3d\dirlight.fs" />
+    <None Include="assets\shaders\3d\sphere.fs" />
+    <None Include="assets\shaders\3d\sphere.vs" />
     <None Include="assets\shaders\3d\surface.fs" />
     <None Include="assets\shaders\3d\surface.gs" />
     <None Include="assets\shaders\3d\surface.vs" />
@@ -172,6 +174,7 @@
     <ClInclude Include="src\io\mouse.h" />
     <ClInclude Include="src\programs\arrow.hpp" />
     <ClInclude Include="src\programs\rectangle.hpp" />
+    <ClInclude Include="src\programs\sphere.hpp" />
     <ClInclude Include="src\programs\surface.hpp" />
     <ClInclude Include="src\rendering\material.h" />
     <ClInclude Include="src\programs\program.h" />
