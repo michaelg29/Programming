@@ -54,7 +54,6 @@
     <None Include="assets\shaders\3d\dirlight.fs" />
     <None Include="assets\shaders\2d\rectangle.fs" />
     <None Include="assets\shaders\2d\rectangle.vs" />
-    <None Include="assets\shaders\3d\sphere.fs" />
     <None Include="assets\shaders\3d\sphere.vs" />
   </ItemGroup>
   <ItemGroup>
