@@ -28,7 +28,6 @@ void main() {
     color = vec4(0.0, 0.0, 0.0, 1.0);
 
     color += calcDirLight(dirLight, normalize(normal), viewPos - fragPos, diffuse, specular);
-    //color = fragColor;
 }
 
 vec4 calcDirLight(DirLight dirLight, vec3 norm, vec3 viewVec, vec4 diffMap, vec4 specMap) {
