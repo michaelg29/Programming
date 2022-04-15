@@ -9,6 +9,7 @@
 #include "programs/rectangle.hpp"
 #include "programs/arrow.hpp"
 #include "programs/surface.hpp"
+#include "programs/sphere.hpp"
 
 #include "io/keyboard.h"
 #include "io/mouse.h"
@@ -59,7 +60,7 @@ GLFWwindow* window = nullptr;
 bool re_render = false;
 
 // camera
-Camera cam(glm::vec3(-1.0f, 0.0f, 0.0f));
+Camera cam(glm::vec3(-3.0f, 0.0f, 0.0f));
 glm::mat4 view;
 glm::mat4 projection;
 
@@ -68,6 +69,7 @@ Rectangle r;
 Arrow a(3);
 Surface s(glm::vec2(-10.0f), glm::vec2(10.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
 Surface s2(glm::vec2(-1.0f), glm::vec2(1.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
+Sphere sphere(10);
 
 typedef struct {
     glm::vec3 direction;
@@ -126,6 +128,9 @@ int main()
     // surface
     s.load();
     s2.load();
+    // sphere
+    sphere.addInstance(glm::vec3(0.0f), glm::vec3(0.05f), Material::white_plastic);
+    sphere.load();
 
     // Camera ==============
     framebufferSizeCallback(window, scr_width, scr_height);
@@ -149,6 +154,7 @@ int main()
     dirLightUBO.attachToShader(a.shader, "DirLightUniform");
     dirLightUBO.attachToShader(s.shader, "DirLightUniform");
     dirLightUBO.attachToShader(s2.shader, "DirLightUniform");
+    dirLightUBO.attachToShader(sphere.shader, "DirLightUniform");
     // generate/bind
     dirLightUBO.generate();
     dirLightUBO.bind();
@@ -181,10 +187,11 @@ int main()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // render programs
-            r.render(dt);
+            //r.render(dt);
             a.render(dt);
             s.render(dt);
             s2.render(dt);
+            sphere.render(dt);
 
             glfwSwapBuffers(window);
             re_render = false;
@@ -196,6 +203,7 @@ int main()
     a.cleanup();
     s.cleanup();
     s2.cleanup();
+    sphere.cleanup();
 
     dirLightUBO.cleanup();
 
@@ -217,6 +225,7 @@ void updateCameraMatrices() {
     a.updateCameraMatrices(view, projection, cam.cameraPos);
     s.updateCameraMatrices(view, projection, cam.cameraPos);
     s2.updateCameraMatrices(view, projection, cam.cameraPos);
+    sphere.updateCameraMatrices(view, projection, cam.cameraPos);
 
     re_render = true;
 }
