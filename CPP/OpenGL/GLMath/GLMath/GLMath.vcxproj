@@ -161,7 +161,6 @@
     <None Include="assets\shaders\3d\arrow.gs" />
     <None Include="assets\shaders\3d\arrow.vs" />
     <None Include="assets\shaders\3d\dirlight.fs" />
-    <None Include="assets\shaders\3d\sphere.fs" />
     <None Include="assets\shaders\3d\sphere.vs" />
     <None Include="assets\shaders\3d\surface.fs" />
     <None Include="assets\shaders\3d\surface.gs" />
