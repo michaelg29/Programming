@@ -21,6 +21,7 @@ class Arrow : public Program {
 	std::vector<glm::vec4> dimensions; // magnitude, radius, head_radius, head_height
 	std::vector<glm::vec4> colors; // rgb, shininess
 	std::vector<glm::mat4> mats;
+	std::vector<glm::mat3> normalMats;
 	std::vector<glm::vec3> diffuse;
 	std::vector<glm::vec3> specular;
 
@@ -58,17 +59,25 @@ public:
 		VAO["matVBO"].setAttPointer<glm::vec4>(4, 4, GL_FLOAT, 4, 2);
 		VAO["matVBO"].setAttPointer<glm::vec4>(5, 4, GL_FLOAT, 4, 3);
 	
+		VAO["normMatVBO"] = BufferObject(GL_ARRAY_BUFFER);
+		VAO["normMatVBO"].generate();
+		VAO["normMatVBO"].bind();
+		VAO["normMatVBO"].setData<glm::mat3>(noInstances, &normalMats[0], GL_STATIC_DRAW);
+		VAO["normMatVBO"].setAttPointer<glm::vec3>(6, 3, GL_FLOAT, 3, 0);
+		VAO["normMatVBO"].setAttPointer<glm::vec3>(7, 3, GL_FLOAT, 3, 1);
+		VAO["normMatVBO"].setAttPointer<glm::vec3>(8, 3, GL_FLOAT, 3, 2);
+
 		VAO["diffVBO"] = BufferObject(GL_ARRAY_BUFFER);
 		VAO["diffVBO"].generate();
 		VAO["diffVBO"].bind();
 		VAO["diffVBO"].setData<glm::vec3>(noInstances, &diffuse[0], GL_STATIC_DRAW);
-		VAO["diffVBO"].setAttPointer<GLfloat>(6, 3, GL_FLOAT, 3, 0);
+		VAO["diffVBO"].setAttPointer<GLfloat>(9, 3, GL_FLOAT, 3, 0);
 
 		VAO["specularVBO"] = BufferObject(GL_ARRAY_BUFFER);
 		VAO["specularVBO"].generate();
 		VAO["specularVBO"].bind();
 		VAO["specularVBO"].setData<glm::vec3>(noInstances, &specular[0], GL_STATIC_DRAW);
-		VAO["specularVBO"].setAttPointer<GLfloat>(7, 3, GL_FLOAT, 3, 0);
+		VAO["specularVBO"].setAttPointer<GLfloat>(10, 3, GL_FLOAT, 3, 0);
 	}
 
 	bool addInstance(glm::vec3 start, glm::vec3 end, float radius, float head_radius, float head_height, Material material) {
@@ -118,6 +127,7 @@ public:
 		mat[2] = glm::vec4(b2, 0.0f); // how z unit vector gets transformed
 		mat[3] = glm::vec4(start, 1.0f); // translation to start point
 		mats.push_back(mat);
+		normalMats.push_back(glm::transpose(glm::inverse(mat)));
 
 		dimensions.push_back({ glm::length(end - start), radius, head_radius, head_height });
 		colors.push_back(glm::vec4(material.ambient, material.shininess));
