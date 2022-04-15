@@ -3,8 +3,9 @@
 layout (location = 0) in vec4 dimensions;
 layout (location = 1) in vec4 color;
 layout (location = 2) in mat4 model;
-layout (location = 6) in vec3 diffuse;
-layout (location = 7) in vec3 specular;
+layout (location = 6) in mat3 normModel;
+layout (location = 9) in vec3 diffuse;
+layout (location = 10) in vec3 specular;
 
 out VS_OUT {
 	float mag; // length of arrow
@@ -27,7 +28,7 @@ void main() {
 	vs_out.head_radius = dimensions.z;
 	vs_out.head_height = dimensions.w;
 	vs_out.model = model;
-	vs_out.normalModel = transpose(inverse(mat3(model)));
+	vs_out.normalModel = normModel;
 
 	vs_out.color = color.xyz;
 	vs_out.diffuse = diffuse;
