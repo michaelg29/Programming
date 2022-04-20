@@ -45,10 +45,8 @@
     <None Include="assets\shaders\2d\grid.fs" />
     <None Include="assets\shaders\2d\grid.gs" />
     <None Include="assets\shaders\2d\grid.vs" />
-    <None Include="assets\shaders\3d\surface.fs" />
     <None Include="assets\shaders\3d\surface.gs" />
     <None Include="assets\shaders\3d\surface.vs" />
-    <None Include="assets\shaders\3d\arrow.fs" />
     <None Include="assets\shaders\3d\arrow.gs" />
     <None Include="assets\shaders\3d\arrow.vs" />
     <None Include="assets\shaders\3d\dirlight.fs" />
