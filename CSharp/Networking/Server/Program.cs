@@ -7,12 +7,59 @@ using System.Text;
 
 class Client
 {
+    const int BUF_SIZE = 1024;
+
     Socket socket { get; set; }
     string name { get; set; }
+    Task<int> recvTask;
+    int recvBytes;
+    byte[] recvBuffer;
+    
+    public bool isActive { get; private set; }
 
     public Client(Socket socket)
     {
         this.socket = socket;
+        this.isActive = true;
+    }
+
+    public async Task<Client> ReceiveAsync(CancellationToken token)
+    {
+        if (this.isActive)
+        {
+            recvBuffer = new byte[BUF_SIZE];
+            recvBytes = await socket.ReceiveAsync(recvBuffer, SocketFlags.None, token);
+
+            if (recvBytes <= 0)
+            {
+                Shutdown();
+            }
+        }
+
+        return this;
+    }
+
+    public string GetBuffer()
+    {
+        if (recvBytes > 0)
+        {
+            // decode array
+            string ret = Encoding.ASCII.GetString(recvBuffer, 0, recvBytes);
+            // clear array
+            Array.Clear(recvBuffer, 0, recvBytes);
+            recvBytes = 0;
+            recvBuffer = null;
+            return ret;
+        }
+        
+        return null;
+    }
+
+    public void Shutdown()
+    {
+        this.isActive = false;
+        socket.Shutdown(SocketShutdown.Both);
+        socket.Close();
     }
 }
 
@@ -61,11 +108,6 @@ class Server
         return "Invalid Command";
     }
 
-    private async void AcceptClient(IAsyncResult ar)
-    {
-        
-    }
-
     public async Task Run()
     {
         tasks = new List<Task>();
@@ -79,42 +121,45 @@ class Server
             this.msgHandler($"Waiting on {ip}:{port}");
 
             // add listener task
-            tasks.Add(listener.AcceptAsync());
+            tasks.Add(listener.AcceptAsync(cts.Token).AsTask());
 
             while (tasks.Any())
             {
                 Task finishedTask = await Task.WhenAny(tasks);
                 tasks.Remove(finishedTask);
 
-                if (finishedTask.GetType().GetGenericArguments()[0].Equals())
+                if (finishedTask.GetType().GetGenericArguments()[0].Equals(typeof(Client)))
                 {
                     // receive task
+                    Client recvClient = await (Task<Client>)finishedTask;
+                    string data = recvClient.GetBuffer();
+                    if (!recvClient.isActive)
+                    {
+                        clients.Remove(recvClient);
+                        this.msgHandler($"Client disconnected");
+                        continue;
+                    }
+                    if (data == null)
+                    {
+                        continue;
+                    }
+                    this.msgHandler($"Client sent: {data}");
+                    // listen to next message
+                    tasks.Add(recvClient.ReceiveAsync(cts.Token));
                 }
-            }
-
-            Socket handler = await listener.AcceptAsync();
-            Console.WriteLine("Accepted");
-
-            string data = null;
-            byte[] bytes = null;
-
-            while (true)
-            {
-                bytes = new byte[1024];
-                int bytesRec = await handler.ReceiveAsync(bytes, SocketFlags.None);
-                data += Encoding.ASCII.GetString(bytes, 0, Math.Min(bytesRec, 1024));
-                if (bytesRec == 0 || data.IndexOf("<EOF>") > -1)
+                else
                 {
-                    break;
+                    // accept socket
+                    Socket newSocket = await (Task<Socket>)finishedTask;
+                    Client newClient = new Client(newSocket);
+                    clients.Add(newClient);
+                    this.msgHandler($"Accepted client from {newSocket.LocalEndPoint.ToString()}");
+                    // wait for next client
+                    tasks.Add(listener.AcceptAsync(cts.Token).AsTask());
+                    // listen to client
+                    tasks.Add(newClient.ReceiveAsync(cts.Token));
                 }
-
-                handler.Send(bytes, bytesRec, SocketFlags.None);
             }
-
-            Console.WriteLine($"Received: {data}");
-
-            handler.Shutdown(SocketShutdown.Both);
-            handler.Close();
         }
         catch (Exception e)
         {
@@ -125,11 +170,8 @@ class Server
     public void Cleanup()
     {
         cts.Cancel();
-        foreach (Task t in tasks)
-        {
-            t.Dispose();
-        }
         listener.Close();
+        this.isRunning = false;
 
     }
 }
