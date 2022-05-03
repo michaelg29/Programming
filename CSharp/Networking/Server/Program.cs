@@ -169,6 +169,11 @@ class Server
 
     public void Cleanup()
     {
+        foreach (Client c in clients)
+        {
+            c.Shutdown();
+        }
+
         cts.Cancel();
         listener.Close();
         this.isRunning = false;
