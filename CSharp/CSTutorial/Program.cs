@@ -17,7 +17,7 @@ namespace CSTutorial
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static void Main_(string[] args)
         {
             Console.WriteLine("Hello, world!\n");
             LINQ.run();
