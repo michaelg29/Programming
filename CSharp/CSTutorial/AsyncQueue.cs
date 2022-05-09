@@ -30,7 +30,7 @@ namespace CSTutorial
 
         }
 
-        static async Task Main()
+        static async Task _Main()
         {
             // build list
             List<Task<Task<int>>> tasksToPerform = new List<Task<Task<int>>>();
