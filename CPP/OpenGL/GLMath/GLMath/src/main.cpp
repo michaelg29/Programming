@@ -187,6 +187,14 @@ int main()
 
         processInput(dt);
 
+        // =================UPDATE PROGRAMS
+        for (Program* program : programs)
+        {
+            if (program->update(dt)) {
+                re_render = true;
+            }
+        }
+
         // =================RENDER
         if (re_render)
         {
@@ -196,7 +204,7 @@ int main()
             // render programs
             for (Program* program : programs)
             {
-                program->render(dt);
+                program->render();
             }
 
             glfwSwapBuffers(window);

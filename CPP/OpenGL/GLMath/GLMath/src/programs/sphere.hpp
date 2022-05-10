@@ -157,7 +157,7 @@ public:
 		return true;
 	}
 
-	void render(double dt) {
+	void render() {
 		shader.activate();
 		VAO.bind();
 		VAO.draw(GL_TRIANGLES, (GLuint)indices.size(), GL_UNSIGNED_INT, 0, noInstances);
