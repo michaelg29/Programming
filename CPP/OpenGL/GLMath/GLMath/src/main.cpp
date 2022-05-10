@@ -128,7 +128,7 @@ int main()
     sphere.addInstance(glm::vec3(0.0f), glm::vec3(0.05f), Material::white_plastic);
 
     // register programs =============
-    programs.push_back(&rect);
+    //programs.push_back(&rect);
     programs.push_back(&arrow);
     programs.push_back(&surface);
     programs.push_back(&sphere);
