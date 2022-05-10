@@ -2,10 +2,9 @@
 
 void Program::load() {}
 
-void Program::updateCameraMatrices(glm::mat4 view, glm::mat4 projection, glm::vec3 camPos) {
+void Program::updateCameraMatrices(glm::mat4 projView, glm::vec3 camPos) {
 	shader.activate();
-	shader.setMat4("view", view);
-	shader.setMat4("projection", projection);
+	shader.setMat4("projView", projView);
 	shader.set3Float("viewPos", camPos);
 }
 void Program::processInput(double dt, GLFWwindow* window) {}

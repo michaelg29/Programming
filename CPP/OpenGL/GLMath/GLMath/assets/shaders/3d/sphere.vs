@@ -15,12 +15,11 @@ out vec4 diffuse;
 out vec4 specular;
 out float shininess;
 
-uniform mat4 projection;
-uniform mat4 view;
+uniform mat4 projView;
 
 void main() {
 	fragPos = pos * size + offset;
-	gl_Position = projection * view * vec4(fragPos, 1.0);
+	gl_Position = projView * vec4(fragPos, 1.0);
 	normal = pos;
 
 	fragColor = vec4(amb.xyz, 1.0);

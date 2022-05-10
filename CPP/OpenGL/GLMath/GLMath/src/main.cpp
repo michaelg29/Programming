@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -65,11 +65,12 @@ glm::mat4 view;
 glm::mat4 projection;
 
 // programs
-Rectangle r;
-Arrow a(3);
-Surface s(glm::vec2(-10.0f), glm::vec2(10.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
-Surface s2(glm::vec2(-1.0f), glm::vec2(1.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
+Rectangle rect;
+Arrow arrow(3);
+Surface surface(glm::vec2(-10.0f), glm::vec2(10.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
 Sphere sphere(10);
+
+std::vector<Program*> programs;
 
 typedef struct {
     glm::vec3 direction;
@@ -118,19 +119,25 @@ int main()
     Mouse::mouseButtonCallbacks.push_back(mouseButtonChanged);
     Mouse::mouseWheelCallbacks.push_back(scrollChanged);
 
-    // programs ===============
-    r.load();
+    // add instances ===============
     // axes
-    a.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::cyan_plastic); // x
-    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::green_plastic); // y
-    a.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, Material::red_plastic); // z
-    a.load();
-    // surface
-    s.load();
-    s2.load();
+    arrow.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::cyan_plastic); // x
+    arrow.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::green_plastic); // y
+    arrow.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, Material::red_plastic); // z
     // sphere
     sphere.addInstance(glm::vec3(0.0f), glm::vec3(0.05f), Material::white_plastic);
-    sphere.load();
+
+    // register programs =============
+    programs.push_back(&rect);
+    programs.push_back(&arrow);
+    programs.push_back(&surface);
+    programs.push_back(&sphere);
+
+    // load programs =============
+    for (Program* program : programs)
+    {
+        program->load();
+    }
 
     // Camera ==============
     framebufferSizeCallback(window, scr_width, scr_height);
@@ -151,10 +158,10 @@ int main()
             UBO::Type::VEC4 
         })
     });
-    dirLightUBO.attachToShader(a.shader, "DirLightUniform");
-    dirLightUBO.attachToShader(s.shader, "DirLightUniform");
-    dirLightUBO.attachToShader(s2.shader, "DirLightUniform");
-    dirLightUBO.attachToShader(sphere.shader, "DirLightUniform");
+    for (Program* program : programs)
+    {
+        dirLightUBO.attachToShader(program->shader, "DirLightUniform");
+    }
     // generate/bind
     dirLightUBO.generate();
     dirLightUBO.bind();
@@ -187,11 +194,10 @@ int main()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // render programs
-            //r.render(dt);
-            a.render(dt);
-            s.render(dt);
-            s2.render(dt);
-            sphere.render(dt);
+            for (Program* program : programs)
+            {
+                program->render(dt);
+            }
 
             glfwSwapBuffers(window);
             re_render = false;
@@ -199,11 +205,10 @@ int main()
     }
 
     // =====================CLEANUP
-    r.cleanup();
-    a.cleanup();
-    s.cleanup();
-    s2.cleanup();
-    sphere.cleanup();
+    for (Program* program : programs)
+    {
+        program->cleanup();
+    }
 
     dirLightUBO.cleanup();
 
@@ -220,12 +225,13 @@ void updateCameraMatrices() {
         0.1f, 100.0f					        // near and far bounds
     );
 
+    glm::mat4 projView = projection * view;
+
     // program callbacks
-    r.updateCameraMatrices(view, projection, cam.cameraPos);
-    a.updateCameraMatrices(view, projection, cam.cameraPos);
-    s.updateCameraMatrices(view, projection, cam.cameraPos);
-    s2.updateCameraMatrices(view, projection, cam.cameraPos);
-    sphere.updateCameraMatrices(view, projection, cam.cameraPos);
+    for (Program* program : programs)
+    {
+        program->updateCameraMatrices(projView, cam.cameraPos);
+    }
 
     re_render = true;
 }
@@ -272,6 +278,10 @@ void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods)
     }
 
     // program callbacks
+    for (Program* program : programs)
+    {
+        program->keyChanged(window, key, scancode, action, mods);
+    }
 }
 
 void cursorChanged(GLFWwindow* window, double _x, double _y)
@@ -286,11 +296,19 @@ void cursorChanged(GLFWwindow* window, double _x, double _y)
     updateCameraMatrices();
 
     // program callbacks
+    for (Program* program : programs)
+    {
+        program->cursorChanged(window, _x, _y);
+    }
 }
 
 void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods)
 {
     // program callbacks
+    for (Program* program : programs)
+    {
+        program->mouseButtonChanged(window, button, action, mods);
+    }
 }
 
 void scrollChanged(GLFWwindow* window, double dx, double dy)
@@ -305,4 +323,8 @@ void scrollChanged(GLFWwindow* window, double dx, double dy)
     updateCameraMatrices();
 
     // program callbacks
+    for (Program* program : programs)
+    {
+        program->scrollChanged(window, dx, dy);
+    }
 }
