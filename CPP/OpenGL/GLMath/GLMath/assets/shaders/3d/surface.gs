@@ -53,15 +53,6 @@ void calcAndSendPoint(float x, float z) {
 	float y = func(x, z);
 	vec3 norm = vec3(2 * x * y * y, 1, 2 * z * y * y);
 
-	if (y < y_min) {
-		y = y_min;
-		norm = vec3(0.0, -1.0, 0.0);
-	}
-	else if (y > y_max) {
-		y = y_max;
-		norm = vec3(0.0, 1.0, 0.0);
-	}
-
 	sendVertex(vec3(x, y, z), norm);
 }
 
