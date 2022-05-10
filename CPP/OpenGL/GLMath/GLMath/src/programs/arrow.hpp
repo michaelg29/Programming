@@ -139,7 +139,7 @@ public:
 		return true;
 	}
 
-	void render(double dt) {
+	void render() {
 		shader.activate();
 		VAO.bind();
 		VAO.draw(GL_POINTS, 0, noInstances);

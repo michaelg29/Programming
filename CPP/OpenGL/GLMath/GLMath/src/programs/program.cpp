@@ -12,5 +12,6 @@ void Program::keyChanged(GLFWwindow* window, int key, int scancode, int action, 
 void Program::cursorChanged(GLFWwindow* window, double _x, double _y) {}
 void Program::mouseButtonChanged(GLFWwindow* window, int button, int action, int mods) {}
 void Program::scrollChanged(GLFWwindow* window, double dx, double dy) {}
-void Program::render(double dt) {}
+bool Program::update(double dt) { return false;  }
+void Program::render() {}
 void Program::cleanup() {}

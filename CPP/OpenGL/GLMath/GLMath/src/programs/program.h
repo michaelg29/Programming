@@ -19,7 +19,8 @@ public:
 	virtual void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods);
 	virtual void scrollChanged(GLFWwindow* window, double dx, double dy);
 
-	virtual void render(double dt);
+	virtual bool update(double dt);
+	virtual void render();
 
 	virtual void cleanup();
 };
