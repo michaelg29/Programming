@@ -12,7 +12,7 @@ public:
 
 	virtual void load();
 
-	void updateCameraMatrices(glm::mat4 view, glm::mat4 projection, glm::vec3 camPos);
+	void updateCameraMatrices(glm::mat4 projView, glm::vec3 camPos);
 	virtual void processInput(double dt, GLFWwindow* window);
 	virtual void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods);
 	virtual void cursorChanged(GLFWwindow* window, double _x, double _y);

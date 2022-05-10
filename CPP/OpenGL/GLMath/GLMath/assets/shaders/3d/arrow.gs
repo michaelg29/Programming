@@ -30,8 +30,7 @@ out vec4 diffuse;
 out vec4 specular;
 out float shininess;
 
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 projView;
 
 mat4 model;
 mat3 normalModel;
@@ -42,7 +41,7 @@ void sendVertex(vec3 pos, vec3 norm) {
 	vec4 transformedPos = model * vec4(pos, 1.0);
 	fragPos = transformedPos.xyz;
 	normal = normalModel * norm;
-	gl_Position = projection * view * transformedPos;
+	gl_Position = projView * transformedPos;
 	EmitVertex();
 }
 

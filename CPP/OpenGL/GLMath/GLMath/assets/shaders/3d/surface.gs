@@ -26,8 +26,7 @@ in VS_OUT {
 	int idx;
 } gs_in[];
 
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 projView;
 
 float y_min;
 float y_max;
@@ -35,7 +34,7 @@ float y_max;
 void sendVertex(vec3 pos, vec3 norm) {
 	fragPos = pos;
 	normal = norm;
-	gl_Position = projection * view * vec4(pos, 1.0);
+	gl_Position = projView * vec4(pos, 1.0);
 	EmitVertex();
 }
 
