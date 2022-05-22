@@ -130,7 +130,7 @@ int main()
     // register programs =============
     //programs.push_back(&rect);
     programs.push_back(&arrow);
-    programs.push_back(&surface);
+    //programs.push_back(&surface);
     programs.push_back(&sphere);
 
     // load programs =============
