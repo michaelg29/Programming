@@ -121,8 +121,8 @@ int main()
 
     // add instances ===============
     // axes
-    arrow.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::cyan_plastic); // x
-    arrow.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::green_plastic); // y
+    //arrow.addInstance(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::cyan_plastic); // x
+    //arrow.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::green_plastic); // y
     arrow.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, Material::red_plastic); // z
     // sphere
     sphere.addInstance(glm::vec3(0.0f), glm::vec3(0.05f), Material::white_plastic);
@@ -131,7 +131,7 @@ int main()
     //programs.push_back(&rect);
     programs.push_back(&arrow);
     //programs.push_back(&surface);
-    programs.push_back(&sphere);
+    //programs.push_back(&sphere);
 
     // load programs =============
     for (Program* program : programs)
