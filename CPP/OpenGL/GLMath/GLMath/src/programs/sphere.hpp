@@ -6,10 +6,12 @@
 #include <vector>
 
 #include "program.h"
+#include "../io/keyboard.h"
 #include "../rendering/shader.h"
 #include "../rendering/material.h"
 #include "../rendering/vertexmemory.hpp"
 #include "../rendering/uniformmemory.hpp"
+#include "../rendering/transition.hpp"
 
 #ifndef SPHERE_HPP
 #define SPHERE_HPP
@@ -29,9 +31,14 @@ class Sphere : public Program {
 
 	ArrayObject VAO;
 
+	CubicBezier<glm::vec3> transition;
+	bool transitionStarted;
+
 public:
 	Sphere(unsigned int maxNoInstances)
-		: maxNoInstances(maxNoInstances), noInstances(0) {}
+		: maxNoInstances(maxNoInstances), noInstances(0),
+		  transition(CubicBezier<glm::vec3>::newEaseTransition(glm::vec3(0.0f), glm::vec3(1.0f), 1.0)),
+		  transitionStarted(false) {}
 
 	void load() {
 		shader = Shader(false, "3d/sphere.vs", "3d/dirlight.fs");
@@ -81,7 +88,7 @@ public:
 		int sp_idx = noVertices;
 		vertices.push_back(glm::vec3(0.0f, 1.0f, 0.0f)); // north pole
 		int np_idx = noVertices + 1;
-		for (int i = 0; i < res; i++) {
+		for (unsigned int i = 0; i < res; i++) {
 			// south pole
 			indices.push_back(sp_idx);
 			indices.push_back(i); // current vertex
@@ -109,35 +116,38 @@ public:
 		VAO["EBO"].bind();
 		VAO["EBO"].setData<GLuint>((GLuint)indices.size(), &indices[0], GL_STATIC_DRAW);
 
-		VAO["offsetVBO"] = BufferObject(GL_ARRAY_BUFFER);
-		VAO["offsetVBO"].generate();
-		VAO["offsetVBO"].bind();
-		VAO["offsetVBO"].setData<glm::vec3>(noInstances, &offsets[0], GL_STATIC_DRAW);
-		VAO["offsetVBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 3, 0, 1);
+		if (noInstances > 0)
+		{
+			VAO["offsetVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["offsetVBO"].generate();
+			VAO["offsetVBO"].bind();
+			VAO["offsetVBO"].setData<glm::vec3>(noInstances, &offsets[0], GL_DYNAMIC_DRAW);
+			VAO["offsetVBO"].setAttPointer<GLfloat>(1, 3, GL_FLOAT, 3, 0, 1);
 
-		VAO["sizeVBO"] = BufferObject(GL_ARRAY_BUFFER);
-		VAO["sizeVBO"].generate();
-		VAO["sizeVBO"].bind();
-		VAO["sizeVBO"].setData<glm::vec3>(noInstances, &sizes[0], GL_STATIC_DRAW);
-		VAO["sizeVBO"].setAttPointer<GLfloat>(2, 3, GL_FLOAT, 3, 0, 1);
+			VAO["sizeVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["sizeVBO"].generate();
+			VAO["sizeVBO"].bind();
+			VAO["sizeVBO"].setData<glm::vec3>(noInstances, &sizes[0], GL_STATIC_DRAW);
+			VAO["sizeVBO"].setAttPointer<GLfloat>(2, 3, GL_FLOAT, 3, 0, 1);
 
-		VAO["ambVBO"] = BufferObject(GL_ARRAY_BUFFER);
-		VAO["ambVBO"].generate();
-		VAO["ambVBO"].bind();
-		VAO["ambVBO"].setData<glm::vec4>(noInstances, &ambient[0], GL_STATIC_DRAW);
-		VAO["ambVBO"].setAttPointer<GLfloat>(3, 4, GL_FLOAT, 4, 0, 1);
+			VAO["ambVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["ambVBO"].generate();
+			VAO["ambVBO"].bind();
+			VAO["ambVBO"].setData<glm::vec4>(noInstances, &ambient[0], GL_STATIC_DRAW);
+			VAO["ambVBO"].setAttPointer<GLfloat>(3, 4, GL_FLOAT, 4, 0, 1);
 
-		VAO["diffVBO"] = BufferObject(GL_ARRAY_BUFFER);
-		VAO["diffVBO"].generate();
-		VAO["diffVBO"].bind();
-		VAO["diffVBO"].setData<glm::vec3>(noInstances, &diffuse[0], GL_STATIC_DRAW);
-		VAO["diffVBO"].setAttPointer<GLfloat>(4, 3, GL_FLOAT, 3, 0, 1);
+			VAO["diffVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["diffVBO"].generate();
+			VAO["diffVBO"].bind();
+			VAO["diffVBO"].setData<glm::vec3>(noInstances, &diffuse[0], GL_STATIC_DRAW);
+			VAO["diffVBO"].setAttPointer<GLfloat>(4, 3, GL_FLOAT, 3, 0, 1);
 
-		VAO["specularVBO"] = BufferObject(GL_ARRAY_BUFFER);
-		VAO["specularVBO"].generate();
-		VAO["specularVBO"].bind();
-		VAO["specularVBO"].setData<glm::vec3>(noInstances, &specular[0], GL_STATIC_DRAW);
-		VAO["specularVBO"].setAttPointer<GLfloat>(5, 3, GL_FLOAT, 3, 0, 1);
+			VAO["specularVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["specularVBO"].generate();
+			VAO["specularVBO"].bind();
+			VAO["specularVBO"].setData<glm::vec3>(noInstances, &specular[0], GL_STATIC_DRAW);
+			VAO["specularVBO"].setAttPointer<GLfloat>(5, 3, GL_FLOAT, 3, 0, 1);
+		}
 	}
 
 	bool addInstance(glm::vec3 offset, glm::vec3 size, Material material) {
@@ -155,6 +165,23 @@ public:
 		noInstances++;
 
 		return true;
+	}
+
+	void keyChanged(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		if (Keyboard::keyWentDown(GLFW_KEY_T)) {
+			transitionStarted = !transitionStarted;
+		}
+	}
+
+	bool update(double dt) {
+		if (transitionStarted && noInstances) {
+			offsets[0] = transition.update(dt);
+			VAO["offsetVBO"].bind();
+			VAO["offsetVBO"].updateData<glm::vec3>(0, noInstances, &offsets[0]);
+			return true;
+		}
+
+		return false;
 	}
 
 	void render() {
