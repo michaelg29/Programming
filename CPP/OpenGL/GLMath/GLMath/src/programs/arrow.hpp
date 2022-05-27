@@ -29,13 +29,13 @@ class Arrow : public Program {
 
 	ArrayObject VAO;
 
-	CubicBezier<glm::vec3> transition;
+	StepTransition<glm::vec3> transition;
 	bool transitionStarted;
 
 public:
 	Arrow(unsigned int maxNoInstances)
 		: maxNoInstances(maxNoInstances), noInstances(0),
-		transition(CubicBezier<glm::vec3>::newEaseTransition(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f), 3.0)),
+		transition(StepTransition<glm::vec3>(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f), 3.0, 5)),
 		transitionStarted(false) {}
 
 	void load() {
@@ -175,7 +175,7 @@ public:
 			VAO["matVBO"].bind();
 			VAO["matVBO"].updateData<glm::mat4>(0, noInstances, &mats[0]);
 
-			normalMats[0] = glm::transpose(glm::inverse(mats[0]));
+			normalMats[0] = glm::mat3(mats[0]);
 			VAO["normMatVBO"].bind();
 			VAO["normMatVBO"].updateData<glm::mat3>(0, noInstances, &normalMats[0]);
 

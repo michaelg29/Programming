@@ -37,15 +37,13 @@ public:
 
 template <typename T>
 class ProportionalTransition : public Transition<T> {
-	transition_function func;
-
 	double func_0;
 	double func_1;
 	double range;
 
 	T calculateNew() {
 		// calculate proportion of progression
-		float prop = (calculateProportion(this->cur_t) - func_0) / range;
+		float prop = (float)((calculateProportion(this->cur_t) - func_0) / range);
 		// linear interpolation to get transition value
 		return (1.0f - prop) * this->start + prop * this->end;
 	}
@@ -57,16 +55,29 @@ protected:
 public:
 	ProportionalTransition(T start, T end, double duration)
 		: Transition<T>(start, end, duration), func_0(0.0), func_1(1.0), range(1.0) {
-		if (func) {
-			func_0 = calculateProportion(0.0);
-			func_1 = calculateProportion(1.0);
-			range = func_1 - func_0;
-		}
+		func_0 = calculateProportion(0.0);
+		func_1 = calculateProportion(1.0);
+		range = func_1 - func_0;
 	}
+};
+
+template <typename T>
+class StepTransition : public ProportionalTransition<T> {
+	unsigned int steps;
+
+	double calculateProportion(double t) {
+		return floor(t * (double)steps) / (double)steps;
+	}
+
+public:
+	StepTransition(T start, T end, double duration, unsigned int steps)
+		: ProportionalTransition<T>(start, end, duration), steps(steps) { }
 };
 
 template<typename T>
 class CubicBezier : public ProportionalTransition<T> {
+	glm::f64vec2 t0, t1, t2, t3;
+
 	double calculateProportion(double t) {
 		double cur_t1 = 1 - t;
 
@@ -77,8 +88,6 @@ class CubicBezier : public ProportionalTransition<T> {
 
 		return val.y;
 	}
-
-	glm::f64vec2 t0, t1, t2, t3;
 
 public:
 	CubicBezier(T start,
