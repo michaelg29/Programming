@@ -6,6 +6,7 @@
 #include "rendering/shader.h"
 #include "rendering/uniformmemory.hpp"
 #include "rendering/material.h"
+#include "programs/cylinder.hpp"
 #include "programs/rectangle.hpp"
 #include "programs/arrow.hpp"
 #include "programs/surface.hpp"
@@ -69,6 +70,7 @@ Rectangle rect;
 Arrow arrow(3);
 Surface surface(glm::vec2(-10.0f), glm::vec2(10.0f), 200, 200, -10.0f, 10.0f, Material::yellow_plastic);
 Sphere sphere(10);
+Cylinder cylinder(10);
 
 std::vector<Program*> programs;
 
@@ -126,12 +128,14 @@ int main()
     arrow.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, Material::red_plastic); // z
     // sphere
     sphere.addInstance(glm::vec3(0.0f), glm::vec3(0.05f), Material::white_plastic);
+    cylinder.addInstance(glm::vec3(1.0f), glm::vec3(1.0f), Material::bronze);
 
     // register programs =============
     //programs.push_back(&rect);
     programs.push_back(&arrow);
     //programs.push_back(&surface);
     //programs.push_back(&sphere);
+    programs.push_back(&cylinder);
 
     // load programs =============
     for (Program* program : programs)

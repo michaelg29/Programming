@@ -159,6 +159,7 @@
     <None Include="assets\shaders\2d\grid.vs" />
     <None Include="assets\shaders\3d\arrow.gs" />
     <None Include="assets\shaders\3d\arrow.vs" />
+    <None Include="assets\shaders\3d\cylinder.vs" />
     <None Include="assets\shaders\3d\dirlight.fs" />
     <None Include="assets\shaders\3d\sphere.vs" />
     <None Include="assets\shaders\3d\surface.gs" />
@@ -170,6 +171,7 @@
     <ClInclude Include="src\io\keyboard.h" />
     <ClInclude Include="src\io\mouse.h" />
     <ClInclude Include="src\programs\arrow.hpp" />
+    <ClInclude Include="src\programs\cylinder.hpp" />
     <ClInclude Include="src\programs\rectangle.hpp" />
     <ClInclude Include="src\programs\sphere.hpp" />
     <ClInclude Include="src\programs\surface.hpp" />
@@ -178,6 +180,7 @@
     <ClInclude Include="src\rendering\shader.h" />
     <ClInclude Include="src\rendering\transition.hpp" />
     <ClInclude Include="src\rendering\uniformmemory.hpp" />
+    <ClInclude Include="src\rendering\vertex.hpp" />
     <ClInclude Include="src\rendering\vertexmemory.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

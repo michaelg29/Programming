@@ -53,6 +53,7 @@
     <None Include="assets\shaders\2d\rectangle.fs" />
     <None Include="assets\shaders\2d\rectangle.vs" />
     <None Include="assets\shaders\3d\sphere.vs" />
+    <None Include="assets\shaders\3d\cylinder.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\rendering\shader.h">
@@ -92,6 +93,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\rendering\transition.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\programs\cylinder.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\rendering\vertex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
