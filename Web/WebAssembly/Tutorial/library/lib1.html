@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WebAssembly example</title>
+
+    <script>
+        var memory = new WebAssembly.Memory({
+            initial: 10,
+            maximum: 100
+        });
+
+        function run_ws() {
+            WebAssembly.instantiateStreaming(fetch("lib1.wasm"), {
+                js : {mem: memory}
+            }).then(results => {
+                var n = document.querySelector("#a").value;
+                var sum = results.instance.exports.sumOfFirstNInts(n);
+                
+                console.log(`${n} => ${sum}`);
+                document.querySelector("#ret")
+                    .innerHTML += `${n} => ${sum}<br/>`;
+            });
+        }
+    </script>
+  </head>
+  
+  <body>
+    <h1>WebAssembly in C</h1>
+    <div style="display: inline-block;">
+        <input id="a" type="number" />
+        <label>+</label>
+        <input id="b" type="number" />
+        <button id="run_button" onclick="run_ws()">=</button>
+        <label id="ret"></label>
+    </div>
+  </body>
+</html>
