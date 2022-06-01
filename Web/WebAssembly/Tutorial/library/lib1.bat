@@ -1,0 +1,1 @@
+emcc src1.c src2.c -o lib1.js
