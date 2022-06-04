@@ -8,12 +8,11 @@ layout (location = 4) in vec3 size;
 layout (location = 5) in vec3 diff;
 layout (location = 6) in vec4 spec;
 
+out vec2 tex;
 out vec3 fragPos;
 out vec3 normal;
-
-out vec4 fragColor;
-out vec4 diffuse;
-out vec4 specular;
+out vec3 diffMap;
+out vec3 specMap;
 out float shininess;
 
 uniform mat4 projView;
@@ -23,8 +22,7 @@ void main() {
 	gl_Position = projView * vec4(fragPos, 1.0);
 	normal = norm;
 
-	fragColor = vec4(diff, 1.0);
-	diffuse = vec4(diff, 1.0);
-	specular = vec4(spec.rgb, 1.0);
+	diffMap = diff;
+	specMap = spec.rgb;
 	shininess = spec.a;
 }

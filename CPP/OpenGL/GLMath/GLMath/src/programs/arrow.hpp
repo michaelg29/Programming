@@ -39,7 +39,7 @@ public:
 		transitionStarted(false) {}
 
 	void load() {
-		shader = Shader(false, "3d/arrow.vs", "3d/dirlight.fs", "3d/arrow.gs");
+		shader = Shader(false, "3d/arrow.vert", "3d/dirlight.frag", "3d/arrow.geom");
 
 		VAO.generate();
 		VAO.bind();

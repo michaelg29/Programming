@@ -25,9 +25,8 @@ class Sphere : public Program {
 
 	std::vector<glm::vec3> offsets;
 	std::vector<glm::vec3> sizes;
-	std::vector<glm::vec4> ambient;
 	std::vector<glm::vec3> diffuse;
-	std::vector<glm::vec3> specular;
+	std::vector<glm::vec4> specular;
 
 	ArrayObject VAO;
 
@@ -41,7 +40,7 @@ public:
 		  transitionStarted(false) {}
 
 	void load() {
-		shader = Shader(false, "3d/sphere.vs", "3d/dirlight.fs");
+		shader = Shader(false, "3d/sphere.vert", "3d/dirlight.frag");
 
 		// generate vertices
 		unsigned int res = 100;
@@ -130,23 +129,17 @@ public:
 			VAO["sizeVBO"].setData<glm::vec3>(noInstances, &sizes[0], GL_STATIC_DRAW);
 			VAO["sizeVBO"].setAttPointer<GLfloat>(2, 3, GL_FLOAT, 3, 0, 1);
 
-			VAO["ambVBO"] = BufferObject(GL_ARRAY_BUFFER);
-			VAO["ambVBO"].generate();
-			VAO["ambVBO"].bind();
-			VAO["ambVBO"].setData<glm::vec4>(noInstances, &ambient[0], GL_STATIC_DRAW);
-			VAO["ambVBO"].setAttPointer<GLfloat>(3, 4, GL_FLOAT, 4, 0, 1);
-
 			VAO["diffVBO"] = BufferObject(GL_ARRAY_BUFFER);
 			VAO["diffVBO"].generate();
 			VAO["diffVBO"].bind();
 			VAO["diffVBO"].setData<glm::vec3>(noInstances, &diffuse[0], GL_STATIC_DRAW);
-			VAO["diffVBO"].setAttPointer<GLfloat>(4, 3, GL_FLOAT, 3, 0, 1);
+			VAO["diffVBO"].setAttPointer<GLfloat>(3, 3, GL_FLOAT, 3, 0, 1);
 
 			VAO["specularVBO"] = BufferObject(GL_ARRAY_BUFFER);
 			VAO["specularVBO"].generate();
 			VAO["specularVBO"].bind();
-			VAO["specularVBO"].setData<glm::vec3>(noInstances, &specular[0], GL_STATIC_DRAW);
-			VAO["specularVBO"].setAttPointer<GLfloat>(5, 3, GL_FLOAT, 3, 0, 1);
+			VAO["specularVBO"].setData<glm::vec4>(noInstances, &specular[0], GL_STATIC_DRAW);
+			VAO["specularVBO"].setAttPointer<GLfloat>(4, 4, GL_FLOAT, 4, 0, 1);
 		}
 	}
 
@@ -158,9 +151,8 @@ public:
 
 		offsets.push_back(offset);
 		sizes.push_back(size);
-		ambient.push_back(glm::vec4(material.ambient, material.shininess));
 		diffuse.push_back(material.diffuse);
-		specular.push_back(material.specular);
+		specular.push_back(glm::vec4(material.specular, material.shininess));
 
 		noInstances++;
 
@@ -195,7 +187,6 @@ public:
 
 		offsets.clear();
 		sizes.clear();
-		ambient.clear();
 		diffuse.clear();
 		specular.clear();
 

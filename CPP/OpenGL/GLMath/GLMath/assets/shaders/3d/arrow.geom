@@ -23,11 +23,11 @@ in VS_OUT {
 	float shininess;
 } gs_in[];
 
+out vec2 tex;
 out vec3 fragPos;
 out vec3 normal;
-out vec4 fragColor;
-out vec4 diffuse;
-out vec4 specular;
+out vec3 diffMap;
+out vec3 specMap;
 out float shininess;
 
 uniform mat4 projView;
@@ -77,9 +77,8 @@ void buildHead(float head_radius, float mag, float head_height) {
 
 void main() {
 	// extract data from vertex shader
-	fragColor = vec4(gs_in[0].color, 1.0); // color for fragment shader
-	diffuse = vec4(gs_in[0].diffuse, 1.0);
-	specular = vec4(gs_in[0].specular, 1.0);
+	diffMap = gs_in[0].diffuse;
+	specMap = gs_in[0].specular;
 	shininess = gs_in[0].shininess;
 	
 	model = gs_in[0].model; // transormation matrix
