@@ -14,59 +14,81 @@
 
 class Surface : public Program {
 	ArrayObject VAO;
-	int x_len;
-	int y_len;
-	glm::vec4 bounds;
+	int x_cells;
+	int z_cells;
 	glm::vec4 dim; // x_inc, y_inc, z_min, z_max
 	Material material;
 	unsigned int noPoints;
 	UBO::UBO uniformObject;
 
+	unsigned int noInstances;
+	unsigned int maxNoInstances;
+	std::vector<glm::vec4> bounds;
+	std::vector<glm::vec2> inc;
+	std::vector<glm::vec3> diffuse;
+	std::vector<glm::vec4> specular; // rgb, shininess
+
 public:
-	Surface(glm::vec2 start, glm::vec2 end, int x_cells, int z_cells, float minY, float maxY, Material material) 
-		: uniformObject({
-			UBO::newVec(4), // startXZ, endXZ
-			UBO::newVec(4), // x_inc, z_inc, y_min, y_max
-			UBO::newVec(3), // ambient
-			UBO::newVec(3), // diffuse
-			UBO::newVec(3), // specular
-			UBO::newScalar() // shininess
-			}),
-			bounds(start, end), material(material), noPoints(x_cells * z_cells),
-			x_len(x_cells), y_len(z_cells) {
+	Surface(unsigned int maxNoInstances, int x_cells, int z_cells)
+		: maxNoInstances(maxNoInstances), noInstances(0), x_cells(x_cells), z_cells(z_cells), noPoints(x_cells * z_cells) {}
+
+	bool addInstance(glm::vec2 start, glm::vec2 end, Material material) {
+		if (noInstances >= maxNoInstances) {
+			return false;
+		}
+
 		float x_inc = (end.x - start.x) / (float)x_cells;
-		float y_inc = (end.y - start.y) / (float)z_cells;
-		dim = glm::vec4(x_inc, y_inc, minY, maxY);
+		float z_inc = (end.y - start.y) / (float)z_cells;
+
+		bounds.push_back(glm::vec4(start, end));
+		inc.push_back(glm::vec2(x_inc, z_inc));
+		diffuse.push_back(material.diffuse);
+		specular.push_back(glm::vec4(material.specular, material.shininess));
+
+		noInstances++;
+		return true;
 	}
 
 	void load() {
-		shader = Shader(false, "3d/surface.vs", "3d/dirlight.fs", "3d/surface.gs");
+		shader = Shader(false, "3d/surface.vert", "3d/dirlight.frag", "3d/surface.geom");
 		shader.activate();
-		shader.setInt("x_len", x_len);
-		shader.setInt("y_len", y_len);
+		shader.setInt("x_cells", x_cells);
+		shader.setInt("z_cells", z_cells);
 
 		VAO.generate();
+		VAO.bind();
 
-		uniformObject.attachToShader(shader, "SurfaceUniform");
-		// generate/bind
-		uniformObject.generate();
-		uniformObject.bind();
-		uniformObject.initNullData(GL_STATIC_DRAW);
-		uniformObject.bindRange();
+		if (noInstances) {
+			VAO["boundsVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["boundsVBO"].generate();
+			VAO["boundsVBO"].bind();
+			VAO["boundsVBO"].setData<glm::vec4>(noInstances, &bounds[0], GL_STATIC_DRAW);
+			VAO["boundsVBO"].setAttPointer<GLfloat>(0, 4, GL_FLOAT, 4, 0, 1);
 
-		uniformObject.startWrite();
-		uniformObject.writeElement<glm::vec4>(&bounds);
-		uniformObject.writeElement<glm::vec4>(&dim);
-		uniformObject.writeElement<glm::vec3>(&material.ambient);
-		uniformObject.writeElement<glm::vec3>(&material.diffuse);
-		uniformObject.writeElement<glm::vec3>(&material.specular);
-		uniformObject.writeElement<float>(&material.shininess);
+			VAO["incVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["incVBO"].generate();
+			VAO["incVBO"].bind();
+			VAO["incVBO"].setData<glm::vec2>(noInstances, &inc[0], GL_STATIC_DRAW);
+			VAO["incVBO"].setAttPointer<GLfloat>(1, 2, GL_FLOAT, 2, 0, 1);
+
+			VAO["diffVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["diffVBO"].generate();
+			VAO["diffVBO"].bind();
+			VAO["diffVBO"].setData<glm::vec3>(noInstances, &diffuse[0], GL_STATIC_DRAW);
+			VAO["diffVBO"].setAttPointer<GLfloat>(2, 3, GL_FLOAT, 3, 0, 1);
+
+			VAO["specularVBO"] = BufferObject(GL_ARRAY_BUFFER);
+			VAO["specularVBO"].generate();
+			VAO["specularVBO"].bind();
+			VAO["specularVBO"].setData<glm::vec4>(noInstances, &specular[0], GL_STATIC_DRAW);
+			VAO["specularVBO"].setAttPointer<GLfloat>(3, 4, GL_FLOAT, 4, 0, 1);
+		}
 	}
 
 	void render() {
 		shader.activate();
 		VAO.bind();
-		VAO.draw(GL_POINTS, 0, noPoints);
+		VAO.draw(GL_POINTS, 0, noPoints, noInstances);
 	}
 
 	void cleanup() {

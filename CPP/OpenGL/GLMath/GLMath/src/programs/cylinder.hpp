@@ -36,7 +36,7 @@ public:
         : maxNoInstances(maxNoInstances), noInstances(0) {}
 
     void load() {
-        shader = Shader(false, "3d/cylinder.vs", "3d/dirlight.fs");
+        shader = Shader(false, "3d/cylinder.vert", "3d/dirlight.frag");
 
         // generate vertices
         unsigned int res = 15;
