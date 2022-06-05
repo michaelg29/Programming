@@ -35,27 +35,48 @@ void sendVertex(vec3 pos, vec3 norm) {
 	EmitVertex();
 }
 
-float func(float x, float z) {
-	float denom = x * x + z * z;
-	if (denom == 0.0) {
-		return 300.0;
-	}
-
-	return 1 / denom;
-}
-
-vec3 norm(float x, float z) {
-	float denom = func(x, z);
-	denom *= denom;
-
-	return vec3(2 * x * denom, 2 * z * denom, 1);
-}
+//float func(float x, float z) {
+//	float denom = x * x + z * z;
+//	if (denom == 0.0) {
+//		return 300.0;
+//	}
+//
+//	return 1 / denom;
+//}
+//
+//vec3 norm(float x, float z) {
+//	float denom = func(x, z);
+//	denom *= denom;
+//
+//	return vec3(2 * x * denom, 2 * z * denom, 1);
+//}
+//
+//void calcAndSendPoint(float x, float z) {
+//	float y = func(x, z);
+//	vec3 norm = vec3(2 * x * y * y, 1, 2 * z * y * y);
+//
+//	sendVertex(vec3(x, y, z), norm);
+//}
 
 void calcAndSendPoint(float x, float z) {
-	float y = func(x, z);
-	vec3 norm = vec3(2 * x * y * y, 1, 2 * z * y * y);
+	float y = cos(x) + cos(z);
+	sendVertex(vec3(x, y, z), vec3(sin(x), 1, sin(z)));
+}
 
-	sendVertex(vec3(x, y, z), norm);
+vec3 func(float x, float z) {
+	return vec3(x, cos(x) + cos(z), z);
+}
+
+void calcPoints(float x, float z, float x_inc, float z_inc) {
+	vec3 p00 = func(x, z);
+	vec3 p01 = func(x + x_inc, z);
+	vec3 p10 = func(x, z + z_inc);
+	vec3 p11 = func(x + x_inc, z + z_inc);
+
+	sendVertex(p00, cross(p10 - p00, p01 - p00));
+	sendVertex(p01, cross(p00 - p01, p11 - p01));
+	sendVertex(p10, cross(p11 - p10, p00 - p10));
+	sendVertex(p11, cross(p01 - p11, p10 - p11));
 }
 
 uniform int x_cells;
@@ -70,9 +91,11 @@ void main() {
 	float x = (float(gs_in[0].idx % x_cells) * gs_in[0].x_inc) + gs_in[0].minBound.x;
 	float z = (float(gs_in[0].idx / z_cells) * gs_in[0].z_inc) + gs_in[0].minBound.y;
 
-	calcAndSendPoint(x, z);
-	calcAndSendPoint(x + gs_in[0].x_inc, z);
-	calcAndSendPoint(x, z + gs_in[0].z_inc);
-	calcAndSendPoint(x + gs_in[0].x_inc, z + gs_in[0].z_inc);
+	calcPoints(x, z, gs_in[0].x_inc, gs_in[0].z_inc);
+
+//	calcAndSendPoint(x, z);
+//	calcAndSendPoint(x + gs_in[0].x_inc, z);
+//	calcAndSendPoint(x, z + gs_in[0].z_inc);
+//	calcAndSendPoint(x + gs_in[0].x_inc, z + gs_in[0].z_inc);
 	EndPrimitive();
 }
