@@ -32,7 +32,7 @@ namespace HttpServer
         public static async Task Main(string[] args)
         {
             string hostDir = "view";
-            string hostUrl = "http://localhost:8080/";
+            IList<string> hostUrls = new List<string>();
             Version version = Version.V2;
 
             for (int i = 0; i < args.Length; i++)
@@ -47,7 +47,7 @@ namespace HttpServer
                     }
                     else if (args[i] == "-u")
                     {
-                        hostUrl = value;
+                        hostUrls.Add(value);
                     }
                     else if (args[i] == "-v")
                     {
@@ -63,18 +63,25 @@ namespace HttpServer
                 }
             }
 
-            Console.WriteLine($"Running {version.ToString()}, listening on {hostUrl}, content from {hostDir}");
+            if (hostUrls.Count == 0)
+            {
+                hostUrls.Add("http://localhost:8080/");
+                hostUrls.Add("http://127.0.0.1:8080/");
+                hostUrls.Add("http://+:8080/");
+            }
+
+            Console.WriteLine($"Running {version}, listening on ({string.Join(", ", hostUrls)}), content from {hostDir}");
 
             IHttpServer server;
             ILogger logger = new Logger();
             switch (version)
             {
                 case Version.V2:
-                    server = new HttpServerV2(hostDir, hostUrl, logger);
+                    server = new HttpServerV2(hostDir, hostUrls, logger);
                     ((HttpServerV2)server).RegisterRoute("/shutdown", Shutdown);
                     break;
                 default:
-                    server = new HttpServerV1(hostDir, hostUrl);
+                    server = new HttpServerV1(hostDir, hostUrls, logger);
                     break;
             }
 
