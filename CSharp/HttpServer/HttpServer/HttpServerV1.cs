@@ -8,14 +8,15 @@ using System.Text;
 using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HttpServer
 {
     class HttpServerV1 : IHttpServer
     {
-        private ILogger logger = new Logger();
+        private ILogger logger;
         private HttpListener listener;
-        private string hostUrl = "http://localhost:8080/";
+        private IEnumerable<string> hostUrls;
         private int requestCount = 0;
 
         private string hostDir = "";
@@ -29,10 +30,16 @@ namespace HttpServer
             { "/index", "index.html" }
         };
 
-        public HttpServerV1(string hostDir, string hostUrl)
+        public HttpServerV1(string hostDir, string hostUrl, ILogger logger)
+            : this(hostDir, new List<string> { hostUrl }, logger)
+        { }
+
+        public HttpServerV1(string hostDir, IEnumerable<string> hostUrls, ILogger logger)
         {
             this.hostDir = hostDir;
-            this.hostUrl = hostUrl;
+            this.hostUrls = hostUrls.ToList();
+
+            this.logger = logger;
         }
 
         private string Path(string route)
@@ -138,9 +145,12 @@ namespace HttpServer
         {
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
-            listener.Prefixes.Add(hostUrl);
+            foreach (string u in hostUrls)
+            {
+                listener.Prefixes.Add(u);
+            }
             listener.Start();
-            logger.CompleteLog($"Listening on {hostUrl}");
+            logger.CompleteLog($"Listening on {string.Join(", ", hostUrls)}");
 
             // Handle requests
             await HandleIncomingConnections();
