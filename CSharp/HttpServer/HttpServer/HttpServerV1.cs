@@ -11,61 +11,70 @@ using System.Collections.Generic;
 
 namespace HttpServer
 {
-    class HttpServer
+    class HttpServerV1 : IHttpServer
     {
-        public static ILogger logger = new Logger();
-        public static HttpListener listener;
-        public static string url = "http://localhost:8000/";
-        public static int pageViews = 0;
-        public static int requestCount = 0;
+        private ILogger logger = new Logger();
+        private HttpListener listener;
+        private string hostUrl = "http://localhost:8080/";
+        private int requestCount = 0;
 
-        private static string dir = "view";
-        private static string errorPath = "error.html";
-        private static IDictionary<string, string> routes = new Dictionary<string, string>
+        private string hostDir = "";
+        public string GetHostDir => hostDir + (hostDir.EndsWith("/") ? "" : "/");
+        public string AbsolutePath(string path) => $"{GetHostDir}{path}";
+
+        private string errorPath = "error.html";
+        private IDictionary<string, string> routes = new Dictionary<string, string>
         {
             { "/", "index.html" },
             { "/index", "index.html" }
         };
 
-        public static string Path(string route)
+        public HttpServerV1(string hostDir, string hostUrl)
+        {
+            this.hostDir = hostDir;
+            this.hostUrl = hostUrl;
+        }
+
+        private string Path(string route)
         {
             if (routes.ContainsKey(route))
             {
-                return $"{dir}/{routes[route]}";
+                return $"{hostDir}/{routes[route]}";
             }
 
             return null;
         }
 
-        public static int FetchFile(string route, out string contents, params string[] formatters)
+        private int FetchFile(string route, out string contents, out string format)
         {
             int code = 200;
             string path = Path(route);
             if (string.IsNullOrEmpty(path))
             {
                 // determine if file exists
-                if (File.Exists($"{dir}/{route}"))
+                if (File.Exists($"{hostDir}/{route}"))
                 {
-                    contents = File.ReadAllText($"{dir}/{route}");
-                    contents = string.Format(contents, formatters);
+                    contents = File.ReadAllText($"{hostDir}/{route}");
+                    format = "text";
                 }
                 else
                 {
                     // return error file
-                    contents = File.ReadAllText($"{dir}/{errorPath}");
+                    contents = File.ReadAllText($"{hostDir}/{errorPath}");
                     code = 404;
+                    format = "text/html";
                 }
             }
             else
             {
                 contents = File.ReadAllText(path);
-                contents = string.Format(contents, formatters);
+                format = "text/html";
             }
 
             return code;
         }
 
-        public static async Task HandleIncomingConnections()
+        private async Task HandleIncomingConnections()
         {
             bool running = true;
             Random rnd = new Random(DateTime.Now.Ticks.GetHashCode());
@@ -85,6 +94,13 @@ namespace HttpServer
                 logger.LogHeader("Agent", ctx.Request.UserAgent);
                 logger.CompleteLog();
 
+                // validate path
+                string path = ctx.Request.Url.AbsolutePath;
+                if (path.Contains(".."))
+                {
+                    path = "";
+                }
+
                 // If `shutdown` url requested w/ POST, then shutdown the server after serving the page
                 if ((ctx.Request.HttpMethod == "POST") && (ctx.Request.Url.AbsolutePath == "/shutdown"))
                 {
@@ -93,17 +109,22 @@ namespace HttpServer
                 }
                 string disableSubmit = !running ? "disabled" : "";
 
-                // Make sure we don't increment the page views counter if `favicon.ico` is requested
-                if (ctx.Request.Url.AbsolutePath != "/favicon.ico")
-                    pageViews += 1;
-
                 // get contents
-                int code = FetchFile(ctx.Request.Url.AbsolutePath, out string pageData, rnd.Next().ToString(), disableSubmit);
+                int code = FetchFile(path, out string pageData, out string contentType);
+                try
+                {
+                    string formatted = string.Format(pageData, rnd.Next().ToString(), disableSubmit);
+                    pageData = formatted;
+                }
+                catch
+                {
+
+                }
                 byte[] data = Encoding.UTF8.GetBytes(pageData);
 
                 // write response info
                 ctx.Response.StatusCode = code;
-                ctx.Response.ContentType = "text/html";
+                ctx.Response.ContentType = contentType;
                 ctx.Response.ContentEncoding = Encoding.UTF8;
                 ctx.Response.ContentLength64 = data.LongLength;
 
@@ -113,13 +134,13 @@ namespace HttpServer
             }
         }
 
-        public static async Task Main(string[] args)
+        public async Task RunAsync(string[] args)
         {
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
-            listener.Prefixes.Add(url);
+            listener.Prefixes.Add(hostUrl);
             listener.Start();
-            Console.WriteLine("Listening on {0}", url);
+            logger.CompleteLog($"Listening on {hostUrl}");
 
             // Handle requests
             await HandleIncomingConnections();
@@ -129,3 +150,61 @@ namespace HttpServer
         }
     }
 }
+
+/*
+             * Type application
+
+application/java-archive
+application/EDI-X12   
+application/EDIFACT   
+application/javascript   
+application/octet-stream   
+application/ogg   
+application/pdf  
+application/xhtml+xml   
+application/x-shockwave-flash    
+application/json  
+application/ld+json  
+application/xml   
+application/zip  
+application/x-www-form-urlencoded  
+Type audio
+
+audio/mpeg   
+audio/x-ms-wma   
+audio/vnd.rn-realaudio   
+audio/x-wav   
+Type image
+
+image/gif   
+image/jpeg   
+image/png   
+image/tiff    
+image/vnd.microsoft.icon    
+image/x-icon   
+image/vnd.djvu   
+image/svg+xml    
+Type multipart
+
+multipart/mixed    
+multipart/alternative   
+multipart/related (using by MHTML (HTML mail).)  
+multipart/form-data  
+Type text
+
+text/css    
+text/csv    
+text/html    
+text/javascript (obsolete)    
+text/plain    
+text/xml    
+Type video
+
+video/mpeg    
+video/mp4    
+video/quicktime    
+video/x-ms-wmv    
+video/x-msvideo    
+video/x-flv   
+video/webm  
+             */
