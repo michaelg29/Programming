@@ -16,7 +16,7 @@ namespace HttpServer
     {
         private ILogger logger;
         private HttpListener listener;
-        private IEnumerable<string> hostUrls;
+        private string hostUrl;
         private int requestCount = 0;
 
         private string hostDir = "";
@@ -31,13 +31,9 @@ namespace HttpServer
         };
 
         public HttpServerV1(string hostDir, string hostUrl, ILogger logger)
-            : this(hostDir, new List<string> { hostUrl }, logger)
-        { }
-
-        public HttpServerV1(string hostDir, IEnumerable<string> hostUrls, ILogger logger)
         {
             this.hostDir = hostDir;
-            this.hostUrls = hostUrls.ToList();
+            this.hostUrl = hostUrl;
 
             this.logger = logger;
         }
@@ -145,12 +141,9 @@ namespace HttpServer
         {
             // Create a Http server and start listening for incoming connections
             listener = new HttpListener();
-            foreach (string u in hostUrls)
-            {
-                listener.Prefixes.Add(u);
-            }
+            listener.Prefixes.Add(hostUrl);
             listener.Start();
-            logger.CompleteLog($"Listening on {string.Join(", ", hostUrls)}");
+            logger.CompleteLog($"Listening on {hostUrl}");
 
             // Handle requests
             await HandleIncomingConnections();
