@@ -24,18 +24,69 @@ namespace HttpServer
         private string notFoundPath = "notFound.html";
         private string errorPath = "error.html";
 
-        private IDictionary<string, Func<IHttpServer, HttpListenerContext, Task<bool>>> routes;
+        private IDictionary<string, Func<HttpServerV2, Task<bool>>> routes;
+
+        private HttpListenerContext ctx;
+
+        public HttpListenerRequest Request
+        {
+            get => ctx.Request;
+        }
+
+        public HttpStatusCode ResponseCode
+        {
+            set
+            {
+                if (ctx != null)
+                {
+                    ctx.Response.StatusCode = (int)value;
+                }
+            }
+        }
+
+        public long ContentLength
+        {
+            set
+            {
+                if (ctx != null)
+                {
+                    ctx.Response.ContentLength64 = value;
+                }
+            }
+        }
+
+        public string ContentType
+        {
+            set
+            {
+                if (ctx != null)
+                {
+                    ctx.Response.ContentType = value;
+                }
+            }
+        }
+
+        public string FileExt
+        {
+            set
+            {
+                if (ctx != null)
+                {
+                    ContentType = GetMimeType(value);
+                }
+            }
+        }
 
         public HttpServerV2(string hostDir, string hostUrl, ILogger logger)
         {
             this.hostDir = hostDir;
             this.hostUrl = hostUrl;
-            this.routes = new Dictionary<string, Func<IHttpServer, HttpListenerContext, Task<bool>>>();
+            this.routes = new Dictionary<string, Func<HttpServerV2, Task<bool>>>();
 
             this.logger = logger;
         }
 
-        public void RegisterRoute(string route, Func<IHttpServer, HttpListenerContext, Task<bool>> action)
+        public void RegisterRoute(string route, Func<HttpServerV2, Task<bool>> action)
         {
             routes[route] = action;
         }
@@ -46,38 +97,39 @@ namespace HttpServer
             string route = ctx.Request.Url.AbsolutePath;
             if (routes.ContainsKey(route))
             {
-                return await routes[route](this, ctx);
+                return await routes[route](this);
             }
 
             // look for physical file
-            if (File.Exists($"{hostDir}{route}"))
+            if (File.Exists(AbsolutePath(route)))
             {
-                string contentType = GetMimeType(route);
-
                 // write file
                 try
                 {
-                    await WriteFile(ctx.Response, AbsolutePath(route), HttpStatusCode.OK, contentType);
+                    this.ResponseCode = HttpStatusCode.OK;
+                    await SendFileAsync(AbsolutePath(route));
                     return true;
                 }
                 catch (HttpListenerException e)
                 {
                     // return error
-                    await WriteFile(ctx.Response, AbsolutePath(errorPath), HttpStatusCode.InternalServerError);
+                    this.ResponseCode = HttpStatusCode.InternalServerError;
                     logger.CompleteLog($"HTTP exception: {e.Message}");
                     return true;
                 }
                 catch (Exception e)
                 {
                     // return error
-                    await WriteFile(ctx.Response, AbsolutePath(errorPath), HttpStatusCode.InternalServerError);
+                    this.ResponseCode = HttpStatusCode.InternalServerError;
+                    //await SendFileAsync(AbsolutePath(errorPath));
                     logger.CompleteLog($"Generic exception: {e.Message}");
                     return true;
                 }
             }
 
             // return not found
-            await WriteFile(ctx.Response, AbsolutePath(notFoundPath), HttpStatusCode.NotFound);
+            this.ResponseCode = HttpStatusCode.NotFound;
+            await SendFileAsync(AbsolutePath(notFoundPath));
             return true;
         }
 
@@ -93,7 +145,7 @@ namespace HttpServer
             bool running = true;
             while (running)
             {
-                HttpListenerContext ctx = await listener.GetContextAsync();
+                ctx = await listener.GetContextAsync();
 
                 // log the request
                 logger.LogMessage("New Request ========");
@@ -113,48 +165,72 @@ namespace HttpServer
                 logger.CompleteLog();
 
                 ctx.Response.Close();
+                ctx = null;
             }
 
             // Close the listener
             listener.Close();
         }
 
-        public static async Task WriteString(HttpListenerResponse response, string content, HttpStatusCode statusCode = HttpStatusCode.OK, string contentType = "text/html")
+        public async Task SendFileAsync(string filePath)
         {
-            await WriteContent(response, Encoding.UTF8.GetBytes(content), statusCode, contentType);
-        }
-
-        public static async Task WriteFile(HttpListenerResponse response, string filePath, HttpStatusCode statusCode = HttpStatusCode.OK, string contentType = "text/html")
-        {
-            response.OutputStream.Flush();
-
+            // open stream
             Stream input = new FileStream(filePath, FileMode.Open);
 
-            //Adding permanent http response headers
-            response.ContentType = contentType;
-            response.ContentLength64 = input.Length;
-            response.AddHeader("Date", DateTime.Now.ToString("r"));
+            try
+            {
+                // set header values
+                this.FileExt = filePath;
+                this.ContentLength = input.Length;
+                ctx.Response.ContentEncoding = Encoding.UTF8;
+                //ctx.Response.SendChunked = true;
 
-            byte[] buffer = new byte[1024 * 16];
-            int nbytes;
-            while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
-                response.OutputStream.Write(buffer, 0, nbytes);
-            input.Close();
+                // read in blocks
+                byte[] buffer = new byte[1024 * 64];
+                int nbytes;
+                while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ctx.Response.OutputStream.Write(buffer, 0, nbytes);
+                    ctx.Response.OutputStream.Flush();
+                }
+                input.Close();
+            }
+            catch
+            {
+                input.Close();
+                throw;
+            }
 
-            response.StatusCode = (int)statusCode;
-            response.OutputStream.Flush();
+            // flush
+            ctx.Response.OutputStream.Flush();
         }
 
-        public static async Task WriteContent(HttpListenerResponse response, byte[] data, HttpStatusCode statusCode = HttpStatusCode.OK, string contentType = "text/html")
+        public async Task SendFileFormattedAsync(string filePath, params string[] args)
         {
-            response.StatusCode = (int)statusCode;
-            response.ContentType = contentType;
-            response.ContentEncoding = Encoding.UTF8;
-            response.ContentLength64 = data.LongLength;
+            ctx.Response.OutputStream.Flush();
 
-            await response.OutputStream.WriteAsync(data, 0, data.Length);
+            string content = File.ReadAllText(AbsolutePath(filePath));
+            try
+            {
+                string formatted = string.Format(content, args);
+                content = formatted;
+            }
+            catch (Exception e)
+            {
+                logger.CompleteLog($"Could not format file: {e.Message}");
+            }
+
+            this.FileExt = filePath;
+            this.ContentLength = content.Length;
+            ctx.Response.ContentEncoding = Encoding.UTF8;
+
+            byte[] buffer = Encoding.UTF8.GetBytes(content);
+            await ctx.Response.OutputStream.WriteAsync(buffer, 0, content.Length);
+
+            // flush
+            ctx.Response.OutputStream.Flush();
         }
-
+        
         private static readonly IDictionary<string, string> mimeTypes = new Dictionary<string, string> 
         {
             { ".asf", "video/x-ms-asf" },
@@ -231,7 +307,6 @@ namespace HttpServer
             int nextSlash = route.IndexOf('/', lastDot);
             if (nextSlash == -1 && lastDot != -1)
             {
-                nextSlash = route.Length;
                 ext = route.Substring(lastDot);
             }
             else if (lastDot != -1)
@@ -243,7 +318,7 @@ namespace HttpServer
             {
                 return mimeTypes[ext];
             }
-            return "text";
+            return "application/octet-stream";
         }
     }
 }

@@ -15,18 +15,16 @@ namespace HttpServer
 
     class Program
     {
-        public static async Task<bool> Shutdown(IHttpServer server, HttpListenerContext ctx)
+        public static async Task<bool> Shutdown(HttpServerV2 server)
         {
-            if (ctx.Request.HttpMethod == "POST")
-            {
-                await HttpServerV2.WriteFile(ctx.Response, server.AbsolutePath("post_goodbye.html"));
-            }
-            else
-            {
-                await HttpServerV2.WriteFile(ctx.Response, server.AbsolutePath("goodbye.html"));
-            }
-
             return false;
+        }
+
+        public static async Task<bool> Index(HttpServerV2 server)
+        {
+            await server.SendFileFormattedAsync("index.html", "random number", "");
+
+            return true;
         }
 
         public static async Task Main(string[] args)
@@ -72,6 +70,7 @@ namespace HttpServer
                 case Version.V2:
                     server = new HttpServerV2(hostDir, hostUrl, logger);
                     ((HttpServerV2)server).RegisterRoute("/shutdown", Shutdown);
+                    ((HttpServerV2)server).RegisterRoute("/index", Index);
                     break;
                 default:
                     server = new HttpServerV1(hostDir, hostUrl, logger);

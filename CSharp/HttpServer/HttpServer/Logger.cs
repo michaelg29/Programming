@@ -14,7 +14,7 @@ namespace HttpServer
 
         public Logger(Func<object, string> decoder = null, Action<string> output = null)
         {
-            Decoder = decoder ?? new Func<object, string>((obj) => obj.ToString());
+            Decoder = decoder ?? new Func<object, string>((obj) => obj?.ToString());
             Output = output ?? new Action<string>((str) => Console.WriteLine(str));
         }
 
