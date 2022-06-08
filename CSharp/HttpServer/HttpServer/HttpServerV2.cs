@@ -292,6 +292,7 @@ namespace HttpServer
             { ".tk", "application/x-tcl" },
             { ".txt", "text/plain" },
             { ".war", "application/java-archive" },
+            { ".wasm", "application/wasm" },
             { ".wbmp", "image/vnd.wap.wbmp" },
             { ".wmv", "video/x-ms-wmv" },
             { ".xml", "text/xml" },
