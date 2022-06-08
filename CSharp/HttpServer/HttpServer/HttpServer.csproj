@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HttpServerV1.cs" />
+    <Compile Include="HttpServerV3.cs" />
     <Compile Include="HttpServerV2.cs" />
     <Compile Include="IHttpServer.cs" />
     <Compile Include="ILogger.cs" />
@@ -45,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
