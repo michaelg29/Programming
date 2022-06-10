@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WebAssembly example</title>
+
+    <script>
+        function run_ws() {
+            WebAssembly.instantiateStreaming(fetch("main.wasm"), {
+            }).then(results => {
+                var a = document.querySelector("#a").value;
+                var b = document.querySelector("#b").value;
+                var sum = results.instance.exports.add(a, b);
+                
+                console.log(`${a}, ${b} => ${sum}`);
+                document.querySelector("#ret")
+                    .innerHTML += `${a}, ${b} => ${sum}<br/>`;
+            });
+        }
+    </script>
+  </head>
+  
+  <body>
+    <h1>WebAssembly in C</h1>
+    <div style="display: inline-block;">
+        <input id="a" type="number" />
+        <label>+</label>
+        <input id="b" type="number" />
+        <button id="run_button" onclick="run_ws()">=</button>
+        <label id="ret"></label>
+    </div>
+  </body>
+</html>
