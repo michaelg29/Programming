@@ -1,0 +1,1 @@
+emcc main.c -o main.js -sNO_EXIT_RUNTIME=1 -sEXPORTED_RUNTIME_METHODS=ccall,cwrap

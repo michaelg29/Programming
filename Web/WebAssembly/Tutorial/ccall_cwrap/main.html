@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WebAssembly example</title>
+
+    <script src="main.js"></script>
+  </head>
+  
+  <body>
+    <script>
+        function run_ws() {
+            var result = Module.ccall(
+                'main',  // name of C function
+                null,  // return type
+                null,  // argument types
+                null  // arguments
+            );
+            console.log(result);
+            result = Module.ccall(
+                'add',
+                null,
+                [Number, Number],
+                [13,14]
+            );
+            console.log(result);
+
+            addFunc = Module.cwrap('add', 'number', ['number', 'number']);
+            console.log(addFunc(2, 2));
+        }
+    </script>
+
+    <h1>WebAssembly in C</h1>
+    <div style="display: inline-block;">
+        <input id="a" type="number" />
+        <label>+</label>
+        <input id="b" type="number" />
+        <button id="run_button" onclick="run_ws()">=</button>
+        <label id="ret"></label>
+    </div>
+  </body>
+</html>
