@@ -70,7 +70,6 @@ namespace HttpServer
         {
             string hostDir = "view";
             string hostUrl = "http://+:8080/";
-            Version version = Version.V3;
 
             for (int i = 0; i < args.Length; i++)
             {
@@ -86,45 +85,75 @@ namespace HttpServer
                     {
                         hostUrl = value;
                     }
-                    else if (args[i] == "-v")
-                    {
-                        if (Enum.TryParse(value, out Version tryVersion))
-                        {
-                            version = tryVersion;
-                        }
-                    }
-                }
-                else
-                {
-                    // switch
                 }
             }
 
-            Console.WriteLine($"Running {version}, listening on {hostUrl}, content from {hostDir}");
+            Console.WriteLine($"Listening on {hostUrl}, content from {hostDir}");
 
-            IHttpServer server;
-            ILogger logger = new Logger();
-            switch (version)
-            {
-                case Version.V3:
-                    server = new HttpServerV3(hostDir, hostUrl, logger);
-                    ((HttpServerV3)server).RegisterRoute("shutdown", ShutdownV3, HttpMethod.Post);
-                    ((HttpServerV3)server).RegisterRoute("shutdown", ShutdownV3Get);
-                    ((HttpServerV3)server).RegisterRoute("index", IndexV3);
-                    ((HttpServerV3)server).RegisterRoute("testPatchGet", IndexPatchGet, new List<HttpMethod> { new HttpMethod("Patch"), HttpMethod.Get });
-                    ((HttpServerV3)server).RegisterRoute("testPostPut", IndexPostPut, new List<HttpMethod> { HttpMethod.Post, HttpMethod.Put });
-                    break;
-                case Version.V2:
-                    server = new HttpServerV2(hostDir, hostUrl, logger);
-                    ((HttpServerV2)server).RegisterRoute("/shutdown", Shutdown);
-                    ((HttpServerV2)server).RegisterRoute("/index", Index);
-                    break;
-                default:
-                    server = new HttpServerV1(hostDir, hostUrl, logger);
-                    break;
-            }
-
+            StaticFileServer server = new StaticFileServer(hostDir, hostUrl);
+            
             await server.RunAsync(args);
         }
+
+        //public static async Task Main(string[] args)
+        //{
+        //    string hostDir = "view";
+        //    string hostUrl = "http://+:8080/";
+        //    Version version = Version.V3;
+
+        //    for (int i = 0; i < args.Length; i++)
+        //    {
+        //        if (i < args.Length - 1)
+        //        {
+        //            // valued argument
+        //            string value = args[i + 1];
+        //            if (args[i] == "-d")
+        //            {
+        //                hostDir = value;
+        //            }
+        //            else if (args[i] == "-u")
+        //            {
+        //                hostUrl = value;
+        //            }
+        //            else if (args[i] == "-v")
+        //            {
+        //                if (Enum.TryParse(value, out Version tryVersion))
+        //                {
+        //                    version = tryVersion;
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // switch
+        //        }
+        //    }
+
+        //    Console.WriteLine($"Running {version}, listening on {hostUrl}, content from {hostDir}");
+
+        //    IHttpServer server;
+        //    ILogger logger = new Logger();
+        //    switch (version)
+        //    {
+        //        case Version.V3:
+        //            server = new HttpServerV3(hostDir, hostUrl, logger);
+        //            ((HttpServerV3)server).RegisterRoute("shutdown", ShutdownV3, HttpMethod.Post);
+        //            ((HttpServerV3)server).RegisterRoute("shutdown", ShutdownV3Get);
+        //            ((HttpServerV3)server).RegisterRoute("index", IndexV3);
+        //            ((HttpServerV3)server).RegisterRoute("testPatchGet", IndexPatchGet, new List<HttpMethod> { new HttpMethod("Patch"), HttpMethod.Get });
+        //            ((HttpServerV3)server).RegisterRoute("testPostPut", IndexPostPut, new List<HttpMethod> { HttpMethod.Post, HttpMethod.Put });
+        //            break;
+        //        case Version.V2:
+        //            server = new HttpServerV2(hostDir, hostUrl, logger);
+        //            ((HttpServerV2)server).RegisterRoute("/shutdown", Shutdown);
+        //            ((HttpServerV2)server).RegisterRoute("/index", Index);
+        //            break;
+        //        default:
+        //            server = new HttpServerV1(hostDir, hostUrl, logger);
+        //            break;
+        //    }
+
+        //    await server.RunAsync(args);
+        //}
     }
 }
