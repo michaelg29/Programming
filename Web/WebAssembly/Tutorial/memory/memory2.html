@@ -6,26 +6,43 @@
     <title>WebAssembly example</title>
 
     <script>
+        var blockSize = 256;
+        var maxBlocks = 256;
         var memory = new WebAssembly.Memory({
-            initial: 10,
-            maximum: 100
+            initial: blockSize,
+            maximum: maxBlocks
         });
 
-        function run_ws() {
-            WebAssembly.instantiateStreaming(fetch("memory2.wasm"), {
-                js : {mem: memory}
-            }).then(results => {
-                var i32 = new Uint32Array(results.instance.exports.memory.buffer);
-                for (var i = 0; i < 10; i++) {
-                    i32[i] = i * 2;
+        var exports;
+        var memory;
+        WebAssembly.instantiateStreaming(fetch("memory2.wasm"), {
+                js : {
+                    mem: memory
                 }
-
-                var sum = results.instance.exports.accumulate(0, 10);
-                console.log(sum);
-
-                document.querySelector("#ret")
-                    .innerHTML += `${sum}<br/>`;
+            }).then(results => {
+                exports = results.instance.exports;
+                memory = results.instance.exports.memory;
             });
+
+        function run_ws() {
+            var i32 = new Uint32Array(memory.buffer);
+            for (var i = 0; i < 10; i++) {
+                i32[i] = i * 2;
+            }
+
+            var sum = exports.accumulate(0, 10);
+            console.log(sum);
+
+            document.querySelector("#ret")
+                .innerHTML += `${sum}<br/>`;
+        }
+
+        function copy() {
+            const array = new Uint8Array(memory.buffer, exports.getString(), 30);
+
+            var str = new TextDecoder('utf8').decode(array);
+            console.log(str);
+            navigator.clipboard.writeText(str);
         }
     </script>
   </head>
@@ -38,6 +55,7 @@
         <input id="b" type="number" />
         <button id="run_button" onclick="run_ws()">=</button>
         <label id="ret"></label>
+        <button id="copy" onclick="copy()">Copy</button>
     </div>
   </body>
 </html>
