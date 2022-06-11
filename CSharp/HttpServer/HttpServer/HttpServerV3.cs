@@ -266,7 +266,6 @@ namespace HttpServer
                 this.FileExt = filePath;
                 this.ContentLength = input.Length;
                 ctx.Response.ContentEncoding = Encoding.UTF8;
-                //ctx.Response.SendChunked = true;
 
                 // read in blocks
                 byte[] buffer = new byte[1024 * 64];
@@ -386,17 +385,7 @@ namespace HttpServer
         public static string GetMimeType(string route)
         {
             // find extension
-            string ext = null;
-            int lastDot = route.LastIndexOf('.');
-            int nextSlash = route.IndexOf('/', lastDot);
-            if (nextSlash == -1 && lastDot != -1)
-            {
-                ext = route.Substring(lastDot);
-            }
-            else if (lastDot != -1)
-            {
-                ext = route.Substring(lastDot, nextSlash - lastDot);
-            }
+            string ext = Path.GetExtension(route);
 
             if (mimeTypes.ContainsKey(ext))
             {

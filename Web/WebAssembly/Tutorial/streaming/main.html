@@ -4,24 +4,27 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>WebAssembly example</title>
-
-    <script>
-        function run_ws() {
-            WebAssembly.instantiateStreaming(fetch("main.wasm"), {
-            }).then(results => {
-                var a = document.querySelector("#a").value;
-                var b = document.querySelector("#b").value;
-                var sum = results.instance.exports.add(a, b);
-                
-                console.log(`${a}, ${b} => ${sum}`);
-                document.querySelector("#ret")
-                    .innerHTML += `${a}, ${b} => ${sum}<br/>`;
-            });
-        }
-    </script>
   </head>
   
   <body>
+    <script>
+      var addNums;
+      WebAssembly.instantiateStreaming(fetch("main.wasm"), {})
+        .then(results => {
+          addNums = results.instance.exports.add
+        });
+
+      function run_ws() {
+        var a = document.querySelector("#a").value;
+        var b = document.querySelector("#b").value;
+        var sum = addNums(a, b);
+        
+        console.log(`${a}, ${b} => ${sum}`);
+        document.querySelector("#ret")
+            .innerHTML += `${a}, ${b} => ${sum}<br/>`;
+      }
+  </script>
+
     <h1>WebAssembly in C</h1>
     <div style="display: inline-block;">
         <input id="a" type="number" />
