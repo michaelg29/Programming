@@ -1871,6 +1871,9 @@ var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__w
 var _accumulate = Module["_accumulate"] = createExportWrapper("accumulate");
 
 /** @type {function(...*):?} */
+var _getString = Module["_getString"] = createExportWrapper("getString");
+
+/** @type {function(...*):?} */
 var _main = Module["_main"] = createExportWrapper("main");
 
 /** @type {function(...*):?} */

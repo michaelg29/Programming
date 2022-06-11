@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include <emscripten.h>
 
 int main() { return 0; }
@@ -9,4 +11,9 @@ int accumulate(int *arr, int n) {
         sum += arr[--n];
     }
     return sum;
+}
+
+EMSCRIPTEN_KEEPALIVE
+const char* getString() {
+  return "Hello World!";
 }
