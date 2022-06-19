@@ -47,23 +47,11 @@ namespace HttpServer
             if (File.Exists(absoluteRoute))
             {
                 // write file
-                try
-                {
-                    ctx.Response.StatusCode = (int)HttpStatusCode.OK;
-                    await SendFileAsync(ctx.Response, absoluteRoute);
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    // return error
-                    ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    Console.WriteLine($"{e.GetType()}: {e.Message}");
-                    return true;
-                }
+                await WriteFileAsync(ctx.Response, route);
+                return true;
             }
-
             // look for directory
-            if (Directory.Exists(absoluteRoute))
+            else if (Directory.Exists(absoluteRoute))
             {
                 // generate list
                 string directoryList = "";
@@ -89,19 +77,8 @@ namespace HttpServer
                     }));
 
                 // write file
-                try
-                {
-                    ctx.Response.StatusCode = (int)HttpStatusCode.OK;
-                    await SendFileFormattedAsync(ctx.Response, dirPath, route, directoryList, fileList);
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    // return error
-                    ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    Console.WriteLine($"{e.GetType()}: {e.Message}");
-                    return true;
-                }
+                await WriteFileAsync(ctx.Response, dirPath, route, directoryList, fileList);
+                return true;
             }
 
             // return not found
@@ -146,7 +123,38 @@ namespace HttpServer
             listener.Close();
         }
 
-        public async Task SendFileAsync(HttpListenerResponse response, string filePath)
+        public async Task WriteFileAsync(HttpListenerResponse response, string filePath, params string[] args)
+        {
+            // write file
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+
+                if (args.Count() > 0)
+                {
+                    await SendFileFormattedAsync(response, AbsolutePath(filePath), args);
+                }
+                else
+                {
+                    await SendFileAsync(response, AbsolutePath(filePath));
+                }
+            }
+            catch (HttpListenerException e)
+            {
+                // return error
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                Console.WriteLine($"HttpListenerException: {e.Message}");
+            }
+            catch (Exception e)
+            {
+                // return error
+                response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                Console.WriteLine($"{e.GetType()}: {e.Message}");
+                await SendFileFormattedAsync(response, AbsolutePath(errorPath), e.GetType().ToString(), e.Message);
+            }
+        }
+
+        private async Task SendFileAsync(HttpListenerResponse response, string filePath)
         {
             // open stream
             Stream input = new FileStream(filePath, FileMode.Open);
@@ -178,11 +186,11 @@ namespace HttpServer
             response.OutputStream.Flush();
         }
 
-        public async Task SendFileFormattedAsync(HttpListenerResponse response, string filePath, params string[] args)
+        private async Task SendFileFormattedAsync(HttpListenerResponse response, string filePath, params string[] args)
         {
             response.OutputStream.Flush();
 
-            string content = File.ReadAllText(AbsolutePath(filePath));
+            string content = File.ReadAllText(filePath);
             try
             {
                 string formatted = string.Format(content, args);
