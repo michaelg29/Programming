@@ -6,13 +6,15 @@ typedef double(*transition_function)(double t);
 
 template <typename T>
 class Transition {
+private:
+	double cur_t;
+
 protected:
 	T start;
 	T end;
-	double cur_t;
 	double duration;
 	
-	virtual T calculateNew() { return end; }
+	virtual T calculateNew(double t) { return end; }
 
 public:
 	bool finished = false;
@@ -31,7 +33,7 @@ public:
 			return end;
 		}
 
-		return calculateNew();
+		return calculateNew(cur_t);
 	}
 };
 
@@ -41,9 +43,9 @@ class ProportionalTransition : public Transition<T> {
 	double func_1;
 	double range;
 
-	T calculateNew() {
+	T calculateNew(double t) {
 		// calculate proportion of progression
-		float prop = (float)((calculateProportion(this->cur_t) - func_0) / range);
+		float prop = (float)((calculateProportion(t) - func_0) / range);
 		// linear interpolation to get transition value
 		return (1.0f - prop) * this->start + prop * this->end;
 	}
@@ -106,13 +108,13 @@ template <typename T>
 class CubicBezierPath : public Transition<T> {
 	T t0, t1, t2, t3;
 
-	T calculateNew() {
-		double cur_t1 = 1 - this->cur_t;
+	T calculateNew(double t) {
+		double cur_t1 = 1 - t;
 
 		return (float)(cur_t1 * cur_t1 * cur_t1) * t0
-			+ 3 * (float)(cur_t1 * cur_t1 * this->cur_t) * t1
-			+ 3 * (float)(cur_t1 * this->cur_t * this->cur_t) * t2
-			+ (float)(this->cur_t * this->cur_t * this->cur_t) * t3;
+			+ 3 * (float)(cur_t1 * cur_t1 * t) * t1
+			+ 3 * (float)(cur_t1 * t * t) * t2
+			+ (float)(t * t * t) * t3;
 	}
 
 public:
