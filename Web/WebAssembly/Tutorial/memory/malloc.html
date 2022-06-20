@@ -15,10 +15,12 @@
 
         var loaded = false;
         var exports;
-        var memory;
-        WebAssembly.instantiateStreaming(fetch("memory2.wasm"), {
+        WebAssembly.instantiateStreaming(fetch("malloc.wasm"), {
                 js : {
                     mem: memory
+                },
+                env : {
+                    emscripten_resize_heap: function(delta) {memory.grow(delta)}
                 }
             }).then(results => {
                 loaded = true;
@@ -27,12 +29,14 @@
             });
 
         function run_ws() {
-            var i32 = new Uint32Array(memory.buffer);
+            var ptr = exports.wasmmalloc(10 * 4);
+            var i32 = new Uint32Array(memory.buffer, ptr);
             for (var i = 0; i < 10; i++) {
                 i32[i] = i * 2;
             }
 
-            var sum = exports.accumulate(0, 10);
+            var sum = exports.accumulate(ptr, 10);
+            exports.wasmfree(ptr);
             console.log(sum);
 
             document.querySelector("#ret")
@@ -40,13 +44,16 @@
         }
 
         function copy() {
-            var mem = new Uint8Array(memory.buffer, exports.getString());
+            var ptr = exports.getString();
+            var mem = new Uint8Array(memory.buffer, ptr);
             var strlen = 0;
             while (mem[strlen] != 0) strlen++;
 
             var str = new TextDecoder('utf8').decode(mem.slice(0, strlen));
             console.log(str);
             navigator.clipboard.writeText(str);
+
+            exports.wasmfree(ptr);
         }
     </script>
   </head>
