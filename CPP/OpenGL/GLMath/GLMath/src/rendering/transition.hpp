@@ -22,14 +22,10 @@ public:
 	Transition(T start, T end, double duration)
 		: start(start), end(end), cur_t(0.0), duration(duration) { }
 
-	void incrementT(double dt) {
-		cur_t += dt / duration;
-		finished = cur_t >= 1.0;
-	}
-
 	T update(double dt) {
-		incrementT(dt);
-		if (finished) {
+		cur_t += dt / duration;
+		if (cur_t >= 1.0) {
+			finished = true;
 			return end;
 		}
 
@@ -39,28 +35,19 @@ public:
 
 template <typename T>
 class ProportionalTransition : public Transition<T> {
-	double func_0;
-	double func_1;
-	double range;
-
 	T calculateNew(double t) {
 		// calculate proportion of progression
-		float prop = (float)((calculateProportion(t) - func_0) / range);
+		float prop = calculateProportion(t);
 		// linear interpolation to get transition value
 		return (1.0f - prop) * this->start + prop * this->end;
 	}
 
 protected:
-
-	virtual double calculateProportion(double t) { return t; }
+	virtual double calculateProportion(double t) { return 1.0; }
 
 public:
 	ProportionalTransition(T start, T end, double duration)
-		: Transition<T>(start, end, duration), func_0(0.0), func_1(1.0), range(1.0) {
-		func_0 = calculateProportion(0.0);
-		func_1 = calculateProportion(1.0);
-		range = func_1 - func_0;
-	}
+		: Transition<T>(start, end, duration) { }
 };
 
 template <typename T>
@@ -74,6 +61,17 @@ class StepTransition : public ProportionalTransition<T> {
 public:
 	StepTransition(T start, T end, double duration, unsigned int steps)
 		: ProportionalTransition<T>(start, end, duration), steps(steps) { }
+};
+
+template <typename T>
+class LinearTransition : public ProportionalTransition<T> {
+	double calculateProportion(double t) {
+		return t;
+	}
+
+public:
+	LinearTransition(T start, T end, double duration)
+		: ProportionalTransition<T>(start, end, duration) { }
 };
 
 template<typename T>

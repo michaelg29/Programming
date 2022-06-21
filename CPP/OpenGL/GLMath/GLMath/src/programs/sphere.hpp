@@ -30,14 +30,15 @@ class Sphere : public Program {
 
 	ArrayObject VAO;
 
-	CubicBezier<glm::vec3> transition;
+	LinearTransition<glm::vec3> transition;
 	bool transitionStarted;
 
 public:
 	Sphere(unsigned int maxNoInstances)
 		: maxNoInstances(maxNoInstances), noInstances(0),
-		  transition(CubicBezier<glm::vec3>::newEaseTransition(glm::vec3(0.0f), glm::vec3(1.0f), 1.0)),
-		  transitionStarted(false) {}
+		  //transition(CubicBezier<glm::vec3>::newEaseTransition(glm::vec3(0.0f), glm::vec3(1.0f), 1.0)),
+		transition(LinearTransition<glm::vec3>(glm::vec3(0.0f), glm::vec3(1.0f), 2.0)),
+		transitionStarted(false) {}
 
 	void load() {
 		shader = Shader(false, "3d/sphere.vert", "3d/dirlight.frag");

@@ -29,13 +29,10 @@
             });
 
         function run_ws() {
-            var ptr = exports.wasmmalloc(10 * 4);
-            var i32 = new Uint32Array(memory.buffer, ptr);
-            for (var i = 0; i < 10; i++) {
-                i32[i] = i * 2;
-            }
+            var array = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
+            var ptr = encodeArray(array, 11, 4);
 
-            var sum = exports.accumulate(ptr, 10);
+            var sum = exports.accumulate(ptr, 11);
             exports.wasmfree(ptr);
             console.log(sum);
 
@@ -44,16 +41,54 @@
         }
 
         function copy() {
-            var ptr = exports.getString();
+            var str = decodeString(exports.getString());
+            console.log(str);
+            navigator.clipboard.writeText(str);
+        }
+
+        function decodeArray(ptr, len) {
+            return new Uint8Array(memory.buffer).slice(ptr, ptr + len);
+        }
+
+        function decodeString(ptr, len) {
+            return new TextDecoder('utf8').decode(decodeArray(ptr, len));
+        }
+
+        function decodeString(ptr) {
             var mem = new Uint8Array(memory.buffer, ptr);
             var strlen = 0;
             while (mem[strlen] != 0) strlen++;
 
-            var str = new TextDecoder('utf8').decode(mem.slice(0, strlen));
-            console.log(str);
-            navigator.clipboard.writeText(str);
+            return new TextDecoder('utf8').decode(mem.slice(0, strlen));
+        }
 
-            exports.wasmfree(ptr);
+        function encodeArray(arr, len, sizeof = 1) {
+            var ptr;
+            var out;
+            switch (sizeof) {
+                case 8:
+                    ptr = exports.wasmmalloc(len * 8);
+                    out = new BigUint64Array(memory.buffer, ptr);
+                    break;
+                case 4:
+                    ptr = exports.wasmmalloc(len * 4);
+                    out = new Uint32Array(memory.buffer, ptr);
+                    break;
+                case 2:
+                    ptr = exports.wasmmalloc(len * 2);
+                    out = new Uint16Array(memory.buffer, ptr);
+                    break;
+                default:
+                    ptr = exports.wasmmalloc(len);
+                    out = new Uint8Array(memory.buffer, ptr);
+                    break;
+            }
+            
+            for (var i = 0; i < len; i++) {
+                out[i] = arr[i];
+            }
+
+            return ptr;
         }
     </script>
   </head>

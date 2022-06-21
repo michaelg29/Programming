@@ -127,7 +127,7 @@ int main()
     arrow.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.01f, 0.02f, 0.1f, Material::green_plastic); // y
     arrow.addInstance(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), 0.01f, 0.02f, 0.1f, Material::red_plastic); // z
     // sphere
-    sphere.addInstance(glm::vec3(0.0f), glm::vec3(0.05f), Material::white_plastic);
+    sphere.addInstance(glm::vec3(0.0f), glm::vec3(0.15f), Material::white_plastic);
     //cylinder.addInstance(glm::vec3(1.0f), glm::vec3(1.0f), Material::bronze);
     // surface
     surface.addInstance(glm::vec2(-10.0f), glm::vec2(10.0f), Material::yellow_plastic);
@@ -136,8 +136,8 @@ int main()
     // register programs =============
     //programs.push_back(&rect);
     programs.push_back(&arrow);
-    programs.push_back(&surface);
-    //programs.push_back(&sphere);
+    //programs.push_back(&surface);
+    programs.push_back(&sphere);
     //programs.push_back(&cylinder);
 
     // load programs =============
