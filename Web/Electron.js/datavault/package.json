@@ -14,7 +14,7 @@
     "devDependencies": {
         "electron": "^9.1.0",
         "electron-packager": "^15.0.0",
-        "express": "^4.17.1"
+        "express": "^4.17.3"
     },
     "dependencies": {
         "jquery": "^3.5.1"
