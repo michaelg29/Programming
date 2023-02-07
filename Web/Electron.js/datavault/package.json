@@ -12,8 +12,8 @@
     "author": "Michael Grieco",
     "license": "ISC",
     "devDependencies": {
-        "electron": "^9.1.0",
-        "electron-packager": "^15.0.0",
+        "electron": "^23.0.0",
+        "electron-packager": "^17.1.1",
         "express": "^4.17.1"
     },
     "dependencies": {
